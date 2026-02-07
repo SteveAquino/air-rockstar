@@ -12,9 +12,10 @@ test.describe('Hand Tracking Integration', () => {
     context,
     browserName,
   }) => {
-    // Skip in Firefox - MediaPipe Hands is optimized for Chromium
+    // Skip in Firefox/WebKit - MediaPipe Hands is optimized for Chromium
     test.skip(browserName === 'firefox', 'MediaPipe Hands not fully supported in Firefox fake streams');
     test.skip(browserName === 'webkit', 'MediaPipe Hands not fully supported in WebKit fake streams');
+
     const guitarPage = new GuitarPage(page);
     const cameraPage = new CameraPermissionPage(page, context);
 
@@ -31,15 +32,16 @@ test.describe('Hand Tracking Integration', () => {
 
     await guitarPage.takeScreenshot('hand-tracking-canvas-rendered');
   });
-  browserName,
-  }) => {
-    // Skip in Firefox - MediaPipe Hands is optimized for Chromium
-    test.skip(browserName === 'firefox', 'MediaPipe Hands not fully supported in Firefox fake streams');
-    test.skip(browserName === 'webkit', 'MediaPipe Hands not fully supported in WebKit fake streams');
+
   test('should render canvas overlay when camera is enabled on drums page', async ({
     page,
     context,
+    browserName,
   }) => {
+    // Skip in Firefox/WebKit - MediaPipe Hands is optimized for Chromium
+    test.skip(browserName === 'firefox', 'MediaPipe Hands not fully supported in Firefox fake streams');
+    test.skip(browserName === 'webkit', 'MediaPipe Hands not fully supported in WebKit fake streams');
+
     const drumsPage = new DrumsPage(page);
     const cameraPage = new CameraPermissionPage(page, context);
 
@@ -55,22 +57,19 @@ test.describe('Hand Tracking Integration', () => {
     await expect(canvas).toBeVisible();
 
     await drumsPage.takeScreenshot('hand-tracking-canvas-rendered');
-    browserName,
-  }) => {
-    // Skip in Firefox - MediaPipe Hands is optimized for Chromium
-    test.skip(browserName === 'firefox', 'MediaPipe Hands not fully supported in Firefox fake streams');
-    test.skip(browserName === 'webkit', 'MediaPipe Hands not fully supported in WebKit fake streams');
+  });
 
   test('should not render canvas before camera is enabled', async ({
     page,
-  }) => {
-    await page.goto('/guitar');
-
     browserName,
   }) => {
-    // Skip in Firefox - MediaPipe Hands is optimized for Chromium
+    // Skip in Firefox/WebKit - MediaPipe Hands is optimized for Chromium
     test.skip(browserName === 'firefox', 'MediaPipe Hands not fully supported in Firefox fake streams');
-    test.skip(browserName === 'webkit', 'MediaPipe Hands not fully supported in WebKit fake streams');nvas should not exist yet
+    test.skip(browserName === 'webkit', 'MediaPipe Hands not fully supported in WebKit fake streams');
+
+    await page.goto('/guitar');
+
+    // Canvas should not exist yet
     const canvas = page.locator('canvas');
     await expect(canvas).not.toBeVisible();
   });
@@ -78,7 +77,12 @@ test.describe('Hand Tracking Integration', () => {
   test('should initialize hand tracking without errors', async ({
     page,
     context,
+    browserName,
   }) => {
+    // Skip in Firefox/WebKit - MediaPipe Hands is optimized for Chromium
+    test.skip(browserName === 'firefox', 'MediaPipe Hands not fully supported in Firefox fake streams');
+    test.skip(browserName === 'webkit', 'MediaPipe Hands not fully supported in WebKit fake streams');
+
     const guitarPage = new GuitarPage(page);
     const cameraPage = new CameraPermissionPage(page, context);
 
@@ -112,11 +116,7 @@ test.describe('Hand Tracking Integration', () => {
         !error.includes('wasm') &&
         !error.includes('fetch')
     );
-  browserName,
-  }) => {
-    // Skip in Firefox - MediaPipe Hands is optimized for Chromium
-    test.skip(browserName === 'firefox', 'MediaPipe Hands not fully supported in Firefox fake streams');
-    test.skip(browserName === 'webkit', 'MediaPipe Hands not fully supported in WebKit fake streams');
+
     // Should not have critical errors
     expect(criticalErrors).toHaveLength(0);
   });
@@ -124,7 +124,12 @@ test.describe('Hand Tracking Integration', () => {
   test('should have canvas positioned over video feed', async ({
     page,
     context,
+    browserName,
   }) => {
+    // Skip in Firefox/WebKit - MediaPipe Hands is optimized for Chromium
+    test.skip(browserName === 'firefox', 'MediaPipe Hands not fully supported in Firefox fake streams');
+    test.skip(browserName === 'webkit', 'MediaPipe Hands not fully supported in WebKit fake streams');
+
     const cameraPage = new CameraPermissionPage(page, context);
 
     await cameraPage.grantCameraPermission();
