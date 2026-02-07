@@ -7,7 +7,7 @@ const createJestConfig = nextJest({
 
 // Add any custom config to be passed to Jest
 const customJestConfig = {
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testEnvironment: 'jest-environment-jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
@@ -22,6 +22,7 @@ const customJestConfig = {
     '!**/jest.config.js',
     '!app/layout.tsx',
     '!app/**/layout.tsx',
+    '!src/hooks/useHandTracking.ts', // MediaPipe integration - tested via E2E
   ],
   coverageThreshold: {
     global: {

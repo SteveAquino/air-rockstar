@@ -78,13 +78,49 @@
   max-width: 800px;
 }
 
-.video {
+.videoWrapper {
+  position: relative;
   width: 100%;
   max-width: 640px;
+}
+
+.video {
+  width: 100%;
   height: auto;
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   transform: scaleX(-1); /* Mirror the video */
+  display: block;
+}
+
+.canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  pointer-events: none;
+  transform: scaleX(-1); /* Mirror to match video */
+}
+
+.trackingError {
+  padding: 0.5rem 1rem;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 6px;
+  color: #fbbf24;
+  font-size: 0.875rem;
+}
+
+.handCount {
+  padding: 0.5rem 1rem;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 6px;
+  color: #86efac;
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .stopButton {
