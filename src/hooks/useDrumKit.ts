@@ -8,13 +8,13 @@ export type DrumKitVariant = 'synth' | 'acoustic';
 
 /**
  * Drum sample URLs for acoustic kit
- * Using locally hosted samples in public directory
+ * Using locally hosted samples from MIDI.js Soundfonts (public domain)
  */
 const DRUM_SAMPLES: Record<string, string> = {
-  snare: '/sounds/drums/snare.ogg',
-  hihat: '/sounds/drums/hihat.ogg',
-  kick: '/sounds/drums/kick.ogg',
-  tom: '/sounds/drums/tom.ogg',
+  snare: '/sounds/drums/snare.mp3',
+  hihat: '/sounds/drums/hihat.mp3',
+  kick: '/sounds/drums/kick.mp3',
+  tom: '/sounds/drums/tom.mp3',
 };
 
 /**

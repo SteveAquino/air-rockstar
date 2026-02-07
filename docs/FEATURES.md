@@ -363,8 +363,8 @@ Users can switch between different sound engines for the virtual drum kit, allow
    - Pre-recorded drum samples
    - Realistic drum kit sounds
    - Loaded from local public directory
-   - OGG format for browser compatibility
-   - Source: Google Actions sound library (public domain)
+   - MP3 format for browser compatibility
+   - Source: MIDI soundfonts library (public domain)
 
 #### UI Requirements
 - Dropdown/select control to switch variants
@@ -386,11 +386,11 @@ useDrumKit(
 
 #### Sample URLs
 - Hosted locally in /public/sounds/drums/
-- Snare: snare.ogg
-- Hi-hat: hihat.ogg
-- Kick: kick.ogg
-- Tom: tom.ogg
-- Source: Google Actions sound library (public domain)
+- Snare: snare.mp3
+- Hi-hat: hihat.mp3
+- Kick: kick.mp3
+- Tom: tom.mp3
+- Source: MIDI.js Soundfonts (FluidR3_GM, public domain)
 
 #### Performance Targets
 - Sample loading: < 2s for all sounds
