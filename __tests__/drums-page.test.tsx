@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import DrumsPage from '../app/drums/page';
 
 // Mock useCamera hook
@@ -38,6 +38,14 @@ describe('DrumsPage', () => {
       
       const heading = screen.getByRole('heading', { name: /air drums/i });
       expect(heading).toBeInTheDocument();
+    });
+
+    it('should display variant selector', () => {
+      render(<DrumsPage />);
+      
+      const selector = screen.getByLabelText(/sound/i);
+      expect(selector).toBeInTheDocument();
+      expect(selector).toHaveValue('synth');
     });
 
     it('should display camera setup instructions', () => {
@@ -106,6 +114,53 @@ describe('DrumsPage', () => {
       
       const error = screen.getByRole('alert');
       expect(error).toHaveTextContent('Camera access denied');
+    });
+  });
+
+  describe('when video metadata loads', () => {
+    it('should update container size', () => {
+      const mockStream = {};
+      mockUseCamera.mockReturnValue({
+        stream: mockStream,
+        error: null,
+        isRequesting: false,
+        permissionState: 'granted',
+        requestCamera: jest.fn(),
+        stopCamera: jest.fn(),
+      });
+
+      render(<DrumsPage />);
+      
+      const video = document.querySelector('video');
+      expect(video).toBeInTheDocument();
+      
+      // Trigger loadedmetadata event
+      if (video) {
+        Object.defineProperty(video, 'videoWidth', { value: 640 });
+        Object.defineProperty(video, 'videoHeight', { value: 480 });
+        act(() => {
+          video.dispatchEvent(new Event('loadedmetadata'));
+        });
+      }
+    });
+
+    it('should update size on window resize', () => {
+      const mockStream = {};
+      mockUseCamera.mockReturnValue({
+        stream: mockStream,
+        error: null,
+        isRequesting: false,
+        permissionState: 'granted',
+        requestCamera: jest.fn(),
+        stopCamera: jest.fn(),
+      });
+
+      render(<DrumsPage />);
+      
+      // Trigger resize event
+      act(() => {
+        window.dispatchEvent(new Event('resize'));
+      });
     });
   });
 

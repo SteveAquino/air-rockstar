@@ -338,3 +338,76 @@ function checkCollision(fingerTip: {x: number, y: number}, pad: DrumPad): boolea
 - Preset drum patterns
 - Visual metronome
 - MIDI export
+## Drum Sound Variants
+
+### Overview
+Users can switch between different sound engines for the virtual drum kit, allowing both electronic synth sounds and realistic acoustic drum samples.
+
+### Requirements
+
+#### Functional Requirements
+- **Multiple Sound Variants**: Support both synthesized and sample-based sounds
+- **Runtime Switching**: Allow users to change variants without reloading
+- **Async Loading**: Load audio samples in background without blocking UI
+- **Graceful Fallback**: Continue working even if samples fail to load
+- **Low Latency**: No delay between collision and sound playback
+
+#### Sound Variants
+1. **Synth Drums** (default)
+   - Web Audio API OscillatorNode
+   - Instant availability (no loading)
+   - Low file size
+   - Configurable waveforms and envelopes
+
+2. **Acoustic Samples**
+   - Pre-recorded drum samples
+   - Realistic drum kit sounds
+   - Loaded from local public directory
+   - MP3 format for browser compatibility
+   - Source: MIDI soundfonts library (public domain)
+
+#### UI Requirements
+- Dropdown/select control to switch variants
+- Clearly labeled options
+- Positioned prominently but not obstructing gameplay
+- Persists selection during session
+
+#### Technical Implementation
+```typescript
+type DrumKitVariant = 'synth' | 'acoustic';
+
+useDrumKit(
+  landmarks: NormalizedLandmark[][],
+  width: number,
+  height: number,
+  variant: DrumKitVariant
+)
+```
+
+#### Sample URLs
+- Hosted locally in /public/sounds/drums/
+- Snare: snare.mp3
+- Hi-hat: hihat.mp3
+- Kick: kick.mp3
+- Tom: tom.mp3
+- Source: MIDI.js Soundfonts (FluidR3_GM, public domain)
+
+#### Performance Targets
+- Sample loading: < 2s for all sounds
+- Playback latency: < 20ms
+- No audio stuttering when switching variants
+- Memory efficient (unload unused buffers)
+
+### Testing Strategy
+- Unit tests for both synth and sample playback
+- Mock fetch for sample loading in tests
+- Test error handling for failed sample loads
+- Test variant switching mid-session
+- Manual testing for audio quality
+
+### Browser Compatibility
+- AudioContext.decodeAudioData support
+- Chrome 87+
+- Firefox 78+
+- Safari 14+
+- Edge 87+

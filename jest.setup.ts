@@ -1,12 +1,24 @@
 import '@testing-library/jest-dom';
 
-// Mock fetch for MediaPipe
-global.fetch = jest.fn(() =>
-  Promise.resolve({
+// Minimal fetch mock for MediaPipe library initialization
+// MediaPipe Hands requires fetch to load its WASM files
+// Individual tests can override this mock for their specific needs
+global.fetch = jest.fn((url) => {
+  // Check if it's a MediaPipe WASM or data file
+  if (typeof url === 'string' && (url.includes('hands') || url.includes('.wasm') || url.includes('.data'))) {
+    return Promise.resolve({
+      arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+      json: () => Promise.resolve({}),
+    } as Response);
+  }
+  // For other URLs, return a basic response
+  return Promise.resolve({
     arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
     json: () => Promise.resolve({}),
-  } as Response)
-);
+    ok: true,
+    status: 200,
+  } as Response);
+});
 
 // Mock HTMLCanvasElement.prototype.getContext
 HTMLCanvasElement.prototype.getContext = jest.fn(() => {

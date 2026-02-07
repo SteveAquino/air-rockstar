@@ -2,6 +2,22 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import type { NormalizedLandmark } from '@mediapipe/hands';
 
 /**
+ * Available drum kit sound variants
+ */
+export type DrumKitVariant = 'synth' | 'acoustic';
+
+/**
+ * Drum sample URLs for acoustic kit
+ * Using locally hosted samples from MIDI.js Soundfonts (public domain)
+ */
+const DRUM_SAMPLES: Record<string, string> = {
+  snare: '/sounds/drums/snare.mp3',
+  hihat: '/sounds/drums/hihat.mp3',
+  kick: '/sounds/drums/kick.mp3',
+  tom: '/sounds/drums/tom.mp3',
+};
+
+/**
  * Represents a virtual drum pad in the kit
  */
 export interface DrumPad {
@@ -43,27 +59,60 @@ const FINGER_TIPS = [4, 8, 12, 16, 20]; // thumb, index, middle, ring, pinky
  * @param landmarks - Array of hand landmarks from MediaPipe Hands
  * @param containerWidth - Width of the video container in pixels
  * @param containerHeight - Height of the video container in pixels
- * @returns Object containing drum pads, active pad states, and ready status
+ * @param variant - Sound variant to use ('synth' or 'acoustic')
+ * @returns Object containing drum pads, active pad states, ready status, and variant setter
  */
 export function useDrumKit(
   landmarks: NormalizedLandmark[][] | null,
   containerWidth: number,
-  containerHeight: number
+  containerHeight: number,
+  variant: DrumKitVariant = 'synth'
 ) {
   const [isReady, setIsReady] = useState(false);
   const [activePads, setActivePads] = useState<Set<string>>(new Set());
   const collidingPadsRef = useRef<Map<number, Set<string>>>(new Map()); // Track which pads each finger is colliding with
   const audioContextRef = useRef<AudioContext | null>(null);
+  const audioBuffersRef = useRef<Record<string, AudioBuffer>>({});
 
-  // Initialize Web Audio API
+  // Initialize Web Audio API and load samples
   useEffect(() => {
     const initAudio = async () => {
       try {
         // Create audio context
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        
+        // Load drum samples for acoustic variant
+        if (variant === 'acoustic') {
+          await loadDrumSamples();
+        }
+        
         setIsReady(true);
       } catch (error) {
         console.error('Failed to initialize Web Audio:', error);
+        setIsReady(true); // Still set ready even if sample loading fails, synth will work
+      }
+    };
+
+    const loadDrumSamples = async () => {
+      const audioContext = audioContextRef.current;
+      if (!audioContext) return;
+
+      try {
+        // Load all drum samples in parallel
+        const loadPromises = Object.entries(DRUM_SAMPLES).map(async ([drumId, url]) => {
+          try {
+            const response = await fetch(url);
+            const arrayBuffer = await response.arrayBuffer();
+            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+            audioBuffersRef.current[drumId] = audioBuffer;
+          } catch (error) {
+            console.error(`Failed to load sample for ${drumId}:`, error);
+          }
+        });
+
+        await Promise.all(loadPromises);
+      } catch (error) {
+        console.error('Failed to load drum samples:', error);
       }
     };
 
@@ -77,7 +126,7 @@ export function useDrumKit(
         audioContextRef.current.close();
       }
     };
-  }, []);
+  }, [variant]);
 
   const playSound = useCallback((padId: string) => {
     const audioContext = audioContextRef.current;
@@ -88,47 +137,58 @@ export function useDrumKit(
       audioContext.resume();
     }
 
-    // Create oscillator for drum sound
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    if (variant === 'acoustic') {
+      // Play sample-based sound
+      const buffer = audioBuffersRef.current[padId];
+      if (buffer) {
+        const source = audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioContext.destination);
+        source.start(0);
+      }
+    } else {
+      // Play synth sound
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
 
-    // Configure sound based on drum type
-    switch (padId) {
-      case 'snare':
-        oscillator.type = 'triangle';
-        oscillator.frequency.value = 200;
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.2);
-        break;
-      case 'hihat':
-        oscillator.type = 'square';
-        oscillator.frequency.value = 800;
-        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.1);
-        break;
-      case 'kick':
-        oscillator.type = 'sine';
-        oscillator.frequency.value = 60;
-        gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.5);
-        break;
-      case 'tom':
-        oscillator.type = 'sine';
-        oscillator.frequency.value = 150;
-        gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.3);
-        break;
+      // Configure sound based on drum type
+      switch (padId) {
+        case 'snare':
+          oscillator.type = 'triangle';
+          oscillator.frequency.value = 200;
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.2);
+          break;
+        case 'hihat':
+          oscillator.type = 'square';
+          oscillator.frequency.value = 800;
+          gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.1);
+          break;
+        case 'kick':
+          oscillator.type = 'sine';
+          oscillator.frequency.value = 60;
+          gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.5);
+          break;
+        case 'tom':
+          oscillator.type = 'sine';
+          oscillator.frequency.value = 150;
+          gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.3);
+          break;
+      }
     }
 
     // Visual feedback
@@ -140,7 +200,7 @@ export function useDrumKit(
         return next;
       });
     }, 100);
-  }, []);
+  }, [variant]);
 
   const checkCollisions = useCallback(() => {
     if (!landmarks || !isReady || containerWidth === 0 || containerHeight === 0) {

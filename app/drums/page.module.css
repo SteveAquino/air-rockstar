@@ -14,6 +14,44 @@
   text-align: center;
 }
 
+.variantSelector {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.variantLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.variantSelect {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  color: white;
+  background: rgba(102, 126, 234, 0.2);
+  border: 1px solid rgba(102, 126, 234, 0.4);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.variantSelect:hover {
+  background: rgba(102, 126, 234, 0.3);
+  border-color: rgba(102, 126, 234, 0.6);
+}
+
+.variantSelect:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
 .setupContainer {
   display: flex;
   flex-direction: column;

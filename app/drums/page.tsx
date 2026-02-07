@@ -2,7 +2,7 @@
 
 import { useCamera } from '@/src/hooks/useCamera';
 import { useHandTracking } from '@/src/hooks/useHandTracking';
-import { useDrumKit } from '@/src/hooks/useDrumKit';
+import { useDrumKit, type DrumKitVariant } from '@/src/hooks/useDrumKit';
 import { useEffect, useRef, useState } from 'react';
 import styles from './page.module.css';
 
@@ -13,6 +13,7 @@ export default function DrumsPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+  const [variant, setVariant] = useState<DrumKitVariant>('synth');
   
   const { landmarks, isProcessing: _isProcessing, error: trackingError } = useHandTracking(
     videoRef,
@@ -23,7 +24,8 @@ export default function DrumsPage() {
   const { pads, activePads, isReady } = useDrumKit(
     landmarks,
     containerSize.width,
-    containerSize.height
+    containerSize.height,
+    variant
   );
 
   useEffect(() => {
@@ -57,6 +59,22 @@ export default function DrumsPage() {
   return (
     <main className={styles.main}>
       <h1 className={styles.title}>🥁 Air Drums</h1>
+
+      {/* Variant Selector */}
+      <div className={styles.variantSelector}>
+        <label htmlFor="drum-variant" className={styles.variantLabel}>
+          Sound:
+        </label>
+        <select
+          id="drum-variant"
+          value={variant}
+          onChange={(e) => setVariant(e.target.value as DrumKitVariant)}
+          className={styles.variantSelect}
+        >
+          <option value="synth">Synth Drums</option>
+          <option value="acoustic">Acoustic Samples</option>
+        </select>
+      </div>
 
       {!stream && (
         <div className={styles.setupContainer}>
