@@ -7,14 +7,14 @@ import type { NormalizedLandmark } from '@mediapipe/hands';
 export type DrumKitVariant = 'synth' | 'acoustic';
 
 /**
- * Drum sample URLs for acoustic kit (using freesound.org samples)
+ * Drum sample URLs for acoustic kit
+ * Using locally hosted samples in public directory
  */
 const DRUM_SAMPLES: Record<string, string> = {
-  // Using publicly available 808 drum machine samples
-  snare: 'https://freesound.org/data/previews/387/387186_7255534-lq.mp3',
-  hihat: 'https://freesound.org/data/previews/536/536636_11935698-lq.mp3',
-  kick: 'https://freesound.org/data/previews/171/171104_2394245-lq.mp3',
-  tom: 'https://freesound.org/data/previews/270/270156_5123851-lq.mp3',
+  snare: '/sounds/drums/snare.ogg',
+  hihat: '/sounds/drums/hihat.ogg',
+  kick: '/sounds/drums/kick.ogg',
+  tom: '/sounds/drums/tom.ogg',
 };
 
 /**

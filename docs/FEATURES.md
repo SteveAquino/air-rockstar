@@ -362,8 +362,9 @@ Users can switch between different sound engines for the virtual drum kit, allow
 2. **Acoustic Samples**
    - Pre-recorded drum samples
    - Realistic drum kit sounds
-   - Loaded from external CDN (freesound.org)
-   - MP3 format for browser compatibility
+   - Loaded from local public directory
+   - OGG format for browser compatibility
+   - Source: Google Actions sound library (public domain)
 
 #### UI Requirements
 - Dropdown/select control to switch variants
@@ -384,11 +385,12 @@ useDrumKit(
 ```
 
 #### Sample URLs
-- Hosted on freesound.org (public domain)
-- Snare: 808-style snare sample
-- Hi-hat: Short hi-hat sample
-- Kick: Deep bass drum
-- Tom: Mid-range tom
+- Hosted locally in /public/sounds/drums/
+- Snare: snare.ogg
+- Hi-hat: hihat.ogg
+- Kick: kick.ogg
+- Tom: tom.ogg
+- Source: Google Actions sound library (public domain)
 
 #### Performance Targets
 - Sample loading: < 2s for all sounds
