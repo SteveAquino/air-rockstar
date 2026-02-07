@@ -31,22 +31,28 @@ const mockAudioContext = {
   close: jest.fn(),
 };
 
-// Mock fetch for sample loading
-global.fetch = jest.fn(() =>
-  Promise.resolve({
-    arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)),
-  } as Response)
-);
+// Store original fetch
+const originalFetch = global.fetch;
 
 // Mock window.AudioContext
 beforeEach(() => {
   jest.clearAllMocks();
   (global as any).AudioContext = jest.fn(() => mockAudioContext);
+  
+  // Mock fetch for sample loading (scoped to this test file)
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)),
+    } as Response)
+  );
+  
   jest.useFakeTimers();
 });
 
 afterEach(() => {
   jest.useRealTimers();
+  // Restore original fetch
+  global.fetch = originalFetch;
 });
 
 // Helper to create mock finger tip landmark
