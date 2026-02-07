@@ -129,3 +129,87 @@ interface CameraState {
 - Camera preview before enabling
 - Retry mechanism with backoff
 - Analytics for permission denial rates
+
+
+## Hand Tracking with MediaPipe
+
+### Overview
+Hand tracking is the core feature enabling gesture recognition. Using MediaPipe Hands, we detect hand landmarks in real-time from the camera feed and process them for musical interaction.
+
+### Requirements
+
+#### Functional Requirements
+- **Automatic Initialization**: Start hand tracking when camera feed is active
+- **Real-time Detection**: Process video frames continuously (target 30 FPS)
+- **Landmark Extraction**: Detect 21 hand landmarks per hand (up to 2 hands)
+- **Visual Feedback**: Overlay hand landmarks and connections on video feed
+- **Performance Optimization**: Run detection on requestAnimationFrame loop
+- **Proper Cleanup**: Stop MediaPipe processing when camera stops or component unmounts
+
+#### Hand Landmark Positions (0-20)
+```
+0: Wrist
+1-4: Thumb (CMC, MCP, IP, Tip)
+5-8: Index (MCP, PIP, DIP, Tip)
+9-12: Middle (MCP, PIP, DIP, Tip)
+13-16: Ring (MCP, PIP, DIP, Tip)
+17-20: Pinky (MCP, PIP, DIP, Tip)
+```
+
+#### MediaPipe Configuration
+```javascript
+{
+  maxNumHands: 2,
+  modelComplexity: 1,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5
+}
+```
+
+#### Technical Requirements
+- Create custom hook: `useHandTracking(videoElement, enabled)`
+- Use MediaPipe Hands library (`@mediapipe/hands`)
+- Draw landmarks on canvas overlay
+- Return hand landmarks array for gesture detection
+- Handle initialization errors gracefully
+- Throttle/debounce processing if performance issues
+
+#### Performance Targets
+- Hand detection: < 33ms per frame (30 FPS)
+- UI remains responsive during processing
+- CPU usage < 50% on mid-range devices
+- Memory stable (no leaks)
+
+#### Visual Display
+- Draw green dots for hand landmarks
+- Draw white lines connecting landmarks
+- Optional: Show landmark numbers for debugging
+- Canvas overlay matches video dimensions
+- Smooth animations (no flickering)
+
+#### Error Handling
+- MediaPipe initialization failure
+- Model loading timeout
+- Processing errors (invalid frame)
+- Browser compatibility issues
+
+### User Experience
+1. Camera feed shows with overlay canvas
+2. When hands enter frame, landmarks appear in real-time
+3. Smooth, accurate tracking follows hand movements
+4. Visual feedback confirms system is detecting hands
+5. Works in various lighting conditions
+
+### Browser Compatibility
+- Requires WebGL support
+- Chrome 87+
+- Firefox 78+
+- Safari 14+
+- Edge 87+
+
+### Future Enhancements
+- Hand pose classification (fist, open palm, pointing, etc.)
+- Gesture detection (swipe, pinch, wave)
+- Multi-hand interaction
+- Performance mode (reduced quality for lower-end devices)
+
