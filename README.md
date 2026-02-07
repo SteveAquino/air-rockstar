@@ -4,12 +4,41 @@ A motion-tracking virtual instrument application that lets you play air guitar a
 
 ## Features
 
-- 🎸 **Air Guitar Mode**: Play virtual guitar by moving your hands
-- 🥁 **Air Drums Mode**: Play virtual drums with hand tracking
+- 🎸 **Air Guitar Mode**: Play virtual guitar by moving your hands (framework ready)
+- 🥁 **Air Drums Mode**: Play virtual drums with hand tracking and real audio
+  - Synth variant: Triangle wave synthesizer
+  - Acoustic variant: Sampled drum sounds
 - 📹 **Camera-Based Motion Tracking**: Uses MediaPipe Hands for accurate hand detection
-- 🎵 **Real-Time Audio**: Synthesized instrument sounds with velocity-based dynamics
+- 🎵 **Real-Time Audio**: Synthesized instrument sounds powered by Tone.js
 - ♿ **Fully Accessible**: Built with ARIA labels and keyboard navigation
 - 📱 **Responsive Design**: Works on desktop and mobile devices
+- ✅ **Comprehensive Testing**: 80%+ code coverage with TDD approach
+
+## Current Status
+
+**Last Stable Release**: [PR #5 - Drum Sound Variants](https://github.com/SteveAquino/air-rockstar/pull/5)
+
+### What's Working ✅
+- Welcome page with navigation to instruments
+- Camera permission flow with visual feedback
+- Hand tracking with MediaPipe
+- Virtual drum kit UI with 4 pads (kick, snare, hi-hat, tom)
+- Collision detection between fingers and drum pads
+- Audio synthesis with Tone.js
+- Full test coverage for implemented features
+- CI/CD pipeline with automated testing
+
+### Known Limitations 🔍
+- Audio context startup requires browser investigation for proper integration with user gesture requirements
+- Guitar mode framework is in place but needs string zone implementation
+- No velocity-based dynamics yet (planned for Phase 4)
+- Samples are from Tone.js CDN (may have latency on slower connections)
+
+### Next Steps 🚀
+- Investigate and resolve Tone.js audio context startup in browser
+- Implement guitar string zones and collision detection
+- Add velocity-based hit detection
+- Performance optimization for hand tracking
 
 ## Tech Stack
 
@@ -128,43 +157,51 @@ npm run type-check
 
 ```
 air-rockstar/
-├── __tests__/              # Unit tests
-│   ├── page.test.tsx       # Welcome page tests
-│   ├── guitar-page.test.tsx
-│   ├── drums-page.test.tsx
-│   └── setup.d.ts          # TypeScript types for tests
-├── app/                    # Next.js App Router pages
-│   ├── layout.tsx          # Root layout
-│   ├── page.tsx            # Welcome screen
-│   ├── page.module.css     # Welcome screen styles
-│   ├── guitar/             # Guitar mode
+├── __tests__/                    # Unit tests
+│   ├── page.test.tsx             # Welcome page tests
+│   ├── guitar-page.test.tsx      # Guitar page tests
+│   ├── drums-page.test.tsx       # Drums page tests
+│   ├── hooks/                    # Hook tests
+│   │   ├── useCamera.test.ts     # Camera hook tests
+│   │   ├── useDrumKit.test.ts    # Drum kit hook tests (67 tests)
+│   │   └── useHandTracking.test.ts # Hand tracking hook tests
+│   └── setup.d.ts                # TypeScript types for tests
+├── app/                          # Next.js App Router pages
+│   ├── layout.tsx                # Root layout
+│   ├── page.tsx                  # Welcome screen
+│   ├── page.module.css           # Welcome screen styles
+│   ├── globals.css               # Global styles
+│   ├── guitar/                   # Guitar mode
 │   │   └── page.tsx
-│   └── drums/              # Drums mode
+│   └── drums/                    # Drums mode
 │       └── page.tsx
-├── docs/                   # Documentation
-│   ├── DEVELOPMENT.md      # Development guidelines & TDD workflow
-│   ├── FEATURES.md         # Feature specifications
-│   ├── HAND_TRACKING.md    # Hand tracking documentation (coming soon)
-│   └── ARCHITECTURE.md     # Architecture docs (coming soon)
-├── e2e/                    # End-to-end tests
-│   ├── pages/              # Page Object Models
-│   │   ├── WelcomePage.ts
-│   │   ├── GuitarPage.ts
-│   │   └── DrumsPage.ts
-│   └── welcome.spec.ts     # Welcome screen E2E tests
-├── src/                    # Source code (services, utils, hooks)
-│   ├── services/           # Business logic services
-│   ├── utils/              # Utility functions
-│   └── hooks/              # React hooks
+├── docs/                         # Documentation
+│   ├── DEVELOPMENT.md            # Development guidelines & TDD workflow
+│   └── FEATURES.md               # Feature specifications
+├── e2e/                          # End-to-end tests
+│   ├── pages/                    # Page Object Models
+│   │   ├── WelcomePage.ts        # Welcome page object
+│   │   ├── GuitarPage.ts         # Guitar page object
+│   │   ├── DrumsPage.ts          # Drums page object
+│   │   ├── CameraPermissionPage.ts
+│   │   └── HandTrackingPage.ts
+│   ├── welcome.spec.ts           # Welcome screen E2E tests
+│   ├── camera-permission.spec.ts # Camera permission flow tests
+│   └── hand-tracking.spec.ts     # Hand tracking E2E tests
+├── src/                          # Source code (hooks, utils, types)
+│   └── hooks/                    # React hooks
+│       ├── useCamera.ts          # Camera permission & stream management
+│       ├── useHandTracking.ts    # MediaPipe Hands integration
+│       └── useDrumKit.ts         # Virtual drum kit with audio
 ├── .github/
 │   └── workflows/
-│       └── ci.yml          # GitHub Actions CI pipeline
-├── jest.config.js          # Jest configuration
-├── jest.setup.js           # Jest setup file
-├── playwright.config.ts    # Playwright configuration
-├── next.config.js          # Next.js configuration
-├── tsconfig.json           # TypeScript configuration
-└── package.json            # Project dependencies
+│       └── ci.yml                # GitHub Actions CI pipeline
+├── jest.config.js                # Jest configuration
+├── jest.setup.ts                 # Jest setup file with mocks
+├── playwright.config.ts          # Playwright configuration
+├── next.config.js                # Next.js configuration
+├── tsconfig.json                 # TypeScript configuration
+└── package.json                  # Project dependencies
 ```
 
 ## Development Workflow
@@ -237,24 +274,29 @@ GitHub Actions automatically runs on all pull requests:
 - [x] CI/CD pipeline
 - [x] Welcome screen with navigation
 
-### 🚧 Phase 2: Camera & Hand Tracking (Next)
-- [ ] Camera permission flow
-- [ ] MediaPipe Hands integration
-- [ ] Hand position and velocity tracking
-- [ ] Visual feedback overlay
+### ✅ Phase 2: Camera & Hand Tracking (Complete)
+- [x] Camera permission flow (`useCamera` hook)
+- [x] MediaPipe Hands integration (`useHandTracking` hook)
+- [x] Hand position and velocity tracking
+- [x] Visual feedback overlay
+- [x] E2E tests for camera and hand tracking
 
-### 📋 Phase 3: Instruments
+### ✅ Phase 3: Instruments (In Progress)
+- [x] Virtual drum kit with collision detection (`useDrumKit` hook)
+- [x] Drum sound variants (synth and acoustic)
+- [x] Basic audio synthesis with Tone.js
+- [x] Comprehensive unit tests for drum kit
 - [ ] Guitar string zones and collision detection
-- [ ] Drum kit zones and collision detection
-- [ ] Audio synthesis with Tone.js
-- [ ] Visual instrument rendering
+- [ ] Audio velocity-based dynamics
+- [ ] Additional instrument samples
 
 ### 🎯 Phase 4: Enhancements
-- [ ] Pre-recorded instrument samples
-- [ ] Velocity-based hit detection
-- [ ] Multiple instrument options
-- [ ] Customization settings
-- [ ] Performance optimization
+- [ ] Pre-recorded instrument samples library
+- [ ] Advanced velocity-based hit detection
+- [ ] Multiple instrument options and variations
+- [ ] Customization and settings UI
+- [ ] Performance optimization for hand tracking
+- [ ] Mobile touch control fallback
 
 ## Contributing
 
