@@ -213,3 +213,128 @@ Hand tracking is the core feature enabling gesture recognition. Using MediaPipe 
 - Multi-hand interaction
 - Performance mode (reduced quality for lower-end devices)
 
+---
+
+## Virtual Drum Kit
+
+### Overview
+The drum kit feature allows users to play drum sounds by moving their hands over virtual drum pads displayed on screen. When hand landmarks collide with drum pads, corresponding drum sounds are played using Tone.js.
+
+### Requirements
+
+#### Functional Requirements
+- Display 4 virtual drum pads on screen:
+  - Snare Drum (top-left)
+  - Hi-Hat (top-right)
+  - Kick Drum (bottom-left)
+  - Tom (bottom-right)
+- Each pad has distinct visual styling
+- Detect collision between hand index finger tip (landmark 8) and drum pads
+- Play drum sound on collision
+- Visual feedback on pad hit (highlight/flash)
+- Prevent rapid re-triggering (cooldown period)
+
+#### Drum Pad Specifications
+```typescript
+interface DrumPad {
+  id: string;
+  name: string;
+  x: number;        // X position (percentage)
+  y: number;        // Y position (percentage)
+  width: number;    // Width (pixels)
+  height: number;   // Height (pixels)
+  color: string;    // Base color
+  sound: string;    // Sound type
+}
+```
+
+#### Audio Requirements
+- Use Tone.js Sampler or Synth
+- Low latency (< 50ms from collision to sound)
+- Simple drum sounds:
+  - Snare: High-pitched percussive
+  - Hi-Hat: Crisp cymbal
+  - Kick: Deep bass thump
+  - Tom: Mid-range drum
+- Cooldown period: 200ms per pad to prevent rapid re-triggering
+- Volume control (default 70%)
+
+#### Collision Detection
+- Use index finger tip landmark (landmark 8) as hit point
+- Normalize landmark coordinates to screen space
+- Check if finger tip is within drum pad bounds
+- Only trigger on first collision (not continuous contact)
+- Support both hands independently
+
+#### Visual Design
+- Drum pads overlay on video feed
+- Semi-transparent pads (don't obscure hands)
+- Clear labels for each drum
+- Hit animation (scale up + color change)
+- Different colors per drum type
+
+#### Performance Targets
+- 60 FPS rendering
+- < 50ms audio latency
+- No audio glitches or clicks
+- Smooth collision detection
+
+#### User Experience
+1. Camera feed shows with drum pads overlaid
+2. Move hand over drum pad
+3. Pad highlights when finger is near
+4. Sound plays on collision
+5. Visual feedback confirms hit
+6. Can play multiple drums rapidly
+
+### Technical Implementation
+
+#### Hook: useDrumKit
+```typescript
+interface DrumKit {
+  pads: DrumPad[];
+  lastHitTime: Record<string, number>;
+  checkCollision: (landmarks: NormalizedLandmark[], padId: string) => boolean;
+  playSound: (padId: string) => void;
+  isReady: boolean;
+}
+```
+
+#### Tone.js Setup
+- Initialize Tone.js on component mount
+- Create Synth or Sampler for each drum
+- Handle user interaction requirement (start audio context)
+
+#### Collision Algorithm
+```typescript
+function checkCollision(fingerTip: {x: number, y: number}, pad: DrumPad): boolean {
+  return (
+    fingerTip.x >= pad.x &&
+    fingerTip.x <= pad.x + pad.width &&
+    fingerTip.y >= pad.y &&
+    fingerTip.y <= pad.y + pad.height
+  );
+}
+```
+
+### Testing Strategy
+- Unit tests for collision detection logic
+- Unit tests for cooldown mechanism
+- E2E tests for drum pad rendering
+- Manual testing for audio playback
+- Manual testing for collision accuracy
+
+### Browser Compatibility
+- Requires Web Audio API support
+- Chrome 87+
+- Firefox 78+
+- Safari 14+
+- Edge 87+
+
+### Future Enhancements
+- More drum sounds (crash cymbal, ride, floor tom)
+- Velocity sensitivity (hit harder = louder)
+- Recording and playback
+- Preset drum patterns
+- Visual metronome
+- MIDI export
