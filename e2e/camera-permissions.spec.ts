@@ -54,6 +54,8 @@ test.describe('Camera Permissions - Guitar Page', () => {
     context,
     browserName,
   }, testInfo) => {
+    // Skip: fake media stream auto-grants permission, can't test denial
+    test.skip(true, 'Cannot test permission denial with fake media streams');
     // Skip if running in headless mode (no actual camera available)
     test.skip(testInfo.project.use.headless !== false, 'Camera requires headed mode with actual hardware');
     // Camera permissions only work in Chromium
