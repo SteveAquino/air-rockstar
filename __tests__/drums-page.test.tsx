@@ -40,6 +40,14 @@ describe('DrumsPage', () => {
       expect(heading).toBeInTheDocument();
     });
 
+    it('should display variant selector', () => {
+      render(<DrumsPage />);
+      
+      const selector = screen.getByLabelText(/sound/i);
+      expect(selector).toBeInTheDocument();
+      expect(selector).toHaveValue('synth');
+    });
+
     it('should display camera setup instructions', () => {
       render(<DrumsPage />);
       

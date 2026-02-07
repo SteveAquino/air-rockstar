@@ -18,12 +18,25 @@ const mockAudioContext = {
       exponentialRampToValueAtTime: jest.fn(),
     },
   })),
+  createBufferSource: jest.fn(() => ({
+    connect: jest.fn(),
+    start: jest.fn(),
+    buffer: null,
+  })),
+  decodeAudioData: jest.fn(() => Promise.resolve({})),
   destination: {},
   currentTime: 0,
   state: 'running',
   resume: jest.fn(),
   close: jest.fn(),
 };
+
+// Mock fetch for sample loading
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)),
+  } as Response)
+);
 
 // Mock window.AudioContext
 beforeEach(() => {
@@ -60,7 +73,7 @@ const createHand = (fingerTipX: number, fingerTipY: number): NormalizedLandmark[
 describe('useDrumKit', () => {
   describe('when initialized', () => {
     it('should initialize Web Audio API and set isReady to true', async () => {
-      const { result } = renderHook(() => useDrumKit(null, 800, 600));
+      const { result } = renderHook(() => useDrumKit(null, 800, 600, 'synth'));
 
       await waitFor(() => {
         expect(result.current.isReady).toBe(true);
@@ -70,7 +83,7 @@ describe('useDrumKit', () => {
     });
 
     it('should return drum pads configuration', () => {
-      const { result } = renderHook(() => useDrumKit(null, 800, 600));
+      const { result } = renderHook(() => useDrumKit(null, 800, 600, 'synth'));
 
       expect(result.current.pads).toHaveLength(4);
       expect(result.current.pads).toEqual([
@@ -82,13 +95,39 @@ describe('useDrumKit', () => {
     });
 
     it('should initialize with empty active pads', () => {
-      const { result } = renderHook(() => useDrumKit(null, 800, 600));
+      const { result } = renderHook(() => useDrumKit(null, 800, 600, 'synth'));
 
       expect(result.current.activePads.size).toBe(0);
     });
 
+    it('should load drum samples when using acoustic variant', async () => {
+      const { result } = renderHook(() => useDrumKit(null, 800, 600, 'acoustic'));
+
+      await waitFor(() => {
+        expect(result.current.isReady).toBe(true);
+      });
+
+      // Should attempt to fetch all 4 drum samples
+      expect(global.fetch).toHaveBeenCalled();
+      expect(mockAudioContext.decodeAudioData).toHaveBeenCalled();
+    });
+
+    it('should handle sample loading errors gracefully', async () => {
+      // Mock fetch to reject
+      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+      
+      const { result } = renderHook(() => useDrumKit(null, 800, 600, 'acoustic'));
+
+      await waitFor(() => {
+        expect(result.current.isReady).toBe(true);
+      });
+
+      // Should still be ready even if samples fail to load
+      expect(result.current.isReady).toBe(true);
+    });
+
     it('should cleanup audio context on unmount', async () => {
-      const { unmount } = renderHook(() => useDrumKit(null, 800, 600));
+      const { unmount } = renderHook(() => useDrumKit(null, 800, 600, 'synth'));
 
       await waitFor(() => {
         expect(mockAudioContext.close).not.toHaveBeenCalled();
@@ -103,7 +142,7 @@ describe('useDrumKit', () => {
   describe('when finger collides with drum pad', () => {
     it('should play sound when index finger enters snare pad area', async () => {
       const { result, rerender } = renderHook(
-        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height),
+        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height, 'synth'),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
@@ -134,9 +173,38 @@ describe('useDrumKit', () => {
       expect(mockAudioContext.createGain).toHaveBeenCalled();
     });
 
+    it('should play sample-based sound in acoustic mode', async () => {
+      const { result, rerender } = renderHook(
+        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height, 'acoustic'),
+        {
+          initialProps: {
+            landmarks: null as NormalizedLandmark[][] | null,
+            width: 800,
+            height: 600,
+          },
+        }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isReady).toBe(true);
+      });
+
+      const hand = createHand(0.7, 0.3); // Snare pad
+
+      act(() => {
+        rerender({
+          landmarks: [hand],
+          width: 800,
+          height: 600,
+        });
+      });
+
+      expect(mockAudioContext.createBufferSource).toHaveBeenCalled();
+    });
+
     it('should not play sound continuously while finger stays in pad', async () => {
       const { result, rerender } = renderHook(
-        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height),
+        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height, 'synth'),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
@@ -170,7 +238,7 @@ describe('useDrumKit', () => {
 
     it('should play sound again when finger exits and re-enters pad', async () => {
       const { result, rerender } = renderHook(
-        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height),
+        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height, 'synth'),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
@@ -208,7 +276,7 @@ describe('useDrumKit', () => {
 
     it('should set active pad state when hit', async () => {
       const { result, rerender } = renderHook(
-        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height),
+        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height, 'synth'),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
@@ -233,7 +301,7 @@ describe('useDrumKit', () => {
 
     it('should clear active pad state after timeout', async () => {
       const { result, rerender } = renderHook(
-        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height),
+        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height, 'synth'),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
@@ -266,7 +334,7 @@ describe('useDrumKit', () => {
   describe('when checking different drum pads', () => {
     it('should detect collision with hihat pad', async () => {
       const { result, rerender } = renderHook(
-        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height),
+        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height, 'synth'),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
@@ -293,7 +361,7 @@ describe('useDrumKit', () => {
 
     it('should detect collision with kick pad', async () => {
       const { result, rerender } = renderHook(
-        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height),
+        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height, 'synth'),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
@@ -322,7 +390,7 @@ describe('useDrumKit', () => {
   describe('when using multiple fingers', () => {
     it('should track collisions independently for each finger type', async () => {
       const { result, rerender } = renderHook(
-        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height),
+        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height, 'synth'),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
@@ -359,7 +427,7 @@ describe('useDrumKit', () => {
 
   describe('when no landmarks provided', () => {
     it('should not attempt collision detection', () => {
-      const { result } = renderHook(() => useDrumKit(null, 800, 600));
+      const { result } = renderHook(() => useDrumKit(null, 800, 600, 'synth'));
 
       // Should not crash and activePads should be empty
       expect(result.current.activePads.size).toBe(0);
@@ -369,7 +437,7 @@ describe('useDrumKit', () => {
   describe('when container has zero dimensions', () => {
     it('should not perform collision detection', async () => {
       const { result, rerender } = renderHook(
-        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height),
+        ({ landmarks, width, height }) => useDrumKit(landmarks, width, height, 'synth'),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
