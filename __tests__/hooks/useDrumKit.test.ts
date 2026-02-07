@@ -119,6 +119,9 @@ describe('useDrumKit', () => {
     });
 
     it('should handle sample loading errors gracefully', async () => {
+      // Suppress console.error for this test since we're intentionally testing error handling
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      
       // Mock fetch to reject
       (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
       
@@ -130,6 +133,9 @@ describe('useDrumKit', () => {
 
       // Should still be ready even if samples fail to load
       expect(result.current.isReady).toBe(true);
+      
+      // Restore console.error
+      consoleErrorSpy.mockRestore();
     });
 
     it('should cleanup audio context on unmount', async () => {

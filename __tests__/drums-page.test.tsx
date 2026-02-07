@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import DrumsPage from '../app/drums/page';
 
 // Mock useCamera hook
@@ -138,7 +138,9 @@ describe('DrumsPage', () => {
       if (video) {
         Object.defineProperty(video, 'videoWidth', { value: 640 });
         Object.defineProperty(video, 'videoHeight', { value: 480 });
-        video.dispatchEvent(new Event('loadedmetadata'));
+        act(() => {
+          video.dispatchEvent(new Event('loadedmetadata'));
+        });
       }
     });
 
@@ -156,7 +158,9 @@ describe('DrumsPage', () => {
       render(<DrumsPage />);
       
       // Trigger resize event
-      window.dispatchEvent(new Event('resize'));
+      act(() => {
+        window.dispatchEvent(new Event('resize'));
+      });
     });
   });
 
