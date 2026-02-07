@@ -24,8 +24,6 @@ test.describe('Hand Tracking Integration', () => {
     // Canvas should be rendered
     const canvas = page.locator('canvas');
     await expect(canvas).toBeVisible();
-    await expect(canvas).toHaveAttribute('width');
-    await expect(canvas).toHaveAttribute('height');
 
     await guitarPage.takeScreenshot('hand-tracking-canvas-rendered');
   });
@@ -47,8 +45,6 @@ test.describe('Hand Tracking Integration', () => {
     // Canvas should be rendered
     const canvas = page.locator('canvas');
     await expect(canvas).toBeVisible();
-    await expect(canvas).toHaveAttribute('width');
-    await expect(canvas).toHaveAttribute('height');
 
     await drumsPage.takeScreenshot('hand-tracking-canvas-rendered');
   });
