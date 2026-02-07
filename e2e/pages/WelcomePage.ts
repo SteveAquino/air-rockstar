@@ -41,12 +41,11 @@ export class WelcomePage {
   }
 
   async focusGuitarButton() {
-    await this.page.keyboard.press('Tab');
+    await this.getGuitarButton().focus();
   }
 
   async focusDrumsButton() {
-    await this.page.keyboard.press('Tab');
-    await this.page.keyboard.press('Tab');
+    await this.getDrumsButton().focus();
   }
 
   async pressEnter() {

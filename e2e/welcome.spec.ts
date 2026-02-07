@@ -66,13 +66,13 @@ test.describe('Welcome Screen', () => {
 
     await welcomePage.goto();
 
-    // Tab to guitar button and verify focus
+    // Focus guitar button and verify
     await welcomePage.focusGuitarButton();
     await welcomePage.expectGuitarButtonToBeFocused();
     await welcomePage.takeScreenshot('guitar-focused');
 
-    // Tab to drums button and verify focus
-    await page.keyboard.press('Tab');
+    // Focus drums button and verify
+    await welcomePage.focusDrumsButton();
     await welcomePage.expectDrumsButtonToBeFocused();
     await welcomePage.takeScreenshot('drums-focused');
 

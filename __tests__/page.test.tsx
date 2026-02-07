@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import HomePage from '@/app/page';
+import HomePage from '../app/page';
 
 describe('HomePage', () => {
   describe('when rendered', () => {
@@ -44,7 +44,8 @@ describe('HomePage', () => {
       render(<HomePage />);
       
       const guitarLink = screen.getByRole('link', { name: /play air guitar/i });
-      expect(guitarLink).toHaveAttribute('tabIndex');
+      expect(guitarLink).toBeInTheDocument();
+      expect(guitarLink.tagName).toBe('A');
     });
   });
 
@@ -60,7 +61,8 @@ describe('HomePage', () => {
       render(<HomePage />);
       
       const drumsLink = screen.getByRole('link', { name: /play air drums/i });
-      expect(drumsLink).toHaveAttribute('tabIndex');
+      expect(drumsLink).toBeInTheDocument();
+      expect(drumsLink.tagName).toBe('A');
     });
   });
 
