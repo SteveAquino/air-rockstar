@@ -3,8 +3,11 @@ import DrumsPage from '../app/drums/page';
 
 // Mock useCamera hook
 jest.mock('../src/hooks/useCamera');
+// Mock useDrumKit hook
+jest.mock('../src/hooks/useDrumKit');
 
 const mockUseCamera = require('../src/hooks/useCamera').useCamera as jest.Mock;
+const mockUseDrumKit = require('../src/hooks/useDrumKit').useDrumKit as jest.Mock;
 
 describe('DrumsPage', () => {
   beforeEach(() => {
@@ -15,6 +18,17 @@ describe('DrumsPage', () => {
       permissionState: 'prompt',
       requestCamera: jest.fn(),
       stopCamera: jest.fn(),
+    });
+
+    mockUseDrumKit.mockReturnValue({
+      pads: [
+        { id: 'snare', name: 'Snare', x: 20, y: 20, width: 120, height: 120, color: '#ef4444', activeColor: '#dc2626' },
+        { id: 'hihat', name: 'Hi-Hat', x: 70, y: 20, width: 120, height: 120, color: '#3b82f6', activeColor: '#2563eb' },
+        { id: 'kick', name: 'Kick', x: 20, y: 60, width: 120, height: 120, color: '#8b5cf6', activeColor: '#7c3aed' },
+        { id: 'tom', name: 'Tom', x: 70, y: 60, width: 120, height: 120, color: '#f59e0b', activeColor: '#d97706' },
+      ],
+      activePads: new Set(),
+      isReady: true,
     });
   });
 
