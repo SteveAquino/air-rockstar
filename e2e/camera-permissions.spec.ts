@@ -2,6 +2,9 @@ import { test, expect, Browser } from '@playwright/test';
 import { GuitarPage } from './pages/GuitarPage';
 import { CameraPermissionPage } from './pages/CameraPermissionPage';
 
+// Camera tests must run serially - multiple tests can't access camera simultaneously
+test.describe.configure({ mode: 'serial' });
+
 test.describe('Camera Permissions - Guitar Page', () => {
   test('should display enable camera button on initial load', async ({
     page,
@@ -20,10 +23,9 @@ test.describe('Camera Permissions - Guitar Page', () => {
     page,
     context,
     browserName,
-  }) => {
-    // Skip: getUserMedia doesn't work in headless browsers without actual camera hardware
-    test.skip(true, 'Camera stream requires actual hardware, not available in CI');
-
+  }, testInfo) => {
+    // Skip if running in headless mode (no actual camera available)
+    test.skip(testInfo.project.use.headless !== false, 'Camera requires headed mode with actual hardware');
     // Camera permissions only work in Chromium
     test.skip(browserName !== 'chromium', 'Camera permissions only supported in Chromium');
 
@@ -51,10 +53,9 @@ test.describe('Camera Permissions - Guitar Page', () => {
     page,
     context,
     browserName,
-  }) => {
-    // Skip: getUserMedia behavior in headless browsers is inconsistent
-    test.skip(true, 'Camera permission denial requires actual hardware, not reliable in CI');
-
+  }, testInfo) => {
+    // Skip if running in headless mode (no actual camera available)
+    test.skip(testInfo.project.use.headless !== false, 'Camera requires headed mode with actual hardware');
     // Camera permissions only work in Chromium
     test.skip(browserName !== 'chromium', 'Camera permissions only supported in Chromium');
 
@@ -97,10 +98,9 @@ test.describe('Camera Permissions - Guitar Page', () => {
     page,
     context,
     browserName,
-  }) => {
-    // Skip: getUserMedia doesn't work in headless browsers without actual camera hardware
-    test.skip(true, 'Camera stream requires actual hardware, not available in CI');
-
+  }, testInfo) => {
+    // Skip if running in headless mode (no actual camera available)
+    test.skip(testInfo.project.use.headless !== false, 'Camera requires headed mode with actual hardware');
     // Camera permissions only work in Chromium
     test.skip(browserName !== 'chromium', 'Camera permissions only supported in Chromium');
 
@@ -140,10 +140,9 @@ test.describe('Camera Permissions - Drums Page', () => {
     page,
     context,
     browserName,
-  }) => {
-    // Skip: getUserMedia doesn't work in headless browsers without actual camera hardware
-    test.skip(true, 'Camera stream requires actual hardware, not available in CI');
-
+  }, testInfo) => {
+    // Skip if running in headless mode (no actual camera available)
+    test.skip(testInfo.project.use.headless !== false, 'Camera requires headed mode with actual hardware');
     // Camera permissions only work in Chromium
     test.skip(browserName !== 'chromium', 'Camera permissions only supported in Chromium');
 

@@ -36,7 +36,7 @@ export class CameraPermissionPage {
   }
 
   getCameraFeed() {
-    return this.page.getByRole('img', { name: /camera feed/i });
+    return this.page.locator('video[aria-label*="Camera feed"]');
   }
 
   getErrorMessage() {
@@ -54,7 +54,13 @@ export class CameraPermissionPage {
   }
 
   async expectCameraFeedVisible() {
-    await expect(this.getCameraFeed()).toBeVisible();
+    // Wait for video element and for it to have loaded content
+    await expect(this.getCameraFeed()).toBeVisible({ timeout: 10000 });
+    // Wait for video to actually have content (stream connected)
+    await this.page.waitForFunction(() => {
+      const video = document.querySelector('video[aria-label*="Camera feed"]') as HTMLVideoElement;
+      return video && video.readyState >= 2; // HAVE_CURRENT_DATA or higher
+    }, { timeout: 10000 });
   }
 
   async expectErrorMessage(message: RegExp) {
