@@ -8,7 +8,11 @@ export class CameraPermissionPage {
 
   // Actions
   async grantCameraPermission() {
-    await this.context.grantPermissions(['camera']);
+    // Camera permission only supported in Chromium-based browsers
+    const browserName = this.page.context().browser()?.browserType().name();
+    if (browserName === 'chromium') {
+      await this.context.grantPermissions(['camera']);
+    }
   }
 
   async denyCameraPermission() {
@@ -35,7 +39,8 @@ export class CameraPermissionPage {
   }
 
   getErrorMessage() {
-    return this.page.getByRole('alert');
+    // Use more specific selector to avoid Next.js route announcer
+    return this.page.locator('[role="alert"]').filter({ hasText: /camera|denied|enable/i });
   }
 
   getLoadingIndicator() {
