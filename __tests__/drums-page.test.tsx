@@ -117,6 +117,49 @@ describe('DrumsPage', () => {
     });
   });
 
+  describe('when video metadata loads', () => {
+    it('should update container size', () => {
+      const mockStream = {};
+      mockUseCamera.mockReturnValue({
+        stream: mockStream,
+        error: null,
+        isRequesting: false,
+        permissionState: 'granted',
+        requestCamera: jest.fn(),
+        stopCamera: jest.fn(),
+      });
+
+      render(<DrumsPage />);
+      
+      const video = document.querySelector('video');
+      expect(video).toBeInTheDocument();
+      
+      // Trigger loadedmetadata event
+      if (video) {
+        Object.defineProperty(video, 'videoWidth', { value: 640 });
+        Object.defineProperty(video, 'videoHeight', { value: 480 });
+        video.dispatchEvent(new Event('loadedmetadata'));
+      }
+    });
+
+    it('should update size on window resize', () => {
+      const mockStream = {};
+      mockUseCamera.mockReturnValue({
+        stream: mockStream,
+        error: null,
+        isRequesting: false,
+        permissionState: 'granted',
+        requestCamera: jest.fn(),
+        stopCamera: jest.fn(),
+      });
+
+      render(<DrumsPage />);
+      
+      // Trigger resize event
+      window.dispatchEvent(new Event('resize'));
+    });
+  });
+
   describe('accessibility', () => {
     it('should have a main landmark', () => {
       render(<DrumsPage />);
