@@ -8,10 +8,11 @@ export class CameraPermissionPage {
 
   // Actions
   async grantCameraPermission() {
-    // Camera permission only supported in Chromium-based browsers
-    const browserName = this.page.context().browser()?.browserType().name();
-    if (browserName === 'chromium') {
+    try {
+      // Camera permission only supported in Chromium-based browsers
       await this.context.grantPermissions(['camera']);
+    } catch (error) {
+      // Silently ignore - camera permissions not supported in this browser/environment
     }
   }
 
