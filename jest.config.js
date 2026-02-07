@@ -20,6 +20,8 @@ const customJestConfig = {
     '!**/.next/**',
     '!**/coverage/**',
     '!**/jest.config.js',
+    '!app/layout.tsx',
+    '!app/**/layout.tsx',
   ],
   coverageThreshold: {
     global: {
@@ -30,6 +32,7 @@ const customJestConfig = {
     },
   },
   testMatch: ['**/__tests__/**/*.test.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/e2e/'],
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

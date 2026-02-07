@@ -6,7 +6,7 @@ global.MediaStream = jest.fn().mockImplementation(() => ({
   getTracks: jest.fn(() => []),
   getVideoTracks: jest.fn(() => []),
   getAudioTracks: jest.fn(() => []),
-})) as any;
+}));
 
 // Mock navigator.mediaDevices
 Object.defineProperty(global.navigator, 'mediaDevices', {
@@ -32,4 +32,4 @@ global.AudioContext = jest.fn().mockImplementation(() => ({
   destination: {},
   resume: jest.fn().mockResolvedValue(undefined),
   close: jest.fn().mockResolvedValue(undefined),
-})) as any;
+}));
