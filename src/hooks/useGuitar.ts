@@ -80,7 +80,10 @@ const computeStrings = (
   }
 
   const usableHeight = containerHeight * spacingScale;
-  const topOffset = (containerHeight - usableHeight) / 2;
+  let topOffset = containerHeight * 0.66;
+  if (topOffset + usableHeight > containerHeight) {
+    topOffset = Math.max(0, containerHeight - usableHeight);
+  }
   const spacing = usableHeight / (BASE_STRINGS.length - 1);
 
   return BASE_STRINGS.map((string, index) => {
@@ -107,8 +110,8 @@ export function useGuitar(
   const masterGainRef = useRef<GainNode | null>(null);
 
   const spacingScale = Number.isFinite(options.stringSpacing)
-    ? clamp(options.stringSpacing!, 0.3, 1)
-    : 0.75;
+    ? clamp(options.stringSpacing!, 0.2, 0.34)
+    : 0.28;
   const hitPadding = Number.isFinite(options.hitPadding) ? options.hitPadding! : 0;
   const volume = Number.isFinite(options.volume) ? options.volume! : 1;
   const cooldownMs = Number.isFinite(options.cooldownMs) ? options.cooldownMs! : 200;

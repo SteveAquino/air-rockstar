@@ -105,8 +105,7 @@ describe('useGuitar', () => {
   describe('when finger collides with a string', () => {
     it('should play a pluck when finger enters the string band', async () => {
       const { result, rerender } = renderHook(
-        ({ landmarks, width, height }) =>
-          useGuitar(landmarks, width, height, { stringSpacing: 1 }),
+        ({ landmarks, width, height }) => useGuitar(landmarks, width, height),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
@@ -120,7 +119,7 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHandWithTip(8, 0.5, 0.01);
+      const hand = createHandWithTip(8, 0.5, 0.67);
 
       act(() => {
         rerender({ landmarks: [hand], width: 800, height: 600 });
@@ -131,8 +130,7 @@ describe('useGuitar', () => {
 
     it('should not retrigger while finger stays inside the band', async () => {
       const { result, rerender } = renderHook(
-        ({ landmarks, width, height }) =>
-          useGuitar(landmarks, width, height, { stringSpacing: 1 }),
+        ({ landmarks, width, height }) => useGuitar(landmarks, width, height),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
@@ -146,7 +144,7 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHandWithTip(8, 0.5, 0.01);
+      const hand = createHandWithTip(8, 0.5, 0.67);
 
       act(() => {
         rerender({ landmarks: [hand], width: 800, height: 600 });
@@ -166,10 +164,7 @@ describe('useGuitar', () => {
     it('should allow retrigger after cooldown when re-entering', async () => {
       const { result, rerender } = renderHook(
         ({ landmarks, width, height }) =>
-          useGuitar(landmarks, width, height, {
-            cooldownMs: 200,
-            stringSpacing: 1,
-          }),
+          useGuitar(landmarks, width, height, { cooldownMs: 200 }),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
@@ -183,7 +178,7 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const inside = createHandWithTip(8, 0.5, 0.01);
+      const inside = createHandWithTip(8, 0.5, 0.67);
       const outside = createHandWithTip(8, 0.5, 0.5);
 
       act(() => {
@@ -209,8 +204,7 @@ describe('useGuitar', () => {
 
     it('should set active string state when hit', async () => {
       const { result, rerender } = renderHook(
-        ({ landmarks, width, height }) =>
-          useGuitar(landmarks, width, height, { stringSpacing: 1 }),
+        ({ landmarks, width, height }) => useGuitar(landmarks, width, height),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
@@ -224,7 +218,7 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHandWithTip(8, 0.5, 0.01);
+      const hand = createHandWithTip(8, 0.5, 0.67);
 
       act(() => {
         rerender({ landmarks: [hand], width: 800, height: 600 });
@@ -237,8 +231,7 @@ describe('useGuitar', () => {
       mockAudioContext.state = 'suspended';
 
       const { result, rerender } = renderHook(
-        ({ landmarks, width, height }) =>
-          useGuitar(landmarks, width, height, { stringSpacing: 1 }),
+        ({ landmarks, width, height }) => useGuitar(landmarks, width, height),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
@@ -252,7 +245,7 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHandWithTip(8, 0.5, 0.01);
+      const hand = createHandWithTip(8, 0.5, 0.67);
 
       act(() => {
         rerender({ landmarks: [hand], width: 800, height: 600 });

@@ -31,7 +31,7 @@ export default function GuitarPage() {
   const comboTimeoutRef = useRef<number | null>(null);
 
   const spacingScale = useMemo(
-    () => 0.4 + (spacing / 100) * 0.3,
+    () => 0.2 + (spacing / 100) * 0.14,
     [spacing]
   );
   const hitPadding = useMemo(
