@@ -318,6 +318,15 @@ GitHub Actions automatically runs on all pull requests:
 - [ ] Performance optimization for hand tracking
 - [ ] Mobile touch control fallback
 
+## Backlog / Long-Term Ideas
+
+See `docs/FEATURES.md` for the full backlog list. Highlights:
+- Semantic versioning + in-app changelog page
+- Drum stick and guitar pick interaction modes
+- Live right-to-left note stream visualization
+- More drum sounds (at least one cymbal for v1)
+- Drum hit detection and layout refinements
+
 ## Contributing
 
 1. Follow the TDD workflow documented in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)

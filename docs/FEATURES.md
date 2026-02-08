@@ -465,3 +465,35 @@ The Drums page includes interactive controls and live feedback to help players c
 - Tooltip triggers are keyboard accessible
 - Tooltips are announced with clear labels
 - Control labels remain visible and readable
+
+---
+
+## Backlog and Long-Term Ideas
+
+### Overview
+Items captured for future development. These are not in scope for current implementation work but should be considered for future phases.
+
+### Product and Release Management
+- Adopt semantic versioning for releases
+- Define `1.0.0` as completion of all README phases plus backlog items listed here
+- Add a visible in-app changelog page that renders release notes
+
+### Instrument Interaction Modes
+- Add toggleable interaction modes for "hands/fingers" vs. "drum sticks" vs. "guitar pick"
+- Expose mode selection in the in-game UI with clear visual affordances
+- Ensure mode selection changes collision feel without reducing performance
+
+### Live Note Stream (Visual Playback)
+- Add an in-play right-to-left note stream visualization
+- Map hits to guitar notes or drum notation symbols when possible
+- For v1, a simpler "zone hit" stream is acceptable
+- Support real-time updates without blocking audio or hand tracking
+
+### Drum Kit Expansion
+- Add at least one cymbal sound for v1 (e.g. crash or ride)
+- Consider expanding to multiple toms and cymbals in a later iteration
+- Ensure additional pads do not overwhelm the UI or reduce hit accuracy
+
+### Quality and UX Improvements
+- Fix occasional double-hit when two hands enter a drum zone but only one is moving
+- Consider moving drum pads to the bottom of the camera view to feel more like a real kit
