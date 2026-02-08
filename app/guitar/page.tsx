@@ -20,8 +20,8 @@ export default function GuitarPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
-  const [sensitivity, setSensitivity] = useState(70);
-  const [spacing, setSpacing] = useState(70);
+  const [sensitivity, setSensitivity] = useState(20);
+  const [spacing, setSpacing] = useState(25);
   const [volume, setVolume] = useState(70);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [hits, setHits] = useState(0);
@@ -31,11 +31,15 @@ export default function GuitarPage() {
   const comboTimeoutRef = useRef<number | null>(null);
 
   const spacingScale = useMemo(
-    () => 0.55 + (spacing / 100) * 0.35,
+    () => 0.4 + (spacing / 100) * 0.3,
     [spacing]
   );
   const hitPadding = useMemo(
-    () => 4 + (sensitivity / 100) * 40,
+    () => 2 + (sensitivity / 100) * 18,
+    [sensitivity]
+  );
+  const stringThickness = useMemo(
+    () => 10 + (sensitivity / 100) * 6,
     [sensitivity]
   );
   const volumeScale = useMemo(() => volume / 100, [volume]);
@@ -89,6 +93,7 @@ export default function GuitarPage() {
     {
       stringSpacing: spacingScale,
       hitPadding,
+      stringThickness,
       volume: volumeScale,
       cooldownMs: 200,
       onHit: handleHit,

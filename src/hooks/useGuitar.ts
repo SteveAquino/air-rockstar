@@ -113,7 +113,9 @@ export function useGuitar(
   const volume = Number.isFinite(options.volume) ? options.volume! : 1;
   const cooldownMs = Number.isFinite(options.cooldownMs) ? options.cooldownMs! : 200;
   const volumeScale = computeVolumeScale(volume);
-  const thicknessPx = 8 + hitPadding;
+  const thicknessPx = Number.isFinite(options.stringThickness)
+    ? options.stringThickness!
+    : 12;
 
   const strings = useMemo(
     () => computeStrings(containerHeight, spacingScale, thicknessPx),
@@ -196,7 +198,7 @@ export function useGuitar(
 
           strings.forEach((string) => {
             const centerY = (string.yPercent / 100) * containerHeight;
-            const bandHalf = string.thicknessPx / 2;
+            const bandHalf = string.thicknessPx / 2 + hitPadding;
             const isColliding =
               fingerY >= centerY - bandHalf && fingerY <= centerY + bandHalf;
 
@@ -228,6 +230,7 @@ export function useGuitar(
     containerHeight,
     containerWidth,
     strings,
+    hitPadding,
     cooldownMs,
     triggerHit,
     onHit,

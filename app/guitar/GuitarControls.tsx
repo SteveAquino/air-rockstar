@@ -25,7 +25,7 @@ export function GuitarControls({
       <Slider
         label="String Spacing"
         value={spacing}
-        min={40}
+        min={20}
         max={100}
         unit="%"
         onChange={onSpacingChange}
