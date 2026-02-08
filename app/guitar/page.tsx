@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useCamera } from '@/src/hooks/useCamera';
 import { useHandTracking } from '@/src/hooks/useHandTracking';
 import { Button } from '@/src/components/ui/Button';
-import { Card } from '@/src/components/ui/Card';
+import { CameraSetupCard } from '@/src/components/ui/CameraSetupCard';
 import { StatusPill } from '@/src/components/ui/StatusPill';
 import { useEffect, useRef } from 'react';
 import styles from './page.module.css';
@@ -43,19 +43,11 @@ export default function GuitarPage() {
       </header>
 
       {!stream && (
-        <Card className={styles.setupCard}>
-          <h1 className={styles.title}>Air Guitar</h1>
-          <p className={styles.description}>
-            Enable your camera to start tracking your hand movements.
-          </p>
-          <Button
-            onClick={requestCamera}
-            disabled={isRequesting}
-            aria-label="Enable camera for hand tracking"
-          >
-            {isRequesting ? 'Initializing...' : 'Enable Camera'}
-          </Button>
-        </Card>
+        <CameraSetupCard
+          title="Air Guitar"
+          isRequesting={isRequesting}
+          onEnable={requestCamera}
+        />
       )}
 
       {error && (

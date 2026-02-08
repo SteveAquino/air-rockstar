@@ -1,28 +1,28 @@
 import { useEffect, useRef, useState, RefObject } from 'react';
 import { Hands, Results } from '@mediapipe/hands';
+import type {
+  HandLandmark,
+  HandTrackingState,
+  UseHandTrackingOptions,
+} from '@/src/types/handTracking';
 
-export interface HandLandmark {
-  x: number;
-  y: number;
-  z: number;
-}
+export type {
+  HandLandmark,
+  HandTrackingState,
+  UseHandTrackingOptions,
+} from '@/src/types/handTracking';
 
-export interface HandTrackingState {
-  landmarks: HandLandmark[][] | null;
-  isProcessing: boolean;
-  error: string | null;
-}
-
-interface UseHandTrackingOptions {
-  maxNumHands?: number;
-  modelComplexity?: 0 | 1;
-  minDetectionConfidence?: number;
-  minTrackingConfidence?: number;
-  landmarkRadius?: number;
-  landmarkColor?: string;
-  connectionColor?: string;
-  connectionWidth?: number;
-}
+const getDrawOptions = (
+  landmarkRadius?: number,
+  landmarkColor?: string,
+  connectionColor?: string,
+  connectionWidth?: number
+) => ({
+  landmarkRadius,
+  landmarkColor,
+  connectionColor,
+  connectionWidth,
+});
 
 export function useHandTracking(
   videoRef: RefObject<HTMLVideoElement>,
@@ -43,19 +43,21 @@ export function useHandTracking(
     connectionWidth: options.connectionWidth,
   });
 
+  const {
+    landmarkRadius,
+    landmarkColor,
+    connectionColor,
+    connectionWidth,
+  } = options;
+
   useEffect(() => {
-    drawOptionsRef.current = {
-      landmarkRadius: options.landmarkRadius,
-      landmarkColor: options.landmarkColor,
-      connectionColor: options.connectionColor,
-      connectionWidth: options.connectionWidth,
-    };
-  }, [
-    options.landmarkRadius,
-    options.landmarkColor,
-    options.connectionColor,
-    options.connectionWidth,
-  ]);
+    drawOptionsRef.current = getDrawOptions(
+      landmarkRadius,
+      landmarkColor,
+      connectionColor,
+      connectionWidth
+    );
+  }, [landmarkRadius, landmarkColor, connectionColor, connectionWidth]);
 
   useEffect(() => {
     if (!enabled || !videoRef.current || !canvasRef.current) {

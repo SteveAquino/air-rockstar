@@ -1,18 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import type { PermissionState, UseCameraReturn } from '@/src/types/camera';
 
-export type PermissionState = 'prompt' | 'granted' | 'denied';
-
-export interface CameraState {
-  stream: MediaStream | null;
-  permissionState: PermissionState;
-  isRequesting: boolean;
-  error: string | null;
-}
-
-export interface UseCameraReturn extends CameraState {
-  requestCamera: () => Promise<void>;
-  stopCamera: () => void;
-}
+export type { PermissionState, UseCameraReturn } from '@/src/types/camera';
 
 const CAMERA_CONSTRAINTS: MediaStreamConstraints = {
   video: {

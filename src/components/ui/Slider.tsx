@@ -1,16 +1,9 @@
 import type { ChangeEvent } from 'react';
 import { HelpTooltip } from './HelpTooltip';
+import type { SliderProps } from './types';
 import styles from './Slider.module.css';
 
-export interface SliderProps {
-  label: string;
-  value: number;
-  min?: number;
-  max?: number;
-  unit?: string;
-  onChange?: (value: number) => void;
-  helpText?: string;
-}
+export type { SliderProps } from './types';
 
 /**
  * Styled range slider with label and value display.

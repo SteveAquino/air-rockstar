@@ -25,6 +25,12 @@ npm run test:e2e      # End-to-end tests - must pass all scenarios
 - Use TypeScript types and interfaces to avoid duplicating type definitions
 - Example: `useCamera` hook centralizes camera permission logic used across pages
 
+### File Hygiene
+- One React component per file (no multi-component modules)
+- Keep props and shared types in dedicated `types.ts` files (co-located) or `src/types`
+- Extract helper functions when a component or hook grows beyond one screen of code
+- Prefer shared UI components over copy-pasted markup or styles
+
 ### Single Responsibility Principle (SRP)
 - Each function should do one thing and do it well
 - Each component should have a single, clear purpose
@@ -196,4 +202,4 @@ This is a learning project demonstrating best practices. Quality over speed. Eve
 
 ---
 
-**Last Updated**: February 7, 2026
+**Last Updated**: February 8, 2026

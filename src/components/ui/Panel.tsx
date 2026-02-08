@@ -1,10 +1,8 @@
-import type { HTMLAttributes } from 'react';
 import { classNames } from '@/src/utils/classNames';
+import type { PanelProps } from './types';
 import styles from './Card.module.css';
 
-export interface PanelProps extends HTMLAttributes<HTMLElement> {
-  as?: 'section' | 'aside' | 'div';
-}
+export type { PanelProps } from './types';
 
 /**
  * Panel container for sections of UI content.

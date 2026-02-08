@@ -1,8 +1,8 @@
-import type { HTMLAttributes } from 'react';
 import { classNames } from '@/src/utils/classNames';
+import type { LabelProps } from './types';
 import styles from './Label.module.css';
 
-export interface LabelProps extends HTMLAttributes<HTMLSpanElement> {}
+export type { LabelProps } from './types';
 
 /**
  * Small uppercase label for field titles.

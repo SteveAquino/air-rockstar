@@ -1,10 +1,8 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import type { NormalizedLandmark } from '@mediapipe/hands';
+import type { DrumKitOptions, DrumKitVariant, DrumPad } from '@/src/types/drumKit';
 
-/**
- * Available drum kit sound variants
- */
-export type DrumKitVariant = 'synth' | 'acoustic';
+export type { DrumKitOptions, DrumKitVariant, DrumPad } from '@/src/types/drumKit';
 
 /**
  * Drum sample URLs for acoustic kit
@@ -17,39 +15,6 @@ const DRUM_SAMPLES: Record<string, string> = {
   tom: '/sounds/drums/tom.mp3',
 };
 
-/**
- * Represents a virtual drum pad in the kit
- */
-export interface DrumPad {
-  /** Unique identifier for the drum pad */
-  id: string;
-  /** Display name of the drum */
-  name: string;
-  /** X position as percentage of container width */
-  x: number;
-  /** Y position as percentage of container height */
-  y: number;
-  /** Width in pixels */
-  width: number;
-  /** Height in pixels */
-  height: number;
-  /** Default color */
-  color: string;
-  /** Color when pad is active/hit */
-  activeColor: string;
-}
-
-export interface DrumKitOptions {
-  /** Scale factor for pad size */
-  padScale?: number;
-  /** Extra padding (px) around pads for hit detection */
-  hitPadding?: number;
-  /** Master volume (0 to 1) */
-  volume?: number;
-  /** Callback when a pad is hit */
-  onHit?: (padId: string) => void;
-}
-
 const DRUM_PADS: DrumPad[] = [
   { id: 'snare', name: 'Snare', x: 20, y: 20, width: 120, height: 120, color: '#ef4444', activeColor: '#dc2626' },
   { id: 'hihat', name: 'Hi-Hat', x: 70, y: 20, width: 120, height: 120, color: '#3b82f6', activeColor: '#2563eb' },
@@ -59,6 +24,138 @@ const DRUM_PADS: DrumPad[] = [
 
 // MediaPipe landmark indices for all finger tips
 const FINGER_TIPS = [4, 8, 12, 16, 20]; // thumb, index, middle, ring, pinky
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value));
+
+const computeVolumeScale = (volume: number) => {
+  const clampedVolume = clamp(volume, 0, 1);
+  const logCurve = Math.log10(1 + 9 * clampedVolume) / Math.log10(10);
+  return clampedVolume <= 0.4
+    ? 2 * logCurve
+    : 2 * (logCurve + (1 - logCurve) * Math.pow((clampedVolume - 0.4) / 0.6, 0.6));
+};
+
+const computeScaledPads = (
+  padScale: number,
+  containerWidth: number,
+  containerHeight: number
+) => {
+  const hasContainer = containerWidth > 0 && containerHeight > 0;
+  return DRUM_PADS.map((pad) => {
+    const width = pad.width * padScale;
+    const height = pad.height * padScale;
+    if (!hasContainer) {
+      return { ...pad, width, height };
+    }
+
+    const deltaX = ((width - pad.width) / 2 / containerWidth) * 100;
+    const deltaY = ((height - pad.height) / 2 / containerHeight) * 100;
+
+    return {
+      ...pad,
+      width,
+      height,
+      x: pad.x - deltaX,
+      y: pad.y - deltaY,
+    };
+  });
+};
+
+const createAudioContext = () =>
+  new (window.AudioContext || (window as any).webkitAudioContext)();
+
+const createMasterGain = (audioContext: AudioContext, initialGain = 1) => {
+  const gainNode = audioContext.createGain();
+  gainNode.gain.setValueAtTime(initialGain, audioContext.currentTime);
+  gainNode.connect(audioContext.destination);
+  return gainNode;
+};
+
+const updateMasterGain = (
+  audioContext: AudioContext,
+  masterGain: GainNode,
+  volumeScale: number
+) => {
+  masterGain.gain.setValueAtTime(volumeScale, audioContext.currentTime);
+};
+
+const loadDrumSamples = async (
+  audioContext: AudioContext,
+  target: Record<string, AudioBuffer>
+) => {
+  const loadPromises = Object.entries(DRUM_SAMPLES).map(async ([drumId, url]) => {
+    try {
+      const response = await fetch(url);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      target[drumId] = audioBuffer;
+    } catch (error) {
+      console.error(`Failed to load sample for ${drumId}:`, error);
+    }
+  });
+
+  await Promise.all(loadPromises);
+};
+
+const playSynthSound = (
+  padId: string,
+  audioContext: AudioContext,
+  output: AudioNode
+) => {
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+
+  oscillator.connect(gainNode);
+  gainNode.connect(output);
+
+  switch (padId) {
+    case 'snare':
+      oscillator.type = 'triangle';
+      oscillator.frequency.value = 200;
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.01,
+        audioContext.currentTime + 0.2
+      );
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.2);
+      break;
+    case 'hihat':
+      oscillator.type = 'square';
+      oscillator.frequency.value = 800;
+      gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.01,
+        audioContext.currentTime + 0.1
+      );
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.1);
+      break;
+    case 'kick':
+      oscillator.type = 'sine';
+      oscillator.frequency.value = 60;
+      gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.01,
+        audioContext.currentTime + 0.5
+      );
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+      break;
+    case 'tom':
+      oscillator.type = 'sine';
+      oscillator.frequency.value = 150;
+      gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.01,
+        audioContext.currentTime + 0.3
+      );
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+      break;
+  }
+};
 
 /**
  * Custom hook for managing virtual drum kit with hand tracking
@@ -90,80 +187,30 @@ export function useDrumKit(
   const hitPadding = Number.isFinite(options.hitPadding) ? options.hitPadding! : 0;
   const onHit = options.onHit;
   const volume = Number.isFinite(options.volume) ? options.volume! : 1;
-  const clampedVolume = Math.min(1, Math.max(0, volume));
-  const logCurve = Math.log10(1 + 9 * clampedVolume) / Math.log10(10);
-  const volumeScale =
-    clampedVolume <= 0.4
-      ? 2 * logCurve
-      : 2 * (logCurve + (1 - logCurve) * Math.pow((clampedVolume - 0.4) / 0.6, 0.6));
+  const volumeScale = computeVolumeScale(volume);
 
-  const scaledPads = useMemo(() => {
-    const hasContainer = containerWidth > 0 && containerHeight > 0;
-    return DRUM_PADS.map((pad) => {
-      const width = pad.width * padScale;
-      const height = pad.height * padScale;
-      if (!hasContainer) {
-        return { ...pad, width, height };
-      }
-
-      const deltaX = ((width - pad.width) / 2 / containerWidth) * 100;
-      const deltaY = ((height - pad.height) / 2 / containerHeight) * 100;
-
-      return {
-        ...pad,
-        width,
-        height,
-        x: pad.x - deltaX,
-        y: pad.y - deltaY,
-      };
-    });
-  }, [padScale, containerWidth, containerHeight]);
+  const scaledPads = useMemo(
+    () => computeScaledPads(padScale, containerWidth, containerHeight),
+    [padScale, containerWidth, containerHeight]
+  );
 
   // Initialize Web Audio API and load samples
   useEffect(() => {
     const initAudio = async () => {
       try {
         // Create audio context
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-        masterGainRef.current = audioContextRef.current.createGain();
-        masterGainRef.current.gain.setValueAtTime(
-          1,
-          audioContextRef.current.currentTime
-        );
-        masterGainRef.current.connect(audioContextRef.current.destination);
+        audioContextRef.current = createAudioContext();
+        masterGainRef.current = createMasterGain(audioContextRef.current);
         
         // Load drum samples for acoustic variant
         if (variant === 'acoustic') {
-          await loadDrumSamples();
+          await loadDrumSamples(audioContextRef.current, audioBuffersRef.current);
         }
         
         setIsReady(true);
       } catch (error) {
         console.error('Failed to initialize Web Audio:', error);
         setIsReady(true); // Still set ready even if sample loading fails, synth will work
-      }
-    };
-
-    const loadDrumSamples = async () => {
-      const audioContext = audioContextRef.current;
-      if (!audioContext) return;
-
-      try {
-        // Load all drum samples in parallel
-        const loadPromises = Object.entries(DRUM_SAMPLES).map(async ([drumId, url]) => {
-          try {
-            const response = await fetch(url);
-            const arrayBuffer = await response.arrayBuffer();
-            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-            audioBuffersRef.current[drumId] = audioBuffer;
-          } catch (error) {
-            console.error(`Failed to load sample for ${drumId}:`, error);
-          }
-        });
-
-        await Promise.all(loadPromises);
-      } catch (error) {
-        console.error('Failed to load drum samples:', error);
       }
     };
 
@@ -183,7 +230,7 @@ export function useDrumKit(
     const audioContext = audioContextRef.current;
     const masterGain = masterGainRef.current;
     if (!audioContext || !masterGain) return;
-    masterGain.gain.setValueAtTime(volumeScale, audioContext.currentTime);
+    updateMasterGain(audioContext, masterGain, volumeScale);
   }, [volumeScale]);
 
   const playSound = useCallback((padId: string) => {
@@ -195,78 +242,19 @@ export function useDrumKit(
       audioContext.resume();
     }
 
+    const outputNode = masterGainRef.current ?? audioContext.destination;
+
     if (variant === 'acoustic') {
       // Play sample-based sound
       const buffer = audioBuffersRef.current[padId];
       if (buffer) {
         const source = audioContext.createBufferSource();
         source.buffer = buffer;
-        if (masterGainRef.current) {
-          source.connect(masterGainRef.current);
-        } else {
-          source.connect(audioContext.destination);
-        }
+        source.connect(outputNode);
         source.start(0);
       }
     } else {
-      // Play synth sound
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.connect(gainNode);
-      if (masterGainRef.current) {
-        gainNode.connect(masterGainRef.current);
-      } else {
-        gainNode.connect(audioContext.destination);
-      }
-
-      // Configure sound based on drum type
-      switch (padId) {
-        case 'snare':
-          oscillator.type = 'triangle';
-          oscillator.frequency.value = 200;
-          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(
-            0.01,
-            audioContext.currentTime + 0.2
-          );
-          oscillator.start(audioContext.currentTime);
-          oscillator.stop(audioContext.currentTime + 0.2);
-          break;
-        case 'hihat':
-          oscillator.type = 'square';
-          oscillator.frequency.value = 800;
-          gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(
-            0.01,
-            audioContext.currentTime + 0.1
-          );
-          oscillator.start(audioContext.currentTime);
-          oscillator.stop(audioContext.currentTime + 0.1);
-          break;
-        case 'kick':
-          oscillator.type = 'sine';
-          oscillator.frequency.value = 60;
-          gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(
-            0.01,
-            audioContext.currentTime + 0.5
-          );
-          oscillator.start(audioContext.currentTime);
-          oscillator.stop(audioContext.currentTime + 0.5);
-          break;
-        case 'tom':
-          oscillator.type = 'sine';
-          oscillator.frequency.value = 150;
-          gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(
-            0.01,
-            audioContext.currentTime + 0.3
-          );
-          oscillator.start(audioContext.currentTime);
-          oscillator.stop(audioContext.currentTime + 0.3);
-          break;
-      }
+      playSynthSound(padId, audioContext, outputNode);
     }
 
     // Visual feedback
