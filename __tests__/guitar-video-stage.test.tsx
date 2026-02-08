@@ -67,7 +67,7 @@ const baseStrings: GuitarString[] = [
 ];
 
 describe('GuitarVideoStage', () => {
-  it('should render string overlay when ready', () => {
+  it('when ready, should render string overlay', () => {
     render(
       <GuitarVideoStage
         videoRef={createRef<HTMLVideoElement>()}
@@ -87,7 +87,7 @@ describe('GuitarVideoStage', () => {
     expect(screen.getAllByRole('listitem')).toHaveLength(6);
   });
 
-  it('should not render string overlay when not ready', () => {
+  it('when not ready, should not render string overlay', () => {
     render(
       <GuitarVideoStage
         videoRef={createRef<HTMLVideoElement>()}
@@ -107,7 +107,7 @@ describe('GuitarVideoStage', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should show fullscreen controls when in fullscreen', () => {
+  it('when in fullscreen, should show fullscreen controls', () => {
     render(
       <GuitarVideoStage
         videoRef={createRef<HTMLVideoElement>()}

@@ -59,7 +59,7 @@ const createHandWithTip = (
 
 describe('useGuitar', () => {
   describe('when initialized', () => {
-    it('should initialize Web Audio API and set isReady to true', async () => {
+    it('when initialized, should initialize Web Audio API and set isReady to true', async () => {
       const { result } = renderHook(() => useGuitar(null, 800, 600));
 
       await waitFor(() => {
@@ -69,7 +69,7 @@ describe('useGuitar', () => {
       expect(global.AudioContext).toHaveBeenCalled();
     });
 
-    it('should return 6 guitar strings in standard tuning order', () => {
+    it('when initialized, should return 6 guitar strings in standard tuning order', () => {
       const { result } = renderHook(() => useGuitar(null, 800, 600));
 
       expect(result.current.strings).toHaveLength(6);
@@ -83,13 +83,13 @@ describe('useGuitar', () => {
       ]);
     });
 
-    it('should initialize with empty active strings', () => {
+    it('when initialized, should initialize with empty active strings', () => {
       const { result } = renderHook(() => useGuitar(null, 800, 600));
 
       expect(result.current.activeStrings.size).toBe(0);
     });
 
-    it('should cleanup audio context on unmount', async () => {
+    it('when initialized, should cleanup audio context on unmount', async () => {
       const { unmount } = renderHook(() => useGuitar(null, 800, 600));
 
       await waitFor(() => {
@@ -103,7 +103,7 @@ describe('useGuitar', () => {
   });
 
   describe('when finger collides with a string', () => {
-    it('should play a pluck when finger enters the string band', async () => {
+    it('when finger collides, should play a pluck on entry', async () => {
       const { result, rerender } = renderHook(
         ({ landmarks, width, height }) => useGuitar(landmarks, width, height),
         {
@@ -128,7 +128,7 @@ describe('useGuitar', () => {
       expect(mockAudioContext.createOscillator).toHaveBeenCalled();
     });
 
-    it('should not retrigger while finger stays inside the band', async () => {
+    it('when finger stays inside the band, should not retrigger', async () => {
       const { result, rerender } = renderHook(
         ({ landmarks, width, height }) => useGuitar(landmarks, width, height),
         {
@@ -161,7 +161,7 @@ describe('useGuitar', () => {
       );
     });
 
-    it('should allow retrigger after cooldown when re-entering', async () => {
+    it('when finger re-enters after cooldown, should retrigger', async () => {
       const { result, rerender } = renderHook(
         ({ landmarks, width, height }) =>
           useGuitar(landmarks, width, height, { cooldownMs: 200 }),
@@ -202,7 +202,7 @@ describe('useGuitar', () => {
       );
     });
 
-    it('should set active string state when hit', async () => {
+    it('when string is hit, should set active string state', async () => {
       const { result, rerender } = renderHook(
         ({ landmarks, width, height }) => useGuitar(landmarks, width, height),
         {
@@ -227,7 +227,7 @@ describe('useGuitar', () => {
       expect(result.current.activeStrings.size).toBeGreaterThan(0);
     });
 
-    it('should resume suspended audio context before playing', async () => {
+    it('when audio is suspended, should resume before playing', async () => {
       mockAudioContext.state = 'suspended';
 
       const { result, rerender } = renderHook(
@@ -257,7 +257,7 @@ describe('useGuitar', () => {
   });
 
   describe('when container has zero dimensions', () => {
-    it('should not perform collision detection', async () => {
+    it('when container has zero dimensions, should not perform collision detection', async () => {
       const { result, rerender } = renderHook(
         ({ landmarks, width, height }) =>
           useGuitar(landmarks, width, height, { stringSpacing: 1 }),

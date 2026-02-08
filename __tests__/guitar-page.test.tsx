@@ -38,21 +38,21 @@ describe('GuitarPage', () => {
   });
 
   describe('when rendered', () => {
-    it('should display the main heading', () => {
+    it('when rendered, should display the main heading', () => {
       render(<GuitarPage />);
       
       const heading = screen.getByRole('heading', { name: /air guitar/i });
       expect(heading).toBeInTheDocument();
     });
 
-    it('should display camera setup instructions', () => {
+    it('when rendered, should display camera setup instructions', () => {
       render(<GuitarPage />);
       
       const description = screen.getByText(/enable your camera to start tracking/i);
       expect(description).toBeInTheDocument();
     });
 
-    it('should display enable camera button', () => {
+    it('when rendered, should display enable camera button', () => {
       render(<GuitarPage />);
       
       const button = screen.getByRole('button', { name: /enable camera/i });
@@ -61,7 +61,7 @@ describe('GuitarPage', () => {
   });
 
   describe('when camera is enabled', () => {
-    it('should display video feed', () => {
+    it('when camera is enabled, should display video feed', () => {
       const mockStream = {};
       mockUseCamera.mockReturnValue({
         stream: mockStream,
@@ -78,7 +78,7 @@ describe('GuitarPage', () => {
       expect(video).toBeInTheDocument();
     });
 
-    it('should show hands detected status when landmarks exist', () => {
+    it('when camera is enabled, should show hands detected status when landmarks exist', () => {
       const mockStream = {};
       mockUseCamera.mockReturnValue({
         stream: mockStream,
@@ -101,7 +101,7 @@ describe('GuitarPage', () => {
       expect(status).toBeInTheDocument();
     });
 
-    it('should display controls and stats', () => {
+    it('when camera is enabled, should display controls and stats', () => {
       const mockStream = {};
       mockUseCamera.mockReturnValue({
         stream: mockStream,
@@ -126,7 +126,7 @@ describe('GuitarPage', () => {
       expect(screen.getByText(/^hits$/i)).toBeInTheDocument();
     });
 
-    it('should display full screen and stop camera actions', () => {
+    it('when camera is enabled, should display full screen and stop camera actions', () => {
       const mockStream = {};
       mockUseCamera.mockReturnValue({
         stream: mockStream,
@@ -147,7 +147,7 @@ describe('GuitarPage', () => {
       ).toBeInTheDocument();
     });
 
-    it('should hide controls when performance mode is enabled', () => {
+    it('when performance mode is enabled, should hide controls', () => {
       const mockStream = {};
       mockUseCamera.mockReturnValue({
         stream: mockStream,
@@ -174,7 +174,7 @@ describe('GuitarPage', () => {
       expect(screen.queryByText(/^combo$/i)).not.toBeInTheDocument();
     });
 
-    it('should display audio loading status when guitar is not ready', () => {
+    it('when guitar is not ready, should display audio loading status', () => {
       const mockStream = {};
       mockUseCamera.mockReturnValue({
         stream: mockStream,
@@ -197,7 +197,7 @@ describe('GuitarPage', () => {
       expect(status).toBeInTheDocument();
     });
 
-    it('should display stop camera button', () => {
+    it('when camera is enabled, should display stop camera button', () => {
       const mockStream = {};
       mockUseCamera.mockReturnValue({
         stream: mockStream,
@@ -214,7 +214,7 @@ describe('GuitarPage', () => {
       expect(button).toBeInTheDocument();
     });
 
-    it('should exit full screen when stopping the camera', () => {
+    it('when stopping the camera in fullscreen, should exit full screen', () => {
       const mockStream = {};
       mockUseCamera.mockReturnValue({
         stream: mockStream,
@@ -242,7 +242,7 @@ describe('GuitarPage', () => {
       expect(exitFullscreen).toHaveBeenCalled();
     });
 
-    it('should call exitFullscreen when toggling from an active fullscreen state', () => {
+    it('when toggling from an active fullscreen state, should call exitFullscreen', () => {
       const mockStream = {};
       mockUseCamera.mockReturnValue({
         stream: mockStream,
@@ -270,7 +270,7 @@ describe('GuitarPage', () => {
       expect(exitFullscreen).toHaveBeenCalled();
     });
 
-    it('should request fullscreen when available', () => {
+    it('when fullscreen is available, should request fullscreen', () => {
       const mockStream = {};
       mockUseCamera.mockReturnValue({
         stream: mockStream,
@@ -300,7 +300,7 @@ describe('GuitarPage', () => {
   });
 
   describe('when hand tracking has an error', () => {
-    it('should display tracking error message', () => {
+    it('when hand tracking has an error, should display tracking error message', () => {
       const mockStream = {};
       mockUseCamera.mockReturnValue({
         stream: mockStream,
@@ -325,7 +325,7 @@ describe('GuitarPage', () => {
   });
 
   describe('when there is an error', () => {
-    it('should display error message', () => {
+    it('when there is an error, should display error message', () => {
       mockUseCamera.mockReturnValue({
         stream: null,
         error: 'Camera access denied',
@@ -343,14 +343,14 @@ describe('GuitarPage', () => {
   });
 
   describe('accessibility', () => {
-    it('should have a main landmark', () => {
+    it('when rendered, should have a main landmark', () => {
       render(<GuitarPage />);
       
       const main = screen.getByRole('main');
       expect(main).toBeInTheDocument();
     });
 
-    it('should have accessible button label', () => {
+    it('when rendered, should have accessible button label', () => {
       render(<GuitarPage />);
       
       const button = screen.getByRole('button', { name: /enable camera for hand tracking/i });
