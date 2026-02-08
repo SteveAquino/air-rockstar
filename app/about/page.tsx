@@ -8,27 +8,27 @@ const TIMELINE = [
   {
     title: 'Spark',
     description:
-      'A late-night idea to make practice feel like play, using just a camera.',
+      'I wanted people to hear the guitar riffs and drum solos I hear in my head when I play air guitar or air drums.',
   },
   {
-    title: 'First Prototype',
+    title: 'MVP in 2.5 Hours',
     description:
-      'Early hand tracking experiments proved we could trigger real-time audio.',
+      'I thought, "Hey, I bet Copilot could build that." My son was skeptical. Two and a half hours later we had a working MVP.',
   },
   {
-    title: 'AI-Assisted Builds',
+    title: 'Design + Styleguide',
     description:
-      'Rapid iterations with AI tools helped shape the first playable modes.',
+      'I asked ChatGPT to help shape the design and styleguide. Then Codex built the component library and drove a full design refactor in about an hour.',
   },
   {
-    title: 'Beta Sessions',
+    title: 'Guitar Day',
     description:
-      'Dozens of quick tests with my son helped refine the feel and feedback.',
+      'The next day, I spent about an hour adding the guitar mode.',
   },
   {
-    title: 'Today',
+    title: 'A Small Weekend Project',
     description:
-      'Air Rockstar keeps evolving with new instruments, dynamics, and playful effects.',
+      'Simple, fun, and a great excuse to play with AI dev tools while showing my son how software is built in real life.',
   },
 ];
 
@@ -40,8 +40,9 @@ export default function AboutPage() {
           <p className={styles.kicker}>About</p>
           <h1 className={styles.title}>Why Air Rockstar Exists</h1>
           <p className={styles.subtitle}>
-            This project started as a way to turn practice into play. It blends
-            hand tracking, real-time audio, and a little bit of stage magic.
+            This project started as a way to share the music I hear when I play
+            air guitar and air drums. It turned into a fast, fun weekend build
+            with help from AI tools and a skeptical co-pilot.
           </p>
         </div>
         <LinkButton href="/" variant="ghost" size="sm">
@@ -53,18 +54,16 @@ export default function AboutPage() {
         <Card className={styles.card}>
           <h2>Motivation</h2>
           <p>
-            I wanted a playful way to explore music without physical gear. Air
-            Rockstar lets anyone air-strum or air-drum and still feel the
-            feedback of sound and visuals.
+            I wanted a way for others to hear the riffs and solos I imagine
+            while playing air guitar or air drums.
           </p>
         </Card>
 
         <Card className={styles.card}>
           <h2>Inspiration</h2>
           <p>
-            The inspiration came from watching my son explore music with
-            curiosity. The goal is to keep that spark alive and make practice
-            feel like a game.
+            The spark was the challenge: could AI help me build it quickly? My
+            son doubted it, which made it even more fun to try.
           </p>
         </Card>
       </section>
