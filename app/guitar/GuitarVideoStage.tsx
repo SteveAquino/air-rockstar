@@ -11,6 +11,7 @@ export function GuitarVideoStage({
   frettedStrings,
   fretZoneWidthRatio,
   strumZoneWidthRatio,
+  fretCount,
   isReady,
   isFullScreen,
   onExitFullScreen,
@@ -63,6 +64,10 @@ export function GuitarVideoStage({
           {strings.map((string) => {
             const isActive = activeStrings.has(string.id);
             const fret = frettedStrings[string.id] ?? 0;
+            const hasFret = fret > 0;
+            const fretWidthPercent = 100 / Math.max(fretCount, 1);
+            const fretHighlightLeft = (fret - 1) * fretWidthPercent;
+            const fretDotLeft = (fret - 0.5) * fretWidthPercent;
             return (
               <div
                 key={string.id}
@@ -78,6 +83,40 @@ export function GuitarVideoStage({
                     : '0 0 12px rgba(255, 255, 255, 0.2)',
                 }}
               >
+                <div
+                  className={styles.fretTrack}
+                  style={{ width: `${clampedFretZone * 100}%` }}
+                  aria-label={`Fret track ${string.note}`}
+                  role="group"
+                >
+                  {Array.from({ length: Math.max(fretCount - 1, 0) }).map(
+                    (_, index) => (
+                      <span
+                        key={`${string.id}-fret-${index + 1}`}
+                        className={styles.fretLine}
+                        style={{ left: `${(index + 1) * fretWidthPercent}%` }}
+                        aria-hidden="true"
+                      />
+                    )
+                  )}
+                  {hasFret && (
+                    <>
+                      <span
+                        className={styles.fretHighlight}
+                        style={{
+                          left: `${fretHighlightLeft}%`,
+                          width: `${fretWidthPercent}%`,
+                        }}
+                        aria-hidden="true"
+                      />
+                      <span
+                        className={styles.fretDot}
+                        style={{ left: `${fretDotLeft}%` }}
+                        aria-label={`Fret ${fret} active`}
+                      />
+                    </>
+                  )}
+                </div>
                 <span className={styles.stringLabel}>{string.label}</span>
                 <span
                   className={styles.fretBadge}

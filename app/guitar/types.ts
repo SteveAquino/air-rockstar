@@ -15,6 +15,7 @@ export interface GuitarVideoStageProps {
   frettedStrings: Record<string, number>;
   fretZoneWidthRatio: number;
   strumZoneWidthRatio: number;
+  fretCount: number;
   isReady: boolean;
   isFullScreen: boolean;
   onExitFullScreen: () => void;

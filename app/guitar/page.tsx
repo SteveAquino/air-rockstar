@@ -86,8 +86,9 @@ export default function GuitarPage() {
     connectionWidth: 2,
   });
 
-  const fretZoneWidthRatio = 0.35;
-  const strumZoneWidthRatio = 0.35;
+  const fretZoneWidthRatio = 0.67;
+  const strumZoneWidthRatio = 0.33;
+  const fretCount = 5;
 
   const { strings, activeStrings, frettedStrings, isReady } = useGuitar(
     landmarks,
@@ -99,7 +100,7 @@ export default function GuitarPage() {
       stringThickness,
       volume: volumeScale,
       cooldownMs: 200,
-      fretCount: 5,
+      fretCount,
       fretZoneWidthRatio,
       strumZoneWidthRatio,
       onHit: handleHit,
@@ -236,6 +237,7 @@ export default function GuitarPage() {
               frettedStrings={frettedStrings}
               fretZoneWidthRatio={fretZoneWidthRatio}
               strumZoneWidthRatio={strumZoneWidthRatio}
+              fretCount={fretCount}
               isReady={isReady}
               isFullScreen={isFullScreen}
               onExitFullScreen={toggleFullScreen}
