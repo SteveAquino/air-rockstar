@@ -78,6 +78,12 @@
   align-items: center;
 }
 
+.metaLinks {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
 .options:hover {
   color: var(--color-text);
 }

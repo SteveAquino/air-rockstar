@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { Badge } from '@/src/components/ui/Badge';
 import { Button } from '@/src/components/ui/Button';
 import { Card } from '@/src/components/ui/Card';
@@ -15,10 +16,15 @@ export default function StyleguidePage() {
     <main className={styles.main}>
       <header className={styles.header}>
         <div>
+          <p className={styles.kicker}>Styleguide</p>
           <h1>Air Rockstar Styleguide</h1>
           <p>Design tokens and reusable components.</p>
         </div>
-        <StatusPill tone="ready" label="System Ready" />
+        <div className={styles.headerActions}>
+          <Link href="/" className={styles.backLink}>
+            Back to Home
+          </Link>
+        </div>
       </header>
 
       <section className={styles.grid}>

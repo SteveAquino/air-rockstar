@@ -2,7 +2,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/src/components/ui/Card';
 import { LinkButton } from '@/src/components/ui/LinkButton';
-import { StatusPill } from '@/src/components/ui/StatusPill';
 import styles from './page.module.css';
 
 export default function HomePage() {
@@ -16,7 +15,6 @@ export default function HomePage() {
             Select an instrument to get started
           </p>
         </div>
-        <StatusPill tone="locked" label="Camera Not Ready" />
       </header>
 
       <section className={styles.cards}>
@@ -55,9 +53,14 @@ export default function HomePage() {
         </Card>
       </section>
 
-      <Link href="/styleguide" className={styles.options}>
-        Style Guide <span aria-hidden="true">&gt;</span>
-      </Link>
+      <div className={styles.metaLinks}>
+        <Link href="/styleguide" className={styles.options}>
+          Style Guide <span aria-hidden="true">&gt;</span>
+        </Link>
+        <Link href="/about" className={styles.options}>
+          About <span aria-hidden="true">&gt;</span>
+        </Link>
+      </div>
     </main>
   );
 }

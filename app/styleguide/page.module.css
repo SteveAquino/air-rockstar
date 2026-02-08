@@ -12,12 +12,37 @@
   justify-content: space-between;
 }
 
+.kicker {
+  font-size: 0.85rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
 .header h1 {
   font-size: clamp(2.2rem, 4vw, 3rem);
 }
 
 .header p {
   color: var(--color-muted);
+}
+
+.headerActions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.backLink {
+  color: var(--color-muted);
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.backLink:hover {
+  color: var(--color-text);
 }
 
 .grid {

@@ -177,6 +177,9 @@ air-rockstar/
 │   ├── page.tsx                  # Welcome screen
 │   ├── page.module.css           # Welcome screen styles
 │   ├── globals.css               # Global styles
+│   ├── about/                    # About page
+│   │   ├── page.tsx
+│   │   └── page.module.css
 │   ├── guitar/                   # Guitar mode
 │   │   └── page.tsx
 │   └── drums/                    # Drums mode
@@ -308,12 +311,14 @@ GitHub Actions automatically runs on all pull requests:
 - [x] Comprehensive unit tests for drum kit
 - [x] Guitar string zones and collision detection
 - [x] Guitar fret/strum zones with pitch modulation
-- [ ] Audio velocity-based dynamics
-- [ ] Additional instrument samples
-
 ### 🎯 Phase 4: Enhancements
 - [ ] Pre-recorded instrument samples library
 - [ ] Advanced velocity-based hit detection
+- [ ] Audio velocity-based dynamics
+- [ ] Additional instrument samples
+- [ ] Additional drum instruments (6 pieces: hi/low tom + crash cymbal)
+- [ ] Toggleable drum kit size (allow more or fewer pieces)
+- [ ] About page with project story and build timeline
 - [ ] Multiple instrument options and variations
 - [ ] Customization and settings UI
 - [ ] Performance optimization for hand tracking

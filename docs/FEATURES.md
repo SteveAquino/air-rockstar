@@ -42,6 +42,33 @@ The welcome screen is the entry point for the Air Rockstar application. It provi
 
 ---
 
+## About Page
+
+### Overview
+The About page shares the motivation and inspiration behind Air Rockstar and
+includes a short timeline describing how the project was built with AI tooling
+and real-world beta testing.
+
+### Requirements
+
+#### Functional Requirements
+- Present a clear headline explaining the "why" behind the project
+- Include sections for motivation and inspiration
+- Display a short build timeline with key milestones
+- Provide navigation back to the home screen
+- Link to instrument modes for quick exploration
+
+#### Accessibility Requirements
+- Semantic layout with `<main>` and headings
+- All links accessible via keyboard navigation
+- Ensure timeline content is readable by screen readers
+
+#### Technical Requirements
+- Implemented as a Next.js App Router page (`app/about/page.tsx`)
+- Uses shared UI components and module CSS for layout
+
+---
+
 ## Design System and Component Library
 
 ### Overview
@@ -570,8 +597,9 @@ Items captured for future development. These are not in scope for current implem
 - Support real-time updates without blocking audio or hand tracking
 
 ### Drum Kit Expansion
+- Expand to 6 drum pieces to mirror guitar string count (hi/low tom + crash cymbal)
 - Add at least one cymbal sound for v1 (e.g. crash or ride)
-- Consider expanding to multiple toms and cymbals in a later iteration
+- Support toggling more or fewer drum pieces instead of a fixed kit size
 - Ensure additional pads do not overwhelm the UI or reduce hit accuracy
 
 ### Quality and UX Improvements
