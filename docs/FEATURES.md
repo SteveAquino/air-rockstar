@@ -306,6 +306,8 @@ Air Guitar mode lets users strum virtual strings by moving their fingertips thro
 - Alternate guitar play modes (fret mode vs. chord mode), where the left zone
   becomes a chord selector instead of individual frets.
 - Add playful animations and visual effects when notes are played.
+- When a fretting hand is detected, shift/lock the fretboard angle or position
+  toward that hand so fretting feels more natural as the hand moves.
 
 ---
 
