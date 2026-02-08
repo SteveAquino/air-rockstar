@@ -26,6 +26,8 @@ export interface DrumKitOptions {
   hitPadding?: number;
   /** Master volume (0 to 1) */
   volume?: number;
+  /** Enabled pad IDs (defaults to all pads) */
+  enabledPadIds?: string[];
   /** Callback when a pad is hit */
   onHit?: (padId: string) => void;
 }

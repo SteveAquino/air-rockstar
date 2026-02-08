@@ -11,15 +11,73 @@ export type { DrumKitOptions, DrumKitVariant, DrumPad } from '@/src/types/drumKi
 const DRUM_SAMPLES: Record<string, string> = {
   snare: '/sounds/drums/snare.mp3',
   hihat: '/sounds/drums/hihat.mp3',
+  crash: '/sounds/drums/crash.mp3',
   kick: '/sounds/drums/kick.mp3',
-  tom: '/sounds/drums/tom.mp3',
+  tomHigh: '/sounds/drums/tom2.mp3',
+  tomLow: '/sounds/drums/tom.mp3',
 };
 
 const DRUM_PADS: DrumPad[] = [
-  { id: 'snare', name: 'Snare', x: 20, y: 20, width: 120, height: 120, color: '#ef4444', activeColor: '#dc2626' },
-  { id: 'hihat', name: 'Hi-Hat', x: 70, y: 20, width: 120, height: 120, color: '#3b82f6', activeColor: '#2563eb' },
-  { id: 'kick', name: 'Kick', x: 20, y: 60, width: 120, height: 120, color: '#8b5cf6', activeColor: '#7c3aed' },
-  { id: 'tom', name: 'Tom', x: 70, y: 60, width: 120, height: 120, color: '#f59e0b', activeColor: '#d97706' },
+  {
+    id: 'hihat',
+    name: 'Hi-Hat',
+    x: 12,
+    y: 16,
+    width: 120,
+    height: 120,
+    color: '#3b82f6',
+    activeColor: '#2563eb',
+  },
+  {
+    id: 'crash',
+    name: 'Crash',
+    x: 68,
+    y: 16,
+    width: 120,
+    height: 120,
+    color: '#f97316',
+    activeColor: '#ea580c',
+  },
+  {
+    id: 'tomHigh',
+    name: 'High Tom',
+    x: 40,
+    y: 18,
+    width: 120,
+    height: 120,
+    color: '#14b8a6',
+    activeColor: '#0d9488',
+  },
+  {
+    id: 'snare',
+    name: 'Snare',
+    x: 18,
+    y: 48,
+    width: 120,
+    height: 120,
+    color: '#ef4444',
+    activeColor: '#dc2626',
+  },
+  {
+    id: 'tomLow',
+    name: 'Low Tom',
+    x: 60,
+    y: 48,
+    width: 120,
+    height: 120,
+    color: '#f59e0b',
+    activeColor: '#d97706',
+  },
+  {
+    id: 'kick',
+    name: 'Kick',
+    x: 40,
+    y: 70,
+    width: 120,
+    height: 120,
+    color: '#8b5cf6',
+    activeColor: '#7c3aed',
+  },
 ];
 
 // MediaPipe landmark indices for all finger tips
@@ -37,12 +95,13 @@ const computeVolumeScale = (volume: number) => {
 };
 
 const computeScaledPads = (
+  pads: DrumPad[],
   padScale: number,
   containerWidth: number,
   containerHeight: number
 ) => {
   const hasContainer = containerWidth > 0 && containerHeight > 0;
-  return DRUM_PADS.map((pad) => {
+  return pads.map((pad) => {
     const width = pad.width * padScale;
     const height = pad.height * padScale;
     if (!hasContainer) {
@@ -143,9 +202,9 @@ const playSynthSound = (
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.5);
       break;
-    case 'tom':
+    case 'tomHigh':
       oscillator.type = 'sine';
-      oscillator.frequency.value = 150;
+      oscillator.frequency.value = 200;
       gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(
         0.01,
@@ -153,6 +212,28 @@ const playSynthSound = (
       );
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.3);
+      break;
+    case 'tomLow':
+      oscillator.type = 'sine';
+      oscillator.frequency.value = 140;
+      gainNode.gain.setValueAtTime(0.45, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.01,
+        audioContext.currentTime + 0.35
+      );
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.35);
+      break;
+    case 'crash':
+      oscillator.type = 'square';
+      oscillator.frequency.value = 600;
+      gainNode.gain.setValueAtTime(0.25, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.01,
+        audioContext.currentTime + 0.25
+      );
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.25);
       break;
   }
 };
@@ -186,12 +267,37 @@ export function useDrumKit(
   const padScale = Number.isFinite(options.padScale) ? options.padScale! : 1;
   const hitPadding = Number.isFinite(options.hitPadding) ? options.hitPadding! : 0;
   const onHit = options.onHit;
+  const enabledPadIds = options.enabledPadIds;
   const volume = Number.isFinite(options.volume) ? options.volume! : 1;
   const volumeScale = computeVolumeScale(volume);
 
+  const enabledPadKey = useMemo(() => {
+    if (!enabledPadIds) {
+      return null;
+    }
+    return enabledPadIds.join('|');
+  }, [enabledPadIds]);
+
+  const enabledPadSet = useMemo(() => {
+    if (enabledPadKey === null) {
+      return null;
+    }
+    if (!enabledPadKey) {
+      return new Set<string>();
+    }
+    return new Set(enabledPadKey.split('|'));
+  }, [enabledPadKey]);
+
+  const filteredPads = useMemo(() => {
+    if (!enabledPadSet) {
+      return DRUM_PADS;
+    }
+    return DRUM_PADS.filter((pad) => enabledPadSet.has(pad.id));
+  }, [enabledPadSet]);
+
   const scaledPads = useMemo(
-    () => computeScaledPads(padScale, containerWidth, containerHeight),
-    [padScale, containerWidth, containerHeight]
+    () => computeScaledPads(filteredPads, padScale, containerWidth, containerHeight),
+    [filteredPads, padScale, containerWidth, containerHeight]
   );
 
   // Initialize Web Audio API and load samples
@@ -232,6 +338,40 @@ export function useDrumKit(
     if (!audioContext || !masterGain) return;
     updateMasterGain(audioContext, masterGain, volumeScale);
   }, [volumeScale]);
+
+  useEffect(() => {
+    if (!enabledPadSet) {
+      return;
+    }
+
+    setActivePads((prev) => {
+      let hasChanges = false;
+      const next = new Set<string>();
+      prev.forEach((padId) => {
+        if (enabledPadSet.has(padId)) {
+          next.add(padId);
+        } else {
+          hasChanges = true;
+        }
+      });
+      return hasChanges ? next : prev;
+    });
+
+    const nextCollisions = new Map<number, Set<string>>();
+    collidingPadsRef.current.forEach((padIds, fingerIndex) => {
+      const filtered = new Set<string>();
+      padIds.forEach((padId) => {
+        if (enabledPadSet.has(padId)) {
+          filtered.add(padId);
+        }
+      });
+      if (filtered.size > 0) {
+        nextCollisions.set(fingerIndex, filtered);
+      }
+    });
+
+    collidingPadsRef.current = nextCollisions;
+  }, [enabledPadSet]);
 
   const playSound = useCallback((padId: string) => {
     const audioContext = audioContextRef.current;

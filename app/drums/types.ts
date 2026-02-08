@@ -29,10 +29,12 @@ export interface DrumsControlsProps {
   padSize: number;
   volume: number;
   variant: DrumKitVariant;
+  enabledPads: Set<string>;
   onSensitivityChange: (value: number) => void;
   onPadSizeChange: (value: number) => void;
   onVolumeChange: (value: number) => void;
   onVariantChange: (value: DrumKitVariant) => void;
+  onTogglePad: (padId: string) => void;
 }
 
 export interface DrumsActionsProps {

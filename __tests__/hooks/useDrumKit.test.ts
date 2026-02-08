@@ -64,7 +64,10 @@ const createFingerTip = (x: number, y: number): NormalizedLandmark => ({
 });
 
 // Helper to create full hand with 21 landmarks
-const createHand = (fingerTipX: number, fingerTipY: number): NormalizedLandmark[] => {
+const createHand = (
+  fingerTipX: number,
+  fingerTipY: number
+): NormalizedLandmark[] => {
   const hand: NormalizedLandmark[] = [];
   for (let i = 0; i < 21; i++) {
     if (i === 8) { // Index finger tip
@@ -76,10 +79,63 @@ const createHand = (fingerTipX: number, fingerTipY: number): NormalizedLandmark[
   return hand;
 };
 
+const DEFAULT_WIDTH = 800;
+const DEFAULT_HEIGHT = 600;
+
+const getNormalizedPointForPad = (
+  pad: { x: number; y: number; width: number; height: number },
+  containerWidth: number,
+  containerHeight: number,
+  offsetX = 0,
+  offsetY = 0
+) => {
+  const padX = (pad.x / 100) * containerWidth;
+  const padY = (pad.y / 100) * containerHeight;
+  const centerX = padX + pad.width / 2 + offsetX;
+  const centerY = padY + pad.height / 2 + offsetY;
+  return {
+    x: 1 - centerX / containerWidth,
+    y: centerY / containerHeight,
+  };
+};
+
+const createHandForPad = (
+  pad: { x: number; y: number; width: number; height: number },
+  containerWidth: number,
+  containerHeight: number,
+  offsetX = 0,
+  offsetY = 0
+) => {
+  const point = getNormalizedPointForPad(
+    pad,
+    containerWidth,
+    containerHeight,
+    offsetX,
+    offsetY
+  );
+  return createHand(point.x, point.y);
+};
+
+const createHandWithTips = (
+  tips: Record<number, { x: number; y: number }>
+): NormalizedLandmark[] => {
+  const hand: NormalizedLandmark[] = [];
+  for (let i = 0; i < 21; i++) {
+    if (tips[i]) {
+      hand.push(createFingerTip(tips[i].x, tips[i].y));
+    } else {
+      hand.push(createFingerTip(0.5, 0.5));
+    }
+  }
+  return hand;
+};
+
 describe('useDrumKit', () => {
   describe('when initialized', () => {
     it('should initialize Web Audio API and set isReady to true', async () => {
-      const { result } = renderHook(() => useDrumKit(null, 800, 600, 'synth'));
+      const { result } = renderHook(() =>
+        useDrumKit(null, DEFAULT_WIDTH, DEFAULT_HEIGHT, 'synth')
+      );
 
       await waitFor(() => {
         expect(result.current.isReady).toBe(true);
@@ -89,32 +145,42 @@ describe('useDrumKit', () => {
     });
 
     it('should return drum pads configuration', () => {
-      const { result } = renderHook(() => useDrumKit(null, 800, 600, 'synth'));
+      const { result } = renderHook(() =>
+        useDrumKit(null, DEFAULT_WIDTH, DEFAULT_HEIGHT, 'synth')
+      );
 
-      expect(result.current.pads).toHaveLength(4);
-      expect(result.current.pads).toEqual([
-        expect.objectContaining({ id: 'snare', name: 'Snare' }),
-        expect.objectContaining({ id: 'hihat', name: 'Hi-Hat' }),
-        expect.objectContaining({ id: 'kick', name: 'Kick' }),
-        expect.objectContaining({ id: 'tom', name: 'Tom' }),
-      ]);
+      expect(result.current.pads).toHaveLength(6);
+      expect(result.current.pads).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: 'hihat', name: 'Hi-Hat' }),
+          expect.objectContaining({ id: 'crash', name: 'Crash' }),
+          expect.objectContaining({ id: 'tomHigh', name: 'High Tom' }),
+          expect.objectContaining({ id: 'snare', name: 'Snare' }),
+          expect.objectContaining({ id: 'tomLow', name: 'Low Tom' }),
+          expect.objectContaining({ id: 'kick', name: 'Kick' }),
+        ])
+      );
     });
 
     it('should initialize with empty active pads', () => {
-      const { result } = renderHook(() => useDrumKit(null, 800, 600, 'synth'));
+      const { result } = renderHook(() =>
+        useDrumKit(null, DEFAULT_WIDTH, DEFAULT_HEIGHT, 'synth')
+      );
 
       expect(result.current.activePads.size).toBe(0);
     });
 
     it('should load drum samples when using acoustic variant', async () => {
-      const { result } = renderHook(() => useDrumKit(null, 800, 600, 'acoustic'));
+      const { result } = renderHook(() =>
+        useDrumKit(null, DEFAULT_WIDTH, DEFAULT_HEIGHT, 'acoustic')
+      );
 
       await waitFor(() => {
         expect(result.current.isReady).toBe(true);
       });
 
-      // Should attempt to fetch all 4 drum samples
-      expect(global.fetch).toHaveBeenCalled();
+      // Should attempt to fetch all 6 drum samples
+      expect(global.fetch).toHaveBeenCalledTimes(6);
       expect(mockAudioContext.decodeAudioData).toHaveBeenCalled();
     });
 
@@ -125,7 +191,9 @@ describe('useDrumKit', () => {
       // Mock fetch to reject
       (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
       
-      const { result } = renderHook(() => useDrumKit(null, 800, 600, 'acoustic'));
+      const { result } = renderHook(() =>
+        useDrumKit(null, DEFAULT_WIDTH, DEFAULT_HEIGHT, 'acoustic')
+      );
 
       await waitFor(() => {
         expect(result.current.isReady).toBe(true);
@@ -139,7 +207,9 @@ describe('useDrumKit', () => {
     });
 
     it('should cleanup audio context on unmount', async () => {
-      const { unmount } = renderHook(() => useDrumKit(null, 800, 600, 'synth'));
+      const { unmount } = renderHook(() =>
+        useDrumKit(null, DEFAULT_WIDTH, DEFAULT_HEIGHT, 'synth')
+      );
 
       await waitFor(() => {
         expect(mockAudioContext.close).not.toHaveBeenCalled();
@@ -154,7 +224,9 @@ describe('useDrumKit', () => {
   describe('when configured with options', () => {
     it('should scale pad sizes based on padScale', async () => {
       const { result } = renderHook(() =>
-        useDrumKit(null, 800, 600, 'synth', { padScale: 1.5 })
+        useDrumKit(null, DEFAULT_WIDTH, DEFAULT_HEIGHT, 'synth', {
+          padScale: 1.5,
+        })
       );
 
       await waitFor(() => {
@@ -166,15 +238,31 @@ describe('useDrumKit', () => {
       expect(snare?.height).toBeCloseTo(180);
     });
 
-    it('should detect collisions with hit padding beyond pad bounds', async () => {
+    it('should filter pads based on enabledPadIds', async () => {
+      const { result } = renderHook(() =>
+        useDrumKit(null, DEFAULT_WIDTH, DEFAULT_HEIGHT, 'synth', {
+          enabledPadIds: ['snare', 'kick'],
+        })
+      );
+
+      await waitFor(() => {
+        expect(result.current.isReady).toBe(true);
+      });
+
+      expect(result.current.pads.map((pad) => pad.id)).toEqual(['snare', 'kick']);
+    });
+
+    it('should ignore collisions when no pads are enabled', async () => {
       const { result, rerender } = renderHook(
         ({ landmarks, width, height }) =>
-          useDrumKit(landmarks, width, height, 'synth', { hitPadding: 10 }),
+          useDrumKit(landmarks, width, height, 'synth', {
+            enabledPadIds: [],
+          }),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
-            width: 800,
-            height: 600,
+            width: DEFAULT_WIDTH,
+            height: DEFAULT_HEIGHT,
           },
         }
       );
@@ -183,14 +271,56 @@ describe('useDrumKit', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      // Snare bounds: x 160-280, y 120-240. Use x=155 (5px outside).
-      const hand = createHand(0.80625, 0.3);
+      const hand = createHand(0.5, 0.5);
 
       act(() => {
         rerender({
           landmarks: [hand],
-          width: 800,
-          height: 600,
+          width: DEFAULT_WIDTH,
+          height: DEFAULT_HEIGHT,
+        });
+      });
+
+      expect(mockAudioContext.createOscillator).not.toHaveBeenCalled();
+    });
+
+    it('should detect collisions with hit padding beyond pad bounds', async () => {
+      const { result, rerender } = renderHook(
+        ({ landmarks, width, height }) =>
+          useDrumKit(landmarks, width, height, 'synth', { hitPadding: 10 }),
+        {
+          initialProps: {
+            landmarks: null as NormalizedLandmark[][] | null,
+            width: DEFAULT_WIDTH,
+            height: DEFAULT_HEIGHT,
+          },
+        }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isReady).toBe(true);
+      });
+
+      const snare = result.current.pads.find((pad) => pad.id === 'snare');
+      expect(snare).toBeDefined();
+      if (!snare) {
+        return;
+      }
+
+      const padX = (snare.x / 100) * DEFAULT_WIDTH;
+      const padY = (snare.y / 100) * DEFAULT_HEIGHT;
+      const fingerX = padX - 5;
+      const fingerY = padY + snare.height / 2;
+      const hand = createHand(
+        1 - fingerX / DEFAULT_WIDTH,
+        fingerY / DEFAULT_HEIGHT
+      );
+
+      act(() => {
+        rerender({
+          landmarks: [hand],
+          width: DEFAULT_WIDTH,
+          height: DEFAULT_HEIGHT,
         });
       });
 
@@ -205,8 +335,8 @@ describe('useDrumKit', () => {
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
-            width: 800,
-            height: 600,
+            width: DEFAULT_WIDTH,
+            height: DEFAULT_HEIGHT,
           },
         }
       );
@@ -215,13 +345,18 @@ describe('useDrumKit', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHand(0.7, 0.3);
+      const snare = result.current.pads.find((pad) => pad.id === 'snare');
+      expect(snare).toBeDefined();
+      if (!snare) {
+        return;
+      }
+      const hand = createHandForPad(snare, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
       act(() => {
         rerender({
           landmarks: [hand],
-          width: 800,
-          height: 600,
+          width: DEFAULT_WIDTH,
+          height: DEFAULT_HEIGHT,
         });
       });
 
@@ -235,8 +370,8 @@ describe('useDrumKit', () => {
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
-            width: 800,
-            height: 600,
+            width: DEFAULT_WIDTH,
+            height: DEFAULT_HEIGHT,
           },
         }
       );
@@ -245,10 +380,15 @@ describe('useDrumKit', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHand(0.7, 0.3); // Snare pad
+      const snare = result.current.pads.find((pad) => pad.id === 'snare');
+      expect(snare).toBeDefined();
+      if (!snare) {
+        return;
+      }
+      const hand = createHandForPad(snare, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
       act(() => {
-        rerender({ landmarks: [hand], width: 800, height: 600 });
+        rerender({ landmarks: [hand], width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
       });
 
       const gainCalls = mockAudioContext.createGain.mock.calls.length;
@@ -268,8 +408,8 @@ describe('useDrumKit', () => {
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
-            width: 800,
-            height: 600,
+            width: DEFAULT_WIDTH,
+            height: DEFAULT_HEIGHT,
           },
         }
       );
@@ -278,16 +418,18 @@ describe('useDrumKit', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      // Snare is at x: 20%, y: 20%, size: 120x120
-      // So in 800x600, it's at 160,120 to 280,240
-      // Finger at x: 0.7 (mirrored to 0.3), y: 0.3 = 240, 180 (inside snare)
-      const hand = createHand(0.7, 0.3);
+      const snare = result.current.pads.find((pad) => pad.id === 'snare');
+      expect(snare).toBeDefined();
+      if (!snare) {
+        return;
+      }
+      const hand = createHandForPad(snare, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
       act(() => {
         rerender({
           landmarks: [hand],
-          width: 800,
-          height: 600,
+          width: DEFAULT_WIDTH,
+          height: DEFAULT_HEIGHT,
         });
       });
 
@@ -301,8 +443,8 @@ describe('useDrumKit', () => {
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
-            width: 800,
-            height: 600,
+            width: DEFAULT_WIDTH,
+            height: DEFAULT_HEIGHT,
           },
         }
       );
@@ -311,13 +453,18 @@ describe('useDrumKit', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHand(0.7, 0.3); // Snare pad
+      const snare = result.current.pads.find((pad) => pad.id === 'snare');
+      expect(snare).toBeDefined();
+      if (!snare) {
+        return;
+      }
+      const hand = createHandForPad(snare, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
       act(() => {
         rerender({
           landmarks: [hand],
-          width: 800,
-          height: 600,
+          width: DEFAULT_WIDTH,
+          height: DEFAULT_HEIGHT,
         });
       });
 
@@ -330,8 +477,8 @@ describe('useDrumKit', () => {
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
-            width: 800,
-            height: 600,
+            width: DEFAULT_WIDTH,
+            height: DEFAULT_HEIGHT,
           },
         }
       );
@@ -340,11 +487,16 @@ describe('useDrumKit', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHand(0.7, 0.3); // Inside snare pad
+      const snare = result.current.pads.find((pad) => pad.id === 'snare');
+      expect(snare).toBeDefined();
+      if (!snare) {
+        return;
+      }
+      const hand = createHandForPad(snare, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
       // First collision - should play
       act(() => {
-        rerender({ landmarks: [hand], width: 800, height: 600 });
+        rerender({ landmarks: [hand], width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
       });
 
       const firstCallCount = mockAudioContext.createOscillator.mock.calls.length;
@@ -352,7 +504,7 @@ describe('useDrumKit', () => {
 
       // Finger still in same position - should NOT play again
       act(() => {
-        rerender({ landmarks: [hand], width: 800, height: 600 });
+        rerender({ landmarks: [hand], width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
       });
 
       expect(mockAudioContext.createOscillator).toHaveBeenCalledTimes(firstCallCount);
@@ -364,8 +516,8 @@ describe('useDrumKit', () => {
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
-            width: 800,
-            height: 600,
+            width: DEFAULT_WIDTH,
+            height: DEFAULT_HEIGHT,
           },
         }
       );
@@ -375,9 +527,18 @@ describe('useDrumKit', () => {
       });
 
       // Enter pad
-      const handInside = createHand(0.7, 0.3);
+      const snareReentry = result.current.pads.find((pad) => pad.id === 'snare');
+      expect(snareReentry).toBeDefined();
+      if (!snareReentry) {
+        return;
+      }
+      const handInside = createHandForPad(
+        snareReentry,
+        DEFAULT_WIDTH,
+        DEFAULT_HEIGHT
+      );
       act(() => {
-        rerender({ landmarks: [handInside], width: 800, height: 600 });
+        rerender({ landmarks: [handInside], width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
       });
 
       const firstCallCount = mockAudioContext.createOscillator.mock.calls.length;
@@ -385,12 +546,12 @@ describe('useDrumKit', () => {
       // Exit pad
       const handOutside = createHand(0.5, 0.5);
       act(() => {
-        rerender({ landmarks: [handOutside], width: 800, height: 600 });
+        rerender({ landmarks: [handOutside], width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
       });
 
       // Re-enter pad - should play again
       act(() => {
-        rerender({ landmarks: [handInside], width: 800, height: 600 });
+        rerender({ landmarks: [handInside], width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
       });
 
       expect(mockAudioContext.createOscillator.mock.calls.length).toBeGreaterThan(firstCallCount);
@@ -402,8 +563,8 @@ describe('useDrumKit', () => {
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
-            width: 800,
-            height: 600,
+            width: DEFAULT_WIDTH,
+            height: DEFAULT_HEIGHT,
           },
         }
       );
@@ -412,10 +573,15 @@ describe('useDrumKit', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHand(0.7, 0.3); // Snare pad
+      const snare = result.current.pads.find((pad) => pad.id === 'snare');
+      expect(snare).toBeDefined();
+      if (!snare) {
+        return;
+      }
+      const hand = createHandForPad(snare, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
       act(() => {
-        rerender({ landmarks: [hand], width: 800, height: 600 });
+        rerender({ landmarks: [hand], width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
       });
 
       expect(result.current.activePads.has('snare')).toBe(true);
@@ -427,8 +593,8 @@ describe('useDrumKit', () => {
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
-            width: 800,
-            height: 600,
+            width: DEFAULT_WIDTH,
+            height: DEFAULT_HEIGHT,
           },
         }
       );
@@ -437,10 +603,15 @@ describe('useDrumKit', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHand(0.7, 0.3);
+      const snareActive = result.current.pads.find((pad) => pad.id === 'snare');
+      expect(snareActive).toBeDefined();
+      if (!snareActive) {
+        return;
+      }
+      const hand = createHandForPad(snareActive, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
       act(() => {
-        rerender({ landmarks: [hand], width: 800, height: 600 });
+        rerender({ landmarks: [hand], width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
       });
 
       expect(result.current.activePads.has('snare')).toBe(true);
@@ -460,8 +631,8 @@ describe('useDrumKit', () => {
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
-            width: 800,
-            height: 600,
+            width: DEFAULT_WIDTH,
+            height: DEFAULT_HEIGHT,
           },
         }
       );
@@ -470,15 +641,18 @@ describe('useDrumKit', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      // Hihat at x: 70%, y: 20% = mirrored to x: 30%
-      // In 800x600: 240,120 to 360,240
-      const hand = createHand(0.7, 0.3); // x: 0.7 mirrored = 0.3 * 800 = 240
+      const hihat = result.current.pads.find((pad) => pad.id === 'hihat');
+      expect(hihat).toBeDefined();
+      if (!hihat) {
+        return;
+      }
+      const hand = createHandForPad(hihat, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
       act(() => {
-        rerender({ landmarks: [hand], width: 800, height: 600 });
+        rerender({ landmarks: [hand], width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
       });
 
-      expect(result.current.activePads.has('snare')).toBe(true);
+      expect(result.current.activePads.has('hihat')).toBe(true);
     });
 
     it('should detect collision with kick pad', async () => {
@@ -487,8 +661,8 @@ describe('useDrumKit', () => {
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
-            width: 800,
-            height: 600,
+            width: DEFAULT_WIDTH,
+            height: DEFAULT_HEIGHT,
           },
         }
       );
@@ -497,12 +671,15 @@ describe('useDrumKit', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      // Kick at x: 20%, y: 60%
-      // In 800x600: 160,360 to 280,480
-      const hand = createHand(0.7, 0.7); // mirrored x: 0.3 * 800 = 240, y: 0.7 * 600 = 420
+      const kick = result.current.pads.find((pad) => pad.id === 'kick');
+      expect(kick).toBeDefined();
+      if (!kick) {
+        return;
+      }
+      const hand = createHandForPad(kick, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
       act(() => {
-        rerender({ landmarks: [hand], width: 800, height: 600 });
+        rerender({ landmarks: [hand], width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
       });
 
       expect(result.current.activePads.has('kick')).toBe(true);
@@ -516,8 +693,8 @@ describe('useDrumKit', () => {
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
-            width: 800,
-            height: 600,
+            width: DEFAULT_WIDTH,
+            height: DEFAULT_HEIGHT,
           },
         }
       );
@@ -526,20 +703,32 @@ describe('useDrumKit', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      // Create hand with multiple finger tips in different pads
-      const hand: NormalizedLandmark[] = [];
-      for (let i = 0; i < 21; i++) {
-        if (i === 4) { // Thumb
-          hand.push(createFingerTip(0.7, 0.3)); // Snare area
-        } else if (i === 8) { // Index
-          hand.push(createFingerTip(0.25, 0.3)); // Hihat area
-        } else {
-          hand.push(createFingerTip(0.5, 0.5));
-        }
+      const snare = result.current.pads.find((pad) => pad.id === 'snare');
+      const crash = result.current.pads.find((pad) => pad.id === 'crash');
+      expect(snare).toBeDefined();
+      expect(crash).toBeDefined();
+      if (!snare || !crash) {
+        return;
       }
 
+      const snarePoint = getNormalizedPointForPad(
+        snare,
+        DEFAULT_WIDTH,
+        DEFAULT_HEIGHT
+      );
+      const crashPoint = getNormalizedPointForPad(
+        crash,
+        DEFAULT_WIDTH,
+        DEFAULT_HEIGHT
+      );
+
+      const hand = createHandWithTips({
+        4: snarePoint,
+        8: crashPoint,
+      });
+
       act(() => {
-        rerender({ landmarks: [hand], width: 800, height: 600 });
+        rerender({ landmarks: [hand], width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
       });
 
       // Both pads should be active
@@ -549,7 +738,9 @@ describe('useDrumKit', () => {
 
   describe('when no landmarks provided', () => {
     it('should not attempt collision detection', () => {
-      const { result } = renderHook(() => useDrumKit(null, 800, 600, 'synth'));
+      const { result } = renderHook(() =>
+        useDrumKit(null, DEFAULT_WIDTH, DEFAULT_HEIGHT, 'synth')
+      );
 
       // Should not crash and activePads should be empty
       expect(result.current.activePads.size).toBe(0);
