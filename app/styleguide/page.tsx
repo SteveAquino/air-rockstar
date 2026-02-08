@@ -24,7 +24,6 @@ export default function StyleguidePage() {
           <Link href="/" className={styles.backLink}>
             Back to Home
           </Link>
-          <StatusPill tone="ready" label="System Ready" />
         </div>
       </header>
 
