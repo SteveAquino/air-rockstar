@@ -20,8 +20,8 @@ export interface GuitarString {
 export interface GuitarOptions {
   /** String spacing scale (0.3 to 1 relative to container height) */
   stringSpacing?: number;
-  /** Vertical offset for the string set as a ratio of container height */
-  stringVerticalOffset?: number;
+  /** Position of the string set (0 = bottom aligned, 100 = top aligned) */
+  stringPositionPercent?: number;
   /** Visual thickness of the string band in pixels */
   stringThickness?: number;
   /** Extra padding (px) around string bands for hit detection */

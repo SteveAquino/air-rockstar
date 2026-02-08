@@ -15,6 +15,8 @@ const BASE_STRINGS = [
   { id: 'e2', label: 'E', note: 'E2', frequency: 82.41, color: '#fca5a5', activeColor: '#f87171' },
 ] as const;
 
+const EDGE_MARGIN_RATIO = 0.04;
+
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
@@ -70,7 +72,7 @@ const computeStrings = (
   containerHeight: number,
   spacingScale: number,
   thicknessPx: number,
-  verticalOffset: number
+  positionPercent: number
 ): GuitarString[] => {
   if (containerHeight <= 0) {
     return BASE_STRINGS.map((string, index) => ({
@@ -81,9 +83,14 @@ const computeStrings = (
   }
 
   const usableHeight = containerHeight * spacingScale;
-  let topOffset = containerHeight * 0.58 + containerHeight * verticalOffset;
   const maxOffset = Math.max(0, containerHeight - usableHeight);
-  topOffset = clamp(topOffset, 0, maxOffset);
+  const margin = containerHeight * EDGE_MARGIN_RATIO;
+  const minOffset = clamp(margin, 0, maxOffset);
+  const maxOffsetWithMargin = clamp(maxOffset - margin, 0, maxOffset);
+  const effectiveMax = Math.max(minOffset, maxOffsetWithMargin);
+  const clampedPosition = clamp(positionPercent, 0, 100);
+  const topOffset =
+    effectiveMax - (clampedPosition / 100) * (effectiveMax - minOffset);
   const spacing = usableHeight / (BASE_STRINGS.length - 1);
 
   return BASE_STRINGS.map((string, index) => {
@@ -131,9 +138,9 @@ export function useGuitar(
   const spacingScale = Number.isFinite(options.stringSpacing)
     ? clamp(options.stringSpacing!, 0.2, 0.34)
     : 0.28;
-  const verticalOffset = Number.isFinite(options.stringVerticalOffset)
-    ? clamp(options.stringVerticalOffset!, -0.3, 0.3)
-    : 0;
+  const positionPercent = Number.isFinite(options.stringPositionPercent)
+    ? clamp(options.stringPositionPercent!, 0, 100)
+    : 35;
   const hitPadding = Number.isFinite(options.hitPadding) ? options.hitPadding! : 0;
   const volume = Number.isFinite(options.volume) ? options.volume! : 1;
   const fretCount = Number.isFinite(options.fretCount)
@@ -153,8 +160,13 @@ export function useGuitar(
 
   const strings = useMemo(
     () =>
-      computeStrings(containerHeight, spacingScale, thicknessPx, verticalOffset),
-    [containerHeight, spacingScale, thicknessPx, verticalOffset]
+      computeStrings(
+        containerHeight,
+        spacingScale,
+        thicknessPx,
+        positionPercent
+      ),
+    [containerHeight, spacingScale, thicknessPx, positionPercent]
   );
 
   useEffect(() => {

@@ -22,7 +22,7 @@ export default function GuitarPage() {
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [sensitivity, setSensitivity] = useState(50);
   const [spacing, setSpacing] = useState(60);
-  const [position, setPosition] = useState(33);
+  const [position, setPosition] = useState(35);
   const [volume, setVolume] = useState(70);
   const [fretCount, setFretCount] = useState(20);
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -43,10 +43,6 @@ export default function GuitarPage() {
   const stringThickness = useMemo(
     () => 10 + (sensitivity / 100) * 6,
     [sensitivity]
-  );
-  const verticalOffset = useMemo(
-    () => ((50 - position) / 50) * 0.2,
-    [position]
   );
   const volumeScale = useMemo(() => volume / 100, [volume]);
   const landmarkRadius = useMemo(
@@ -101,7 +97,7 @@ export default function GuitarPage() {
     containerSize.height,
     {
       stringSpacing: spacingScale,
-      stringVerticalOffset: verticalOffset,
+      stringPositionPercent: position,
       hitPadding,
       stringThickness,
       volume: volumeScale,
