@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import type { NormalizedLandmark } from '@mediapipe/hands';
 
 /**
@@ -39,6 +39,17 @@ export interface DrumPad {
   activeColor: string;
 }
 
+export interface DrumKitOptions {
+  /** Scale factor for pad size */
+  padScale?: number;
+  /** Extra padding (px) around pads for hit detection */
+  hitPadding?: number;
+  /** Master volume (0 to 1) */
+  volume?: number;
+  /** Callback when a pad is hit */
+  onHit?: (padId: string) => void;
+}
+
 const DRUM_PADS: DrumPad[] = [
   { id: 'snare', name: 'Snare', x: 20, y: 20, width: 120, height: 120, color: '#ef4444', activeColor: '#dc2626' },
   { id: 'hihat', name: 'Hi-Hat', x: 70, y: 20, width: 120, height: 120, color: '#3b82f6', activeColor: '#2563eb' },
@@ -66,13 +77,47 @@ export function useDrumKit(
   landmarks: NormalizedLandmark[][] | null,
   containerWidth: number,
   containerHeight: number,
-  variant: DrumKitVariant = 'synth'
+  variant: DrumKitVariant = 'synth',
+  options: DrumKitOptions = {}
 ) {
   const [isReady, setIsReady] = useState(false);
   const [activePads, setActivePads] = useState<Set<string>>(new Set());
   const collidingPadsRef = useRef<Map<number, Set<string>>>(new Map()); // Track which pads each finger is colliding with
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBuffersRef = useRef<Record<string, AudioBuffer>>({});
+  const masterGainRef = useRef<GainNode | null>(null);
+  const padScale = Number.isFinite(options.padScale) ? options.padScale! : 1;
+  const hitPadding = Number.isFinite(options.hitPadding) ? options.hitPadding! : 0;
+  const onHit = options.onHit;
+  const volume = Number.isFinite(options.volume) ? options.volume! : 1;
+  const clampedVolume = Math.min(1, Math.max(0, volume));
+  const logCurve = Math.log10(1 + 9 * clampedVolume) / Math.log10(10);
+  const volumeScale =
+    clampedVolume <= 0.4
+      ? 2 * logCurve
+      : 2 * (logCurve + (1 - logCurve) * Math.pow((clampedVolume - 0.4) / 0.6, 0.6));
+
+  const scaledPads = useMemo(() => {
+    const hasContainer = containerWidth > 0 && containerHeight > 0;
+    return DRUM_PADS.map((pad) => {
+      const width = pad.width * padScale;
+      const height = pad.height * padScale;
+      if (!hasContainer) {
+        return { ...pad, width, height };
+      }
+
+      const deltaX = ((width - pad.width) / 2 / containerWidth) * 100;
+      const deltaY = ((height - pad.height) / 2 / containerHeight) * 100;
+
+      return {
+        ...pad,
+        width,
+        height,
+        x: pad.x - deltaX,
+        y: pad.y - deltaY,
+      };
+    });
+  }, [padScale, containerWidth, containerHeight]);
 
   // Initialize Web Audio API and load samples
   useEffect(() => {
@@ -80,6 +125,12 @@ export function useDrumKit(
       try {
         // Create audio context
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        masterGainRef.current = audioContextRef.current.createGain();
+        masterGainRef.current.gain.setValueAtTime(
+          1,
+          audioContextRef.current.currentTime
+        );
+        masterGainRef.current.connect(audioContextRef.current.destination);
         
         // Load drum samples for acoustic variant
         if (variant === 'acoustic') {
@@ -128,6 +179,13 @@ export function useDrumKit(
     };
   }, [variant]);
 
+  useEffect(() => {
+    const audioContext = audioContextRef.current;
+    const masterGain = masterGainRef.current;
+    if (!audioContext || !masterGain) return;
+    masterGain.gain.setValueAtTime(volumeScale, audioContext.currentTime);
+  }, [volumeScale]);
+
   const playSound = useCallback((padId: string) => {
     const audioContext = audioContextRef.current;
     if (!audioContext) return;
@@ -143,7 +201,11 @@ export function useDrumKit(
       if (buffer) {
         const source = audioContext.createBufferSource();
         source.buffer = buffer;
-        source.connect(audioContext.destination);
+        if (masterGainRef.current) {
+          source.connect(masterGainRef.current);
+        } else {
+          source.connect(audioContext.destination);
+        }
         source.start(0);
       }
     } else {
@@ -152,7 +214,11 @@ export function useDrumKit(
       const gainNode = audioContext.createGain();
       
       oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
+      if (masterGainRef.current) {
+        gainNode.connect(masterGainRef.current);
+      } else {
+        gainNode.connect(audioContext.destination);
+      }
 
       // Configure sound based on drum type
       switch (padId) {
@@ -160,7 +226,10 @@ export function useDrumKit(
           oscillator.type = 'triangle';
           oscillator.frequency.value = 200;
           gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+          gainNode.gain.exponentialRampToValueAtTime(
+            0.01,
+            audioContext.currentTime + 0.2
+          );
           oscillator.start(audioContext.currentTime);
           oscillator.stop(audioContext.currentTime + 0.2);
           break;
@@ -168,7 +237,10 @@ export function useDrumKit(
           oscillator.type = 'square';
           oscillator.frequency.value = 800;
           gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+          gainNode.gain.exponentialRampToValueAtTime(
+            0.01,
+            audioContext.currentTime + 0.1
+          );
           oscillator.start(audioContext.currentTime);
           oscillator.stop(audioContext.currentTime + 0.1);
           break;
@@ -176,7 +248,10 @@ export function useDrumKit(
           oscillator.type = 'sine';
           oscillator.frequency.value = 60;
           gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+          gainNode.gain.exponentialRampToValueAtTime(
+            0.01,
+            audioContext.currentTime + 0.5
+          );
           oscillator.start(audioContext.currentTime);
           oscillator.stop(audioContext.currentTime + 0.5);
           break;
@@ -184,7 +259,10 @@ export function useDrumKit(
           oscillator.type = 'sine';
           oscillator.frequency.value = 150;
           gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+          gainNode.gain.exponentialRampToValueAtTime(
+            0.01,
+            audioContext.currentTime + 0.3
+          );
           oscillator.start(audioContext.currentTime);
           oscillator.stop(audioContext.currentTime + 0.3);
           break;
@@ -228,15 +306,15 @@ export function useDrumKit(
           const fingerY = fingerTip.y * containerHeight;
 
           // Check collision with each drum pad
-          DRUM_PADS.forEach(pad => {
+          scaledPads.forEach(pad => {
             const padX = (pad.x / 100) * containerWidth;
             const padY = (pad.y / 100) * containerHeight;
 
             const isColliding =
-              fingerX >= padX &&
-              fingerX <= padX + pad.width &&
-              fingerY >= padY &&
-              fingerY <= padY + pad.height;
+              fingerX >= padX - hitPadding &&
+              fingerX <= padX + pad.width + hitPadding &&
+              fingerY >= padY - hitPadding &&
+              fingerY <= padY + pad.height + hitPadding;
 
             if (isColliding) {
               currentCollisions.get(fingerIndex)!.add(pad.id);
@@ -245,6 +323,9 @@ export function useDrumKit(
               const previousCollisions = collidingPadsRef.current.get(fingerIndex);
               if (!previousCollisions || !previousCollisions.has(pad.id)) {
                 playSound(pad.id);
+                if (onHit) {
+                  onHit(pad.id);
+                }
               }
             }
           });
@@ -254,7 +335,16 @@ export function useDrumKit(
 
     // Update the collision state for next frame
     collidingPadsRef.current = currentCollisions;
-  }, [landmarks, isReady, containerWidth, containerHeight, playSound]);
+  }, [
+    landmarks,
+    isReady,
+    containerWidth,
+    containerHeight,
+    playSound,
+    hitPadding,
+    onHit,
+    scaledPads,
+  ]);
 
   // Check collisions on every landmark update
   useEffect(() => {
@@ -262,7 +352,7 @@ export function useDrumKit(
   }, [checkCollisions]);
 
   return {
-    pads: DRUM_PADS,
+    pads: scaledPads,
     activePads,
     isReady,
   };

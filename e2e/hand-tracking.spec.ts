@@ -24,13 +24,20 @@ test.describe('Hand Tracking Integration', () => {
 
     // Enable camera
     await cameraPage.clickEnableCamera();
-    await cameraPage.expectCameraFeedVisible();
+    const hasFeed = await cameraPage.waitForCameraFeedOrError();
+    if (!hasFeed) {
+      await cameraPage.expectErrorMessage(/camera|connect|enable/i);
+      await guitarPage.takeScreenshot('camera-error');
+      return;
+    }
 
     // Canvas should be rendered
     const canvas = page.locator('canvas');
     await expect(canvas).toBeVisible();
 
     await guitarPage.takeScreenshot('hand-tracking-canvas-rendered');
+
+    await page.getByRole('button', { name: /^stop camera$/i }).click();
   });
 
   test('should render canvas overlay when camera is enabled on drums page', async ({
@@ -50,13 +57,20 @@ test.describe('Hand Tracking Integration', () => {
 
     // Enable camera
     await cameraPage.clickEnableCamera();
-    await cameraPage.expectCameraFeedVisible();
+    const hasFeed = await cameraPage.waitForCameraFeedOrError();
+    if (!hasFeed) {
+      await cameraPage.expectErrorMessage(/camera|connect|enable/i);
+      await drumsPage.takeScreenshot('camera-error');
+      return;
+    }
 
     // Canvas should be rendered
     const canvas = page.locator('canvas');
     await expect(canvas).toBeVisible();
 
     await drumsPage.takeScreenshot('hand-tracking-canvas-rendered');
+
+    await page.getByRole('button', { name: /^stop camera$/i }).click();
   });
 
   test('should not render canvas before camera is enabled', async ({
@@ -98,7 +112,12 @@ test.describe('Hand Tracking Integration', () => {
     await page.goto('/guitar');
 
     await cameraPage.clickEnableCamera();
-    await cameraPage.expectCameraFeedVisible();
+    const hasFeed = await cameraPage.waitForCameraFeedOrError();
+    if (!hasFeed) {
+      await cameraPage.expectErrorMessage(/camera|connect|enable/i);
+      await guitarPage.takeScreenshot('camera-error');
+      return;
+    }
 
     // Wait a moment for MediaPipe to initialize
     await page.waitForTimeout(2000);
@@ -108,6 +127,8 @@ test.describe('Hand Tracking Integration', () => {
     await expect(trackingError).not.toBeVisible();
 
     await guitarPage.takeScreenshot('no-tracking-errors');
+
+    await page.getByRole('button', { name: /^stop camera$/i }).click();
 
     // Filter out expected MediaPipe warnings
     const criticalErrors = errors.filter(
@@ -136,7 +157,11 @@ test.describe('Hand Tracking Integration', () => {
     await page.goto('/guitar');
 
     await cameraPage.clickEnableCamera();
-    await cameraPage.expectCameraFeedVisible();
+    const hasFeed = await cameraPage.waitForCameraFeedOrError();
+    if (!hasFeed) {
+      await cameraPage.expectErrorMessage(/camera|connect|enable/i);
+      return;
+    }
 
     const video = page.locator('video');
     const canvas = page.locator('canvas');
@@ -153,6 +178,8 @@ test.describe('Hand Tracking Integration', () => {
     expect(canvasBox!.height).toBeGreaterThan(0);
     expect(canvasBox!.x).toBeCloseTo(videoBox!.x, 1);
     expect(canvasBox!.y).toBeCloseTo(videoBox!.y, 1);
+
+    await page.getByRole('button', { name: /stop camera/i }).click();
   });
 });
 

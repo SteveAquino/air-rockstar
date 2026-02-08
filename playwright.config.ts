@@ -1,4 +1,28 @@
 import { defineConfig, devices } from '@playwright/test';
+import { execSync } from 'child_process';
+
+const resolveFreePort = () => {
+  if (process.env.PW_SERVER_PORT) {
+    const port = Number(process.env.PW_SERVER_PORT);
+    if (Number.isFinite(port) && port > 0) {
+      return port;
+    }
+  }
+  const output = execSync(
+    `node -e "const net=require('net');const s=net.createServer();s.listen(0,()=>{const {port}=s.address();console.log(port);s.close();});"`
+  )
+    .toString()
+    .trim();
+  const match = output.match(/(\d+)/);
+  const port = match ? Number(match[1]) : Number.NaN;
+  if (!Number.isFinite(port) || port <= 0) {
+    throw new Error(`Failed to resolve a free port, got: ${output}`);
+  }
+  process.env.PW_SERVER_PORT = String(port);
+  return port;
+};
+
+const webPort = resolveFreePort();
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -21,7 +45,9 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:3000',
+    baseURL: `http://localhost:${webPort}`,
+    /* Run headed locally, headless in CI. */
+    headless: !!process.env.CI,
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     /* Screenshots */
@@ -58,9 +84,9 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    command: `npm run dev -- --port ${webPort}`,
+    url: `http://localhost:${webPort}`,
+    reuseExistingServer: false,
     timeout: 120 * 1000,
   },
 });

@@ -1,4 +1,13 @@
 import '@testing-library/jest-dom';
+import React from 'react';
+
+jest.mock('next/image', () => ({
+  __esModule: true,
+  default: function NextImage(props: any) {
+    const { src, alt, ...rest } = props;
+    return React.createElement('img', { src, alt, ...rest });
+  },
+}));
 
 // Minimal fetch mock for MediaPipe library initialization
 // MediaPipe Hands requires fetch to load its WASM files

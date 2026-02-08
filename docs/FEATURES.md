@@ -42,6 +42,30 @@ The welcome screen is the entry point for the Air Rockstar application. It provi
 
 ---
 
+## Design System and Component Library
+
+### Overview
+Air Rockstar includes a reusable component library and design tokens to ensure a consistent, accessible UI across pages.
+
+### Requirements
+- Shared UI components live in `src/components/ui`
+- Design tokens and typography are defined in `app/globals.css`
+- Self-documenting styleguide available at `/styleguide`
+- Components use CSS Modules and explicit, typed props
+
+### Core Components
+- Buttons (primary, ghost, subtle, danger)
+- Cards and panels for layout surfaces
+- Status pills and badges
+- Segmented controls and sliders
+- Layout utilities (stack and cluster)
+
+### Notes
+- Drum mode controls for sensitivity and size are functional and update hit detection in real time
+- Sound variant control remains functional
+
+---
+
 ## Camera Permission Flow
 
 ### Overview
@@ -181,8 +205,9 @@ Hand tracking is the core feature enabling gesture recognition. Using MediaPipe 
 - Memory stable (no leaks)
 
 #### Visual Display
-- Draw green dots for hand landmarks
-- Draw white lines connecting landmarks
+- Draw accent-colored dots for hand landmarks
+- Draw soft white lines connecting landmarks
+- Landmark dot size reflects the current sensitivity setting for visual feedback
 - Optional: Show landmark numbers for debugging
 - Canvas overlay matches video dimensions
 - Smooth animations (no flickering)
@@ -411,3 +436,32 @@ useDrumKit(
 - Firefox 78+
 - Safari 14+
 - Edge 87+
+
+---
+
+## Drums Controls and Live Metrics
+
+### Overview
+The Drums page includes interactive controls and live feedback to help players calibrate the experience without leaving the performance view.
+
+### Functional Requirements
+- **Sensitivity**: Makes hit detection more forgiving when hands are slightly off
+- **Size**: Changes how large drum pads appear and how easy they are to reach
+- **Volume**: Controls overall drum loudness
+- **Full Screen Mode**: Expands the drum view to fill the screen while keeping essential actions available
+- **Live Metrics**:
+  - **Hits**: Total hits this session
+  - **Combo**: Current streak of quick hits
+  - **Tempo**: Estimated speed of recent hits
+
+### User Experience
+- Tooltips explain each control and stat in non-technical language
+- Controls update immediately without reloading
+- Full Screen Mode can be toggled on and off at any time
+- Sensitivity also updates the size of hand tracking dots for quick visual feedback
+- Volume updates the overall loudness of drum hits
+
+### Accessibility Requirements
+- Tooltip triggers are keyboard accessible
+- Tooltips are announced with clear labels
+- Control labels remain visible and readable

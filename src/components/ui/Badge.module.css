@@ -1,0 +1,20 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.accent {
+  background: rgba(138, 240, 217, 0.18);
+  color: var(--color-accent);
+}
+
+.muted {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-muted);
+}
