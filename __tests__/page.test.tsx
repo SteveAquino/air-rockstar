@@ -30,6 +30,13 @@ describe('HomePage', () => {
       const drumsLink = screen.getByRole('link', { name: /start air drums/i });
       expect(drumsLink).toBeInTheDocument();
     });
+
+    it('should display a link to the about page', () => {
+      render(<HomePage />);
+
+      const aboutLink = screen.getByRole('link', { name: /about/i });
+      expect(aboutLink).toBeInTheDocument();
+    });
   });
 
   describe('guitar link', () => {
@@ -63,6 +70,15 @@ describe('HomePage', () => {
       const drumsLink = screen.getByRole('link', { name: /start air drums/i });
       expect(drumsLink).toBeInTheDocument();
       expect(drumsLink.tagName).toBe('A');
+    });
+  });
+
+  describe('about link', () => {
+    it('should have the correct href attribute', () => {
+      render(<HomePage />);
+
+      const aboutLink = screen.getByRole('link', { name: /about/i });
+      expect(aboutLink).toHaveAttribute('href', '/about');
     });
   });
 

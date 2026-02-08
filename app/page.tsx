@@ -55,9 +55,14 @@ export default function HomePage() {
         </Card>
       </section>
 
-      <Link href="/styleguide" className={styles.options}>
-        Style Guide <span aria-hidden="true">&gt;</span>
-      </Link>
+      <div className={styles.metaLinks}>
+        <Link href="/styleguide" className={styles.options}>
+          Style Guide <span aria-hidden="true">&gt;</span>
+        </Link>
+        <Link href="/about" className={styles.options}>
+          About <span aria-hidden="true">&gt;</span>
+        </Link>
+      </div>
     </main>
   );
 }

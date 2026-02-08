@@ -48,6 +48,10 @@ export class CameraPermissionPage {
     return this.page.locator('[role="alert"]').filter({ hasText: /camera|denied|enable/i });
   }
 
+  async hasErrorMessage() {
+    return this.getErrorMessage().isVisible().catch(() => false);
+  }
+
   getLoadingIndicator() {
     return this.page.getByText(/loading|initializing/i);
   }
