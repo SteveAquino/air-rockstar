@@ -12,6 +12,20 @@ describe('StyleguidePage', () => {
       expect(heading).toBeInTheDocument();
     });
 
+    it('should display a page label', () => {
+      render(<StyleguidePage />);
+
+      const label = screen.getByText(/^styleguide$/i);
+      expect(label).toBeInTheDocument();
+    });
+
+    it('should display a link back to home', () => {
+      render(<StyleguidePage />);
+
+      const backLink = screen.getByRole('link', { name: /back to home/i });
+      expect(backLink).toHaveAttribute('href', '/');
+    });
+
     it('should display typography and colors sections', () => {
       render(<StyleguidePage />);
 
