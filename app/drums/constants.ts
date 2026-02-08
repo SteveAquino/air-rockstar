@@ -1,4 +1,4 @@
-import type { DrumKitVariant } from '@/src/hooks/useDrumKit';
+import type { DrumKitVariant } from '@/src/types/drumKit';
 
 export const DRUM_HELP_TEXT = {
   combo: 'Your current streak of quick hits.',

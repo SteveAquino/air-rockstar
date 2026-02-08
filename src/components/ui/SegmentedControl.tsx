@@ -1,19 +1,9 @@
 import { classNames } from '@/src/utils/classNames';
 import { HelpTooltip } from './HelpTooltip';
+import type { SegmentedControlProps } from './types';
 import styles from './SegmentedControl.module.css';
 
-export interface SegmentedOption {
-  value: string;
-  label: string;
-}
-
-export interface SegmentedControlProps {
-  label: string;
-  value: string;
-  options: SegmentedOption[];
-  onChange?: (value: string) => void;
-  helpText?: string;
-}
+export type { SegmentedControlProps, SegmentedOption } from './types';
 
 /**
  * Accessible segmented control for choosing between multiple options.

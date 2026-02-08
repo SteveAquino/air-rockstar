@@ -2,11 +2,12 @@
 
 import { useCamera } from '@/src/hooks/useCamera';
 import { useHandTracking } from '@/src/hooks/useHandTracking';
-import { useDrumKit, type DrumKitVariant } from '@/src/hooks/useDrumKit';
+import { useDrumKit } from '@/src/hooks/useDrumKit';
+import type { DrumKitVariant } from '@/src/types/drumKit';
 import { Panel } from '@/src/components/ui/Panel';
+import { CameraSetupCard } from '@/src/components/ui/CameraSetupCard';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DrumsHeader } from './DrumsHeader';
-import { DrumsSetupCard } from './DrumsSetupCard';
 import { DrumsVideoStage } from './DrumsVideoStage';
 import { DrumsStats } from './DrumsStats';
 import { DrumsControls } from './DrumsControls';
@@ -193,7 +194,8 @@ export default function DrumsPage() {
       <DrumsHeader handsDetected={handsDetected} isReady={isReady} />
 
       {!stream && (
-        <DrumsSetupCard
+        <CameraSetupCard
+          title="Air Drums"
           isRequesting={isRequesting}
           onEnable={requestCamera}
         />

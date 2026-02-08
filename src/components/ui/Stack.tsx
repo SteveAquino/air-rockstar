@@ -1,10 +1,8 @@
-import type { HTMLAttributes } from 'react';
 import { classNames } from '@/src/utils/classNames';
+import type { StackProps } from './types';
 import styles from './Stack.module.css';
 
-export interface StackProps extends HTMLAttributes<HTMLDivElement> {
-  gap?: 'sm' | 'md' | 'lg';
-}
+export type { StackProps } from './types';
 
 /**
  * Vertical stack layout with consistent spacing.

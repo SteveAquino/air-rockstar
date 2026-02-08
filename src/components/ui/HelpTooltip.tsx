@@ -2,13 +2,10 @@
 
 import { useId, useState } from 'react';
 import { classNames } from '@/src/utils/classNames';
+import type { HelpTooltipProps } from './types';
 import styles from './HelpTooltip.module.css';
 
-export interface HelpTooltipProps {
-  label: string;
-  text: string;
-  className?: string;
-}
+export type { HelpTooltipProps } from './types';
 
 /**
  * Question-mark tooltip for explaining controls in plain language.

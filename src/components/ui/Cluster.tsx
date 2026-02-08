@@ -1,13 +1,8 @@
-import type { HTMLAttributes } from 'react';
 import { classNames } from '@/src/utils/classNames';
+import type { ClusterProps } from './types';
 import styles from './Cluster.module.css';
 
-export interface ClusterProps extends HTMLAttributes<HTMLDivElement> {
-  gap?: 'sm' | 'md' | 'lg';
-  wrap?: boolean;
-  align?: 'center' | 'start' | 'end';
-  justify?: 'start' | 'center' | 'between';
-}
+export type { ClusterProps } from './types';
 
 /**
  * Horizontal cluster layout with optional wrap.

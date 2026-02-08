@@ -1,10 +1,8 @@
-import type { HTMLAttributes } from 'react';
 import { classNames } from '@/src/utils/classNames';
+import type { BadgeProps } from './types';
 import styles from './Badge.module.css';
 
-export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  tone?: 'accent' | 'muted';
-}
+export type { BadgeProps, BadgeTone } from './types';
 
 /**
  * Small badge for secondary labels.

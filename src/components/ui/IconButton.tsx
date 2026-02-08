@@ -1,11 +1,8 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { classNames } from '@/src/utils/classNames';
+import type { IconButtonProps } from './types';
 import styles from './IconButton.module.css';
 
-export interface IconButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement> {
-  icon: ReactNode;
-}
+export type { IconButtonProps } from './types';
 
 /**
  * Compact circular button for icon actions.

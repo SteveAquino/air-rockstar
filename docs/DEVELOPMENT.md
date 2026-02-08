@@ -174,6 +174,13 @@ npm run format
 npm run type-check
 ```
 
+### Structure and DRY
+
+- One React component per file (avoid multi-component modules).
+- Co-locate props and shared types in a `types.ts` file or `src/types` for reuse.
+- Extract helper functions when components/hooks exceed one screen of code.
+- Prefer shared UI components over duplicated markup or CSS.
+
 ### Pre-Commit Checklist
 
 Before committing code:
@@ -185,6 +192,7 @@ Before committing code:
 - [ ] Build succeeds
 - [ ] UI changes use `src/components/ui` and tokens from `app/globals.css`
 - [ ] Styleguide at `/styleguide` updated if new UI patterns were introduced
+- [ ] Components are one-per-file and props/types live in dedicated `types.ts` files
 
 ## Git Workflow
 
@@ -219,3 +227,4 @@ When AI agents work on this project in the future, they must:
 5. **Update Documentation**: Keep docs in sync with code changes
 6. **Run Tests Locally**: Verify E2E tests pass before pushing
 7. **Use the UI Library**: Build UI with `src/components/ui` and keep `/styleguide` accurate
+8. **Keep Structure Consistent**: One component per file, types in `types.ts`, and no repeated UI markup

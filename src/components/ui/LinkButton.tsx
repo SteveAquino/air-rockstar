@@ -1,18 +1,9 @@
-import Link, { type LinkProps } from 'next/link';
-import type { AnchorHTMLAttributes } from 'react';
+import Link from 'next/link';
 import { classNames } from '@/src/utils/classNames';
+import type { LinkButtonProps } from './types';
 import styles from './Button.module.css';
 
-export type LinkButtonVariant = 'primary' | 'ghost' | 'subtle';
-export type LinkButtonSize = 'sm' | 'md' | 'lg';
-
-export interface LinkButtonProps
-  extends LinkProps,
-    Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {
-  variant?: LinkButtonVariant;
-  size?: LinkButtonSize;
-  isFullWidth?: boolean;
-}
+export type { LinkButtonProps, LinkButtonSize, LinkButtonVariant } from './types';
 
 /**
  * Link styled like a button for navigation actions.

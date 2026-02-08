@@ -1,14 +1,9 @@
-import type { DrumKitVariant, DrumPad } from '@/src/hooks/useDrumKit';
+import type { DrumKitVariant, DrumPad } from '@/src/types/drumKit';
 import type { RefObject } from 'react';
 
 export interface DrumsHeaderProps {
   handsDetected: number;
   isReady: boolean;
-}
-
-export interface DrumsSetupCardProps {
-  isRequesting: boolean;
-  onEnable: () => void;
 }
 
 export interface DrumsVideoStageProps {

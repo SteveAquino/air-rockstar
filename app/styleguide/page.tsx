@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { Badge } from '@/src/components/ui/Badge';
 import { Button } from '@/src/components/ui/Button';
 import { Card } from '@/src/components/ui/Card';
+import { CameraSetupCard } from '@/src/components/ui/CameraSetupCard';
 import { Label } from '@/src/components/ui/Label';
 import { Panel } from '@/src/components/ui/Panel';
 import { SegmentedControl } from '@/src/components/ui/SegmentedControl';
@@ -118,6 +119,11 @@ export default function StyleguidePage() {
             />
           </div>
         </Panel>
+
+        <CameraSetupCard
+          title="Camera Setup"
+          isRequesting={false}
+        />
 
         <Card>
           <h2>Iconography</h2>

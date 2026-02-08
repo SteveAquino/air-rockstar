@@ -1,15 +1,8 @@
-import type { ButtonHTMLAttributes } from 'react';
 import { classNames } from '@/src/utils/classNames';
+import type { ButtonProps } from './types';
 import styles from './Button.module.css';
 
-export type ButtonVariant = 'primary' | 'ghost' | 'subtle' | 'danger';
-export type ButtonSize = 'sm' | 'md' | 'lg';
-
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  isFullWidth?: boolean;
-}
+export type { ButtonProps, ButtonSize, ButtonVariant } from './types';
 
 /**
  * Primary action button with size and variant options.

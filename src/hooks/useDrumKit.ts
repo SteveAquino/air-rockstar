@@ -1,10 +1,8 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import type { NormalizedLandmark } from '@mediapipe/hands';
+import type { DrumKitOptions, DrumKitVariant, DrumPad } from '@/src/types/drumKit';
 
-/**
- * Available drum kit sound variants
- */
-export type DrumKitVariant = 'synth' | 'acoustic';
+export type { DrumKitOptions, DrumKitVariant, DrumPad } from '@/src/types/drumKit';
 
 /**
  * Drum sample URLs for acoustic kit
@@ -16,39 +14,6 @@ const DRUM_SAMPLES: Record<string, string> = {
   kick: '/sounds/drums/kick.mp3',
   tom: '/sounds/drums/tom.mp3',
 };
-
-/**
- * Represents a virtual drum pad in the kit
- */
-export interface DrumPad {
-  /** Unique identifier for the drum pad */
-  id: string;
-  /** Display name of the drum */
-  name: string;
-  /** X position as percentage of container width */
-  x: number;
-  /** Y position as percentage of container height */
-  y: number;
-  /** Width in pixels */
-  width: number;
-  /** Height in pixels */
-  height: number;
-  /** Default color */
-  color: string;
-  /** Color when pad is active/hit */
-  activeColor: string;
-}
-
-export interface DrumKitOptions {
-  /** Scale factor for pad size */
-  padScale?: number;
-  /** Extra padding (px) around pads for hit detection */
-  hitPadding?: number;
-  /** Master volume (0 to 1) */
-  volume?: number;
-  /** Callback when a pad is hit */
-  onHit?: (padId: string) => void;
-}
 
 const DRUM_PADS: DrumPad[] = [
   { id: 'snare', name: 'Snare', x: 20, y: 20, width: 120, height: 120, color: '#ef4444', activeColor: '#dc2626' },

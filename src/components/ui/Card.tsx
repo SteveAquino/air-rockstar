@@ -1,12 +1,8 @@
-import type { HTMLAttributes } from 'react';
 import { classNames } from '@/src/utils/classNames';
+import type { CardProps } from './types';
 import styles from './Card.module.css';
 
-export type CardVariant = 'surface' | 'pop';
-
-export interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: CardVariant;
-}
+export type { CardProps, CardVariant } from './types';
 
 /**
  * Elevated surface for grouping content.

@@ -1,14 +1,8 @@
-import type { HTMLAttributes, ReactNode } from 'react';
 import { classNames } from '@/src/utils/classNames';
+import type { StatusPillProps } from './types';
 import styles from './StatusPill.module.css';
 
-export type StatusTone = 'ready' | 'info' | 'warn' | 'locked';
-
-export interface StatusPillProps extends HTMLAttributes<HTMLDivElement> {
-  tone?: StatusTone;
-  icon?: ReactNode;
-  label: string;
-}
+export type { StatusPillProps, StatusTone } from './types';
 
 /**
  * Status indicator with optional icon and tone.

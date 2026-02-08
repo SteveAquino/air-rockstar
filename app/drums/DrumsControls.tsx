@@ -1,7 +1,7 @@
 import { SegmentedControl } from '@/src/components/ui/SegmentedControl';
 import { Slider } from '@/src/components/ui/Slider';
+import type { DrumKitVariant } from '@/src/types/drumKit';
 import type { DrumsControlsProps } from './types';
-import type { DrumKitVariant } from '@/src/hooks/useDrumKit';
 import { DRUM_HELP_TEXT, SOUND_VARIANTS } from './constants';
 import styles from './page.module.css';
 
