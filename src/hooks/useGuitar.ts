@@ -218,7 +218,11 @@ export function useGuitar(
       return;
     }
 
-    const nextFretted = buildEmptyFrets(strings);
+    const hasExistingFrets = Object.keys(frettedStrings).length > 0;
+    const nextFretted = hasExistingFrets
+      ? { ...frettedStrings }
+      : buildEmptyFrets(strings);
+    let hasFretZoneContact = false;
     const fretZoneMaxX = containerWidth * fretZoneWidthRatio;
     const strumZoneMinX = Math.max(
       containerWidth * (1 - strumZoneWidthRatio),
@@ -241,6 +245,10 @@ export function useGuitar(
             const isInBand =
               fingerY >= centerY - bandHalf && fingerY <= centerY + bandHalf;
 
+            if (fingerX <= fretZoneMaxX) {
+              hasFretZoneContact = true;
+            }
+
             if (isInBand && fingerX <= fretZoneMaxX) {
               const fretPosition = Math.ceil(
                 (fingerX / Math.max(fretZoneMaxX, 1)) * fretCount
@@ -252,6 +260,12 @@ export function useGuitar(
         }
       });
     });
+
+    if (!hasFretZoneContact) {
+      strings.forEach((string) => {
+        nextFretted[string.id] = 0;
+      });
+    }
 
     landmarks.forEach((handLandmarks) => {
       FINGER_TIPS.forEach((fingerIndex) => {
@@ -309,6 +323,7 @@ export function useGuitar(
     containerHeight,
     containerWidth,
     strings,
+    frettedStrings,
     hitPadding,
     fretCount,
     fretZoneWidthRatio,

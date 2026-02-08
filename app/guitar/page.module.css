@@ -132,6 +132,60 @@
   z-index: 3;
 }
 
+.zoneOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.fretZone,
+.strumZone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-start;
+  padding: 12px;
+  background: linear-gradient(
+    120deg,
+    rgba(0, 0, 0, 0.12),
+    rgba(0, 0, 0, 0.02)
+  );
+}
+
+.fretZone {
+  left: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.strumZone {
+  right: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  justify-content: flex-end;
+}
+
+.zoneLabel {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.zoneDivider {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+}
+
 .stringLabel {
   font-size: 0.7rem;
   font-weight: 700;

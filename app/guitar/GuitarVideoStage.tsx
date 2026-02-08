@@ -9,11 +9,16 @@ export function GuitarVideoStage({
   strings,
   activeStrings,
   frettedStrings,
+  fretZoneWidthRatio,
+  strumZoneWidthRatio,
   isReady,
   isFullScreen,
   onExitFullScreen,
   onStopCamera,
 }: GuitarVideoStageProps) {
+  const clampedFretZone = Math.min(Math.max(fretZoneWidthRatio, 0), 0.9);
+  const clampedStrumZone = Math.min(Math.max(strumZoneWidthRatio, 0), 0.9);
+
   return (
     <div className={styles.videoWrapper} ref={containerRef}>
       <video
@@ -29,6 +34,30 @@ export function GuitarVideoStage({
         className={styles.canvas}
         aria-label="Hand tracking overlay"
       />
+      {isReady && (
+        <div className={styles.zoneOverlay} aria-hidden="true">
+          <div
+            className={styles.fretZone}
+            style={{ width: `${clampedFretZone * 100}%` }}
+          >
+            <span className={styles.zoneLabel}>Fret</span>
+          </div>
+          <div
+            className={styles.strumZone}
+            style={{ width: `${clampedStrumZone * 100}%` }}
+          >
+            <span className={styles.zoneLabel}>Strum</span>
+          </div>
+          <div
+            className={styles.zoneDivider}
+            style={{ left: `${clampedFretZone * 100}%` }}
+          />
+          <div
+            className={styles.zoneDivider}
+            style={{ right: `${clampedStrumZone * 100}%` }}
+          />
+        </div>
+      )}
       {isReady && (
         <div className={styles.stringOverlay} role="list" aria-label="Guitar strings">
           {strings.map((string) => {
