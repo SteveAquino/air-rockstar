@@ -4,20 +4,21 @@ A motion-tracking virtual instrument application that lets you play air guitar a
 
 ## Features
 
-- 🎸 **Air Guitar Mode**: Play virtual guitar by moving your hands (framework ready)
-- 🥁 **Air Drums Mode**: Play virtual drums with hand tracking and real audio
-  - Synth variant: Triangle wave synthesizer
+- 🎸 **Air Guitar Mode**: Hand-tracking camera experience (string zones coming next)
+- 🥁 **Air Drums Mode**: Play drums with hand tracking and real audio
+  - Synth variant: Triangle wave synth
   - Acoustic variant: Sampled drum sounds
-- 📹 **Camera-Based Motion Tracking**: Uses MediaPipe Hands for accurate hand detection
-- 🎵 **Real-Time Audio**: Synthesized instrument sounds powered by Tone.js
-- ♿ **Fully Accessible**: Built with ARIA labels and keyboard navigation
-- 📱 **Responsive Design**: Works on desktop and mobile devices
-- ✅ **Comprehensive Testing**: 80%+ code coverage with TDD approach
-- 🎨 **Design System + Styleguide**: Shared UI components with a live `/styleguide` reference
+- 🎚️ **Controls + Metrics**: Sensitivity, pad size, volume, combo/tempo/hit stats
+- 🖥️ **Performance Mode**: Full-screen stage view with controls hidden
+- ❓ **Help Tooltips**: Plain-language explanations for controls and stats
+- 📹 **Camera-Based Motion Tracking**: MediaPipe Hands integration
+- 🎵 **Real-Time Audio**: Tone.js-powered synthesis and samples
+- ♿ **Accessible by Default**: ARIA labels and keyboard navigation
+- 📱 **Responsive Design**: Desktop + mobile friendly
+- ✅ **Comprehensive Testing**: 80%+ coverage with TDD workflow
+- 🎨 **Design System + Styleguide**: Shared UI components with `/styleguide`
 
 ## Current Status
-
-**Last Stable Release**: [PR #5 - Drum Sound Variants](https://github.com/SteveAquino/air-rockstar/pull/5)
 
 ### What's Working ✅
 - Welcome page with navigation to instruments
@@ -25,7 +26,11 @@ A motion-tracking virtual instrument application that lets you play air guitar a
 - Hand tracking with MediaPipe
 - Virtual drum kit UI with 4 pads (kick, snare, hi-hat, tom)
 - Collision detection between fingers and drum pads
-- Audio synthesis with Tone.js
+- Audio synthesis + samples with Tone.js
+- Sensitivity, size, and volume controls
+- Live stats (hits, combo, tempo)
+- Performance/full-screen mode
+- Help tooltips for controls and stats
 - Full test coverage for implemented features
 - CI/CD pipeline with automated testing
 
@@ -127,13 +132,13 @@ npm run test:e2e:ui
 npm run test:e2e:report
 ```
 
-E2E tests run across multiple browsers (Chromium, Firefox, WebKit) and capture screenshots at key interaction points.
+E2E tests default to headed Chromium locally. CI runs headless Chromium by default.
 
 ### All Quality Checks
 
 ```bash
-# Run all checks (type-check, lint, tests, build)
-npm run type-check && npm run lint && npm run test:ci && npm run build
+# Run all checks (type-check, lint, tests, build, e2e)
+npm run type-check && npm run lint && npm run test:ci && npm run build && npm run test:e2e
 ```
 
 ## Code Quality
@@ -175,7 +180,12 @@ air-rockstar/
 │   ├── guitar/                   # Guitar mode
 │   │   └── page.tsx
 │   └── drums/                    # Drums mode
-│       └── page.tsx
+│       ├── page.tsx
+│       ├── DrumsHeader.tsx
+│       ├── DrumsControls.tsx
+│       ├── DrumsStats.tsx
+│       ├── DrumsVideoStage.tsx
+│       └── DrumsActions.tsx
 ├── docs/                         # Documentation
 │   ├── DEVELOPMENT.md            # Development guidelines & TDD workflow
 │   └── FEATURES.md               # Feature specifications
@@ -187,13 +197,16 @@ air-rockstar/
 │   │   ├── CameraPermissionPage.ts
 │   │   └── HandTrackingPage.ts
 │   ├── welcome.spec.ts           # Welcome screen E2E tests
-│   ├── camera-permission.spec.ts # Camera permission flow tests
+│   ├── camera-permissions.spec.ts # Camera permission flow tests
 │   └── hand-tracking.spec.ts     # Hand tracking E2E tests
-├── src/                          # Source code (hooks, utils, types)
-│   └── hooks/                    # React hooks
-│       ├── useCamera.ts          # Camera permission & stream management
-│       ├── useHandTracking.ts    # MediaPipe Hands integration
-│       └── useDrumKit.ts         # Virtual drum kit with audio
+├── src/                          # Source code (hooks, components, utils, types)
+│   ├── components/
+│   │   └── ui/                   # Shared UI components
+│   ├── hooks/                    # React hooks
+│   │   ├── useCamera.ts          # Camera permission & stream management
+│   │   ├── useHandTracking.ts    # MediaPipe Hands integration
+│   │   └── useDrumKit.ts         # Virtual drum kit with audio
+│   └── types/                    # Shared TypeScript definitions
 ├── .github/
 │   └── workflows/
 │       └── ci.yml                # GitHub Actions CI pipeline
@@ -270,7 +283,7 @@ GitHub Actions automatically runs on all pull requests:
 2. ✅ TypeScript type checking
 3. ✅ Unit tests with coverage enforcement (80%)
 4. ✅ Production build
-5. ✅ E2E tests across browsers
+5. ✅ E2E tests (Chromium by default)
 6. 📊 Test reports and screenshots uploaded as artifacts
 
 ## Roadmap
