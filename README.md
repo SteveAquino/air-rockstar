@@ -391,6 +391,7 @@ npm run build
 
 - [MediaPipe](https://google.github.io/mediapipe/) for hand tracking
 - [Tone.js](https://tonejs.github.io/) for web audio
+- [MIDI.js Soundfonts (FluidR3_GM)](https://github.com/gleitz/midi-js-soundfonts) for electric guitar samples (CC BY 3.0)
 - [Next.js](https://nextjs.org/) for the React framework
 - [Playwright](https://playwright.dev/) for E2E testing
 

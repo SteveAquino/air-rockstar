@@ -260,18 +260,23 @@ Air Guitar mode lets users strum virtual strings by moving their fingertips thro
 - Strumming in the right zone triggers the string sound with pitch modulation.
 
 #### Audio Requirements
-- Use Web Audio API (no samples for v1).
+- Use Web Audio API for synth and sample playback.
 - Basic synth pluck per string (triangle wave).
+- Support two sound variants: synth (default) and electric guitar (sample-based).
 - Fast attack with exponential decay (200-300ms).
 - Master volume control.
 - Low latency (< 50ms from collision to sound).
 - Pitch modulation based on fret position (semitone steps).
+- Electric guitar samples sourced from FluidR3_GM via MIDI.js soundfonts
+  (Creative Commons Attribution 3.0).
 
 #### Controls and Stats
 - Sensitivity slider (affects hit padding and landmark size).
 - String spacing slider (tight to wide string bands).
+- String position slider (move the entire string set up/down).
 - Volume slider (master gain).
-- Support 20 frets for pitch modulation.
+- Support 12-24 frets for pitch modulation (default 20).
+- Sound variant toggle (synth vs electric).
 - Live stats: hits, combo, tempo (BPM).
 - Full-screen performance mode with action bar.
 
