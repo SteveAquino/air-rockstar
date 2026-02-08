@@ -20,8 +20,8 @@ export default function GuitarPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
-  const [sensitivity, setSensitivity] = useState(20);
-  const [spacing, setSpacing] = useState(25);
+  const [sensitivity, setSensitivity] = useState(50);
+  const [spacing, setSpacing] = useState(60);
   const [volume, setVolume] = useState(70);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [hits, setHits] = useState(0);
