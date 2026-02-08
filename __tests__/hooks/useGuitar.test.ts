@@ -57,6 +57,14 @@ const createHandWithTip = (
   return hand;
 };
 
+const getStringY = (
+  strings: Array<{ id: string; yPercent: number }>,
+  stringId = 'e4'
+) => {
+  const target = strings.find((string) => string.id === stringId);
+  return (target?.yPercent ?? 50) / 100;
+};
+
 const getExpectedFret = (
   x: number,
   width: number,
@@ -131,7 +139,8 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHandWithTip(8, 0.2, 0.67);
+      const stringY = getStringY(result.current.strings);
+      const hand = createHandWithTip(8, 0.2, stringY);
 
       act(() => {
         rerender({ landmarks: [hand], width: 800, height: 600 });
@@ -156,7 +165,8 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHandWithTip(8, 0.2, 0.67);
+      const stringY = getStringY(result.current.strings);
+      const hand = createHandWithTip(8, 0.2, stringY);
 
       act(() => {
         rerender({ landmarks: [hand], width: 800, height: 600 });
@@ -190,7 +200,8 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const inside = createHandWithTip(8, 0.2, 0.67);
+      const stringY = getStringY(result.current.strings);
+      const inside = createHandWithTip(8, 0.2, stringY);
       const outside = createHandWithTip(8, 0.2, 0.5);
 
       act(() => {
@@ -230,7 +241,8 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHandWithTip(8, 0.2, 0.67);
+      const stringY = getStringY(result.current.strings);
+      const hand = createHandWithTip(8, 0.2, stringY);
 
       act(() => {
         rerender({ landmarks: [hand], width: 800, height: 600 });
@@ -257,7 +269,8 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHandWithTip(8, 0.2, 0.67);
+      const stringY = getStringY(result.current.strings);
+      const hand = createHandWithTip(8, 0.2, stringY);
 
       act(() => {
         rerender({ landmarks: [hand], width: 800, height: 600 });
@@ -291,7 +304,8 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const frettingHand = createHandWithTip(8, 0.95, 0.67);
+      const stringY = getStringY(result.current.strings);
+      const frettingHand = createHandWithTip(8, 0.95, stringY);
 
       act(() => {
         rerender({ landmarks: [frettingHand], width: 800, height: 600 });
@@ -328,8 +342,9 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const frettingHand = createHandWithTip(8, 0.82, 0.67);
-      const strummingHand = createHandWithTip(8, 0.2, 0.67);
+      const stringY = getStringY(result.current.strings);
+      const frettingHand = createHandWithTip(8, 0.82, stringY);
+      const strummingHand = createHandWithTip(8, 0.2, stringY);
 
       act(() => {
         rerender({
@@ -373,8 +388,9 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const highFretHand = createHandWithTip(8, 0.6, 0.67);
-      const lowFretHand = createHandWithTip(8, 0.8, 0.67);
+      const stringY = getStringY(result.current.strings);
+      const highFretHand = createHandWithTip(8, 0.6, stringY);
+      const lowFretHand = createHandWithTip(8, 0.8, stringY);
 
       act(() => {
         rerender({ landmarks: [highFretHand], width: 800, height: 600 });

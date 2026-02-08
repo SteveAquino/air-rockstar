@@ -80,7 +80,7 @@ const computeStrings = (
   }
 
   const usableHeight = containerHeight * spacingScale;
-  let topOffset = containerHeight * 0.66;
+  let topOffset = containerHeight * 0.58;
   if (topOffset + usableHeight > containerHeight) {
     topOffset = Math.max(0, containerHeight - usableHeight);
   }
