@@ -65,7 +65,8 @@ export function GuitarVideoStage({
             const isActive = activeStrings.has(string.id);
             const fret = frettedStrings[string.id] ?? 0;
             const hasFret = fret > 0;
-            const fretWidthPercent = 100 / Math.max(fretCount, 1);
+            const safeFretCount = Math.max(fretCount, 1);
+            const fretWidthPercent = 100 / safeFretCount;
             const fretHighlightLeft = (fret - 1) * fretWidthPercent;
             const fretDotLeft = (fret - 0.5) * fretWidthPercent;
             return (
@@ -89,7 +90,7 @@ export function GuitarVideoStage({
                   aria-label={`Fret track ${string.note}`}
                   role="group"
                 >
-                  {Array.from({ length: Math.max(fretCount - 1, 0) }).map(
+                  {Array.from({ length: Math.max(safeFretCount - 1, 0) }).map(
                     (_, index) => (
                       <span
                         key={`${string.id}-fret-${index + 1}`}

@@ -271,6 +271,7 @@ Air Guitar mode lets users strum virtual strings by moving their fingertips thro
 - Sensitivity slider (affects hit padding and landmark size).
 - String spacing slider (tight to wide string bands).
 - Volume slider (master gain).
+- Support 20 frets for pitch modulation.
 - Live stats: hits, combo, tempo (BPM).
 - Full-screen performance mode with action bar.
 
@@ -302,6 +303,8 @@ Air Guitar mode lets users strum virtual strings by moving their fingertips thro
 - Velocity-based dynamics.
 - Alternate guitar tones (clean, muted, distortion).
 - Chord/fret simulation.
+- Alternate guitar play modes (fret mode vs. chord mode), where the left zone
+  becomes a chord selector instead of individual frets.
 
 ---
 
@@ -549,6 +552,8 @@ Items captured for future development. These are not in scope for current implem
 - Add toggleable interaction modes for "hands/fingers" vs. "drum sticks" vs. "guitar pick"
 - Expose mode selection in the in-game UI with clear visual affordances
 - Ensure mode selection changes collision feel without reducing performance
+- Add guitar-specific play modes (fret mode vs. chord mode), with chord tiles
+  replacing fret markers in the left zone while the right zone remains strummable
 
 ### Live Note Stream (Visual Playback)
 - Add an in-play right-to-left note stream visualization

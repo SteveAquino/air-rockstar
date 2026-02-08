@@ -88,7 +88,7 @@ export default function GuitarPage() {
 
   const fretZoneWidthRatio = 0.67;
   const strumZoneWidthRatio = 0.33;
-  const fretCount = 5;
+  const fretCount = 20;
 
   const { strings, activeStrings, frettedStrings, isReady } = useGuitar(
     landmarks,

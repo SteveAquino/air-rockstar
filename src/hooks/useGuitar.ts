@@ -135,13 +135,13 @@ export function useGuitar(
   const volume = Number.isFinite(options.volume) ? options.volume! : 1;
   const fretCount = Number.isFinite(options.fretCount)
     ? Math.max(1, Math.round(options.fretCount!))
-    : 5;
+    : 20;
   const fretZoneWidthRatio = Number.isFinite(options.fretZoneWidthRatio)
-    ? clamp(options.fretZoneWidthRatio!, 0.2, 0.5)
-    : 0.35;
+    ? clamp(options.fretZoneWidthRatio!, 0.2, 0.9)
+    : 0.67;
   const strumZoneWidthRatio = Number.isFinite(options.strumZoneWidthRatio)
-    ? clamp(options.strumZoneWidthRatio!, 0.2, 0.5)
-    : 0.35;
+    ? clamp(options.strumZoneWidthRatio!, 0.2, 0.9)
+    : 0.33;
   const cooldownMs = Number.isFinite(options.cooldownMs) ? options.cooldownMs! : 200;
   const volumeScale = computeVolumeScale(volume);
   const thicknessPx = Number.isFinite(options.stringThickness)
@@ -218,10 +218,8 @@ export function useGuitar(
       return;
     }
 
-    const hasExistingFrets = Object.keys(frettedStrings).length > 0;
-    const nextFretted = hasExistingFrets
-      ? { ...frettedStrings }
-      : buildEmptyFrets(strings);
+    const nextFretted = buildEmptyFrets(strings);
+    const fretCandidates = buildEmptyFrets(strings);
     let hasFretZoneContact = false;
     const fretZoneMaxX = containerWidth * fretZoneWidthRatio;
     const strumZoneMinX = Math.max(
@@ -250,20 +248,19 @@ export function useGuitar(
             }
 
             if (isInBand && fingerX <= fretZoneMaxX) {
-              const fretPosition = Math.ceil(
-                (fingerX / Math.max(fretZoneMaxX, 1)) * fretCount
-              );
-              const fret = clamp(fretPosition, 1, fretCount);
-              nextFretted[string.id] = Math.max(nextFretted[string.id], fret);
+              const rawFret =
+                (fingerX / Math.max(fretZoneMaxX, 1)) * fretCount;
+              const fret = clamp(Math.floor(rawFret) + 1, 1, fretCount);
+              fretCandidates[string.id] = Math.max(fretCandidates[string.id], fret);
             }
           });
         }
       });
     });
 
-    if (!hasFretZoneContact) {
+    if (hasFretZoneContact) {
       strings.forEach((string) => {
-        nextFretted[string.id] = 0;
+        nextFretted[string.id] = fretCandidates[string.id];
       });
     }
 
