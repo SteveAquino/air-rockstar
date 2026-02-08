@@ -22,7 +22,9 @@ export default function GuitarPage() {
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [sensitivity, setSensitivity] = useState(50);
   const [spacing, setSpacing] = useState(60);
+  const [position, setPosition] = useState(33);
   const [volume, setVolume] = useState(70);
+  const [fretCount, setFretCount] = useState(20);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [hits, setHits] = useState(0);
   const [combo, setCombo] = useState(0);
@@ -41,6 +43,10 @@ export default function GuitarPage() {
   const stringThickness = useMemo(
     () => 10 + (sensitivity / 100) * 6,
     [sensitivity]
+  );
+  const verticalOffset = useMemo(
+    () => ((50 - position) / 50) * 0.2,
+    [position]
   );
   const volumeScale = useMemo(() => volume / 100, [volume]);
   const landmarkRadius = useMemo(
@@ -88,7 +94,6 @@ export default function GuitarPage() {
 
   const fretZoneWidthRatio = 0.67;
   const strumZoneWidthRatio = 0.33;
-  const fretCount = 20;
 
   const { strings, activeStrings, frettedStrings, isReady } = useGuitar(
     landmarks,
@@ -96,6 +101,7 @@ export default function GuitarPage() {
     containerSize.height,
     {
       stringSpacing: spacingScale,
+      stringVerticalOffset: verticalOffset,
       hitPadding,
       stringThickness,
       volume: volumeScale,
@@ -262,10 +268,14 @@ export default function GuitarPage() {
                 <GuitarControls
                   sensitivity={sensitivity}
                   spacing={spacing}
+                  position={position}
                   volume={volume}
+                  fretCount={fretCount}
                   onSensitivityChange={setSensitivity}
                   onSpacingChange={setSpacing}
+                  onPositionChange={setPosition}
                   onVolumeChange={setVolume}
+                  onFretCountChange={setFretCount}
                 />
               </>
             )}

@@ -305,6 +305,7 @@ Air Guitar mode lets users strum virtual strings by moving their fingertips thro
 - Chord/fret simulation.
 - Alternate guitar play modes (fret mode vs. chord mode), where the left zone
   becomes a chord selector instead of individual frets.
+- Add playful animations and visual effects when notes are played.
 
 ---
 
@@ -569,6 +570,7 @@ Items captured for future development. These are not in scope for current implem
 ### Quality and UX Improvements
 - Fix occasional double-hit when two hands enter a drum zone but only one is moving
 - Consider moving drum pads to the bottom of the camera view to feel more like a real kit
+- Full screen hand tracking can feel slightly offset compared to normal mode; investigate coordinate mapping
 - Temporarily pause the camera when the browser tab loses focus or after inactivity,
   so the camera does not stream indefinitely if the user walks away
 - Incorporate the logo into the welcome page, add stronger card glow outlines,

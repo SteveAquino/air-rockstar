@@ -31,10 +31,14 @@ export interface GuitarStatsProps {
 export interface GuitarControlsProps {
   sensitivity: number;
   spacing: number;
+  position: number;
   volume: number;
+  fretCount: number;
   onSensitivityChange: (value: number) => void;
   onSpacingChange: (value: number) => void;
+  onPositionChange: (value: number) => void;
   onVolumeChange: (value: number) => void;
+  onFretCountChange: (value: number) => void;
 }
 
 export interface GuitarActionsProps {

@@ -69,7 +69,8 @@ const playPluck = (
 const computeStrings = (
   containerHeight: number,
   spacingScale: number,
-  thicknessPx: number
+  thicknessPx: number,
+  verticalOffset: number
 ): GuitarString[] => {
   if (containerHeight <= 0) {
     return BASE_STRINGS.map((string, index) => ({
@@ -80,10 +81,9 @@ const computeStrings = (
   }
 
   const usableHeight = containerHeight * spacingScale;
-  let topOffset = containerHeight * 0.58;
-  if (topOffset + usableHeight > containerHeight) {
-    topOffset = Math.max(0, containerHeight - usableHeight);
-  }
+  let topOffset = containerHeight * 0.58 + containerHeight * verticalOffset;
+  const maxOffset = Math.max(0, containerHeight - usableHeight);
+  topOffset = clamp(topOffset, 0, maxOffset);
   const spacing = usableHeight / (BASE_STRINGS.length - 1);
 
   return BASE_STRINGS.map((string, index) => {
@@ -131,6 +131,9 @@ export function useGuitar(
   const spacingScale = Number.isFinite(options.stringSpacing)
     ? clamp(options.stringSpacing!, 0.2, 0.34)
     : 0.28;
+  const verticalOffset = Number.isFinite(options.stringVerticalOffset)
+    ? clamp(options.stringVerticalOffset!, -0.3, 0.3)
+    : 0;
   const hitPadding = Number.isFinite(options.hitPadding) ? options.hitPadding! : 0;
   const volume = Number.isFinite(options.volume) ? options.volume! : 1;
   const fretCount = Number.isFinite(options.fretCount)
@@ -149,8 +152,9 @@ export function useGuitar(
     : 12;
 
   const strings = useMemo(
-    () => computeStrings(containerHeight, spacingScale, thicknessPx),
-    [containerHeight, spacingScale, thicknessPx]
+    () =>
+      computeStrings(containerHeight, spacingScale, thicknessPx, verticalOffset),
+    [containerHeight, spacingScale, thicknessPx, verticalOffset]
   );
 
   useEffect(() => {
@@ -320,7 +324,6 @@ export function useGuitar(
     containerHeight,
     containerWidth,
     strings,
-    frettedStrings,
     hitPadding,
     fretCount,
     fretZoneWidthRatio,
