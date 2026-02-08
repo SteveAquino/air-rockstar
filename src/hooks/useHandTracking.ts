@@ -24,6 +24,18 @@ interface UseHandTrackingOptions {
   connectionWidth?: number;
 }
 
+const getDrawOptions = (
+  landmarkRadius?: number,
+  landmarkColor?: string,
+  connectionColor?: string,
+  connectionWidth?: number
+) => ({
+  landmarkRadius,
+  landmarkColor,
+  connectionColor,
+  connectionWidth,
+});
+
 export function useHandTracking(
   videoRef: RefObject<HTMLVideoElement>,
   canvasRef: RefObject<HTMLCanvasElement>,
@@ -43,19 +55,21 @@ export function useHandTracking(
     connectionWidth: options.connectionWidth,
   });
 
+  const {
+    landmarkRadius,
+    landmarkColor,
+    connectionColor,
+    connectionWidth,
+  } = options;
+
   useEffect(() => {
-    drawOptionsRef.current = {
-      landmarkRadius: options.landmarkRadius,
-      landmarkColor: options.landmarkColor,
-      connectionColor: options.connectionColor,
-      connectionWidth: options.connectionWidth,
-    };
-  }, [
-    options.landmarkRadius,
-    options.landmarkColor,
-    options.connectionColor,
-    options.connectionWidth,
-  ]);
+    drawOptionsRef.current = getDrawOptions(
+      landmarkRadius,
+      landmarkColor,
+      connectionColor,
+      connectionWidth
+    );
+  }, [landmarkRadius, landmarkColor, connectionColor, connectionWidth]);
 
   useEffect(() => {
     if (!enabled || !videoRef.current || !canvasRef.current) {
