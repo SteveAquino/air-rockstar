@@ -179,7 +179,10 @@ test.describe('Hand Tracking Integration', () => {
     expect(canvasBox!.x).toBeCloseTo(videoBox!.x, 1);
     expect(canvasBox!.y).toBeCloseTo(videoBox!.y, 1);
 
-    await page.getByRole('button', { name: /stop camera/i }).click();
+    await page
+      .getByRole('button', { name: /stop camera/i })
+      .filter({ hasText: 'Stop Camera' })
+      .click();
   });
 });
 

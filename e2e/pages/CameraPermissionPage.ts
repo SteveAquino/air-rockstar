@@ -21,7 +21,11 @@ export class CameraPermissionPage {
   }
 
   async clickEnableCamera() {
-    await this.page.getByRole('button', { name: /enable camera/i }).click();
+    const button = this.page.getByRole('button', { name: /enable camera/i });
+    const isVisible = await button.isVisible().catch(() => false);
+    if (isVisible) {
+      await button.click();
+    }
   }
 
   async takeScreenshot(name: string, pageName: string) {

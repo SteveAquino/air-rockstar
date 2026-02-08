@@ -150,6 +150,8 @@ export function useGuitar(
     updateMasterGain(audioContext, masterGain, volumeScale);
   }, [volumeScale]);
 
+  const onHit = options.onHit;
+
   const triggerHit = useCallback(
     (stringId: string, frequency: number) => {
       const audioContext = audioContextRef.current;
@@ -209,8 +211,8 @@ export function useGuitar(
               if (!wasColliding && now - lastHit >= cooldownMs) {
                 lastHitRef.current[string.id] = now;
                 triggerHit(string.id, string.frequency);
-                if (options.onHit) {
-                  options.onHit(string.id);
+                if (onHit) {
+                  onHit(string.id);
                 }
               }
             }
@@ -228,7 +230,7 @@ export function useGuitar(
     strings,
     cooldownMs,
     triggerHit,
-    options.onHit,
+    onHit,
   ]);
 
   useEffect(() => {
