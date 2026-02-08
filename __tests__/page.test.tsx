@@ -13,21 +13,21 @@ describe('HomePage', () => {
     it('should display a description about the app', () => {
       render(<HomePage />);
       
-      const description = screen.getByText(/motion tracking|camera|virtual instruments/i);
+      const description = screen.getByText(/select an instrument to get started/i);
       expect(description).toBeInTheDocument();
     });
 
     it('should display a link to the guitar page', () => {
       render(<HomePage />);
       
-      const guitarLink = screen.getByRole('link', { name: /play air guitar/i });
+      const guitarLink = screen.getByRole('link', { name: /start air guitar/i });
       expect(guitarLink).toBeInTheDocument();
     });
 
     it('should display a link to the drums page', () => {
       render(<HomePage />);
       
-      const drumsLink = screen.getByRole('link', { name: /play air drums/i });
+      const drumsLink = screen.getByRole('link', { name: /start air drums/i });
       expect(drumsLink).toBeInTheDocument();
     });
   });
@@ -36,14 +36,14 @@ describe('HomePage', () => {
     it('should have the correct href attribute', () => {
       render(<HomePage />);
       
-      const guitarLink = screen.getByRole('link', { name: /play air guitar/i });
+      const guitarLink = screen.getByRole('link', { name: /start air guitar/i });
       expect(guitarLink).toHaveAttribute('href', '/guitar');
     });
 
     it('should be keyboard accessible', () => {
       render(<HomePage />);
       
-      const guitarLink = screen.getByRole('link', { name: /play air guitar/i });
+      const guitarLink = screen.getByRole('link', { name: /start air guitar/i });
       expect(guitarLink).toBeInTheDocument();
       expect(guitarLink.tagName).toBe('A');
     });
@@ -53,14 +53,14 @@ describe('HomePage', () => {
     it('should have the correct href attribute', () => {
       render(<HomePage />);
       
-      const drumsLink = screen.getByRole('link', { name: /play air drums/i });
+      const drumsLink = screen.getByRole('link', { name: /start air drums/i });
       expect(drumsLink).toHaveAttribute('href', '/drums');
     });
 
     it('should be keyboard accessible', () => {
       render(<HomePage />);
       
-      const drumsLink = screen.getByRole('link', { name: /play air drums/i });
+      const drumsLink = screen.getByRole('link', { name: /start air drums/i });
       expect(drumsLink).toBeInTheDocument();
       expect(drumsLink.tagName).toBe('A');
     });

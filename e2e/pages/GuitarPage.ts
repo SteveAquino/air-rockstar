@@ -5,7 +5,9 @@ export class GuitarPage {
 
   // Assertions
   async expectToBeOnPage() {
-    await expect(this.page).toHaveURL(/\/guitar/);
+    await expect(
+      this.page.getByRole('heading', { name: /air guitar/i })
+    ).toBeVisible();
   }
 
   async takeScreenshot(name: string) {

@@ -63,6 +63,19 @@ export class CameraPermissionPage {
     }, { timeout: 10000 });
   }
 
+  async waitForCameraFeedOrError(timeoutMs = 10000): Promise<boolean> {
+    try {
+      await expect(this.getCameraFeed()).toBeVisible({ timeout: timeoutMs });
+      await this.page.waitForFunction(() => {
+        const video = document.querySelector('video[aria-label*="Camera feed"]') as HTMLVideoElement;
+        return video && video.readyState >= 2;
+      }, { timeout: timeoutMs });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   async expectErrorMessage(message: RegExp) {
     await expect(this.getErrorMessage()).toBeVisible();
     await expect(this.getErrorMessage()).toContainText(message);

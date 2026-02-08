@@ -42,6 +42,30 @@ The welcome screen is the entry point for the Air Rockstar application. It provi
 
 ---
 
+## Design System and Component Library
+
+### Overview
+Air Rockstar includes a reusable component library and design tokens to ensure a consistent, accessible UI across pages.
+
+### Requirements
+- Shared UI components live in `src/components/ui`
+- Design tokens and typography are defined in `app/globals.css`
+- Self-documenting styleguide available at `/styleguide`
+- Components use CSS Modules and explicit, typed props
+
+### Core Components
+- Buttons (primary, ghost, subtle, danger)
+- Cards and panels for layout surfaces
+- Status pills and badges
+- Segmented controls and sliders
+- Layout utilities (stack and cluster)
+
+### Notes
+- Drum mode controls for sensitivity and size are visual-only placeholders
+- Sound variant control remains functional
+
+---
+
 ## Camera Permission Flow
 
 ### Overview

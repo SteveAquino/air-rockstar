@@ -3,8 +3,12 @@ import GuitarPage from '../app/guitar/page';
 
 // Mock useCamera hook
 jest.mock('../src/hooks/useCamera');
+// Mock useHandTracking hook
+jest.mock('../src/hooks/useHandTracking');
 
 const mockUseCamera = require('../src/hooks/useCamera').useCamera as jest.Mock;
+const mockUseHandTracking = require('../src/hooks/useHandTracking')
+  .useHandTracking as jest.Mock;
 
 describe('GuitarPage', () => {
   beforeEach(() => {
@@ -15,6 +19,12 @@ describe('GuitarPage', () => {
       permissionState: 'prompt',
       requestCamera: jest.fn(),
       stopCamera: jest.fn(),
+    });
+
+    mockUseHandTracking.mockReturnValue({
+      landmarks: null,
+      isProcessing: false,
+      error: null,
     });
   });
 
@@ -59,6 +69,29 @@ describe('GuitarPage', () => {
       expect(video).toBeInTheDocument();
     });
 
+    it('should show hands detected status when landmarks exist', () => {
+      const mockStream = {};
+      mockUseCamera.mockReturnValue({
+        stream: mockStream,
+        error: null,
+        isRequesting: false,
+        permissionState: 'granted',
+        requestCamera: jest.fn(),
+        stopCamera: jest.fn(),
+      });
+
+      mockUseHandTracking.mockReturnValue({
+        landmarks: [{ length: 21 }],
+        isProcessing: false,
+        error: null,
+      });
+
+      render(<GuitarPage />);
+
+      const status = screen.getByText(/hands detected/i);
+      expect(status).toBeInTheDocument();
+    });
+
     it('should display stop camera button', () => {
       const mockStream = {};
       mockUseCamera.mockReturnValue({
@@ -74,6 +107,31 @@ describe('GuitarPage', () => {
       
       const button = screen.getByRole('button', { name: /stop camera/i });
       expect(button).toBeInTheDocument();
+    });
+  });
+
+  describe('when hand tracking has an error', () => {
+    it('should display tracking error message', () => {
+      const mockStream = {};
+      mockUseCamera.mockReturnValue({
+        stream: mockStream,
+        error: null,
+        isRequesting: false,
+        permissionState: 'granted',
+        requestCamera: jest.fn(),
+        stopCamera: jest.fn(),
+      });
+
+      mockUseHandTracking.mockReturnValue({
+        landmarks: null,
+        isProcessing: false,
+        error: 'Tracking error',
+      });
+
+      render(<GuitarPage />);
+
+      const trackingError = screen.getByText(/hand tracking: tracking error/i);
+      expect(trackingError).toBeInTheDocument();
     });
   });
 

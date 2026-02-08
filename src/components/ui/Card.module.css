@@ -1,0 +1,26 @@
+.card {
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  border: var(--border-glow);
+  background: rgba(18, 12, 29, 0.7);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(20px);
+}
+
+.panel {
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(16, 12, 26, 0.6);
+  box-shadow: 0 12px 24px rgba(6, 4, 14, 0.4);
+  backdrop-filter: blur(16px);
+}
+
+.surface {
+  background: rgba(18, 12, 29, 0.72);
+}
+
+.pop {
+  background: rgba(27, 20, 42, 0.78);
+  box-shadow: 0 20px 40px rgba(7, 4, 18, 0.55), var(--shadow-glow);
+}

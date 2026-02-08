@@ -177,6 +177,14 @@ Types: `feat`, `fix`, `test`, `refactor`, `docs`, `style`, `chore`
 - Add JSDoc comments for complex functions
 - Document design patterns when introducing new patterns
 - Keep README.md updated with setup instructions
+- Maintain the styleguide at `/styleguide` as the source of truth for UI decisions
+
+## Design System Usage
+
+- **Always use the shared component library** in `src/components/ui` for new UI
+- **Extend components before creating one-off styles** (add variants/props as needed)
+- **Keep the styleguide current** whenever new components or visual patterns are added
+- **Do not bypass tokens** defined in `app/globals.css` for colors, typography, or spacing
 
 ## Remember
 

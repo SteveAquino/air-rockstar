@@ -5,7 +5,9 @@ export class DrumsPage {
 
   // Assertions
   async expectToBeOnPage() {
-    await expect(this.page).toHaveURL(/\/drums/);
+    await expect(
+      this.page.getByRole('heading', { name: /air drums/i })
+    ).toBeVisible();
   }
 
   async takeScreenshot(name: string) {

@@ -1,4 +1,4 @@
-# Air Rockstar 🎸🥁
+﻿# Air Rockstar 🎸🥁
 
 A motion-tracking virtual instrument application that lets you play air guitar and air drums using your camera and hand movements.
 
@@ -13,6 +13,7 @@ A motion-tracking virtual instrument application that lets you play air guitar a
 - ♿ **Fully Accessible**: Built with ARIA labels and keyboard navigation
 - 📱 **Responsive Design**: Works on desktop and mobile devices
 - ✅ **Comprehensive Testing**: 80%+ code coverage with TDD approach
+- 🎨 **Design System + Styleguide**: Shared UI components with a live `/styleguide` reference
 
 ## Current Status
 
@@ -208,6 +209,12 @@ air-rockstar/
 
 This project follows a strict **Test-Driven Development (TDD)** approach. See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for detailed guidelines.
 
+### Design System Usage
+
+- Use the shared UI components in `src/components/ui` for all new UI work
+- Treat `/styleguide` as the source of truth for visual patterns and tokens
+- Update the styleguide when introducing new components or UI patterns
+
 ### TDD Cycle
 
 1. **Documentation First**: Write or update feature documentation
@@ -363,3 +370,4 @@ npm run build
 - [Tone.js](https://tonejs.github.io/) for web audio
 - [Next.js](https://nextjs.org/) for the React framework
 - [Playwright](https://playwright.dev/) for E2E testing
+

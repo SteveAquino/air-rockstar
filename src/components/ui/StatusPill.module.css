@@ -1,0 +1,46 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 10, 24, 0.6);
+  color: var(--color-text);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.label {
+  font-family: var(--font-display);
+}
+
+.ready {
+  color: var(--color-ready);
+}
+
+.info {
+  color: var(--color-glow-blue);
+}
+
+.warn {
+  color: var(--color-warning);
+}
+
+.locked {
+  color: var(--color-muted);
+}

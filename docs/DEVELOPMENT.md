@@ -183,6 +183,8 @@ Before committing code:
 - [ ] No ESLint warnings
 - [ ] Code is formatted with Prettier
 - [ ] Build succeeds
+- [ ] UI changes use `src/components/ui` and tokens from `app/globals.css`
+- [ ] Styleguide at `/styleguide` updated if new UI patterns were introduced
 
 ## Git Workflow
 
@@ -216,3 +218,4 @@ When AI agents work on this project in the future, they must:
 4. **Maintain Coverage**: Never commit code that drops coverage below 80%
 5. **Update Documentation**: Keep docs in sync with code changes
 6. **Run Tests Locally**: Verify E2E tests pass before pushing
+7. **Use the UI Library**: Build UI with `src/components/ui` and keep `/styleguide` accurate

@@ -15,16 +15,16 @@ export class WelcomePage {
 
   getDescription() {
     return this.page.getByText(
-      /motion tracking|camera|virtual instruments/i
+      /select an instrument to get started/i
     );
   }
 
   getGuitarButton() {
-    return this.page.getByRole('link', { name: /play air guitar/i });
+    return this.page.getByRole('link', { name: /start air guitar/i });
   }
 
   getDrumsButton() {
-    return this.page.getByRole('link', { name: /play air drums/i });
+    return this.page.getByRole('link', { name: /start air drums/i });
   }
 
   // Actions

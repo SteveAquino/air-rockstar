@@ -1,8 +1,15 @@
 'use client';
 
+import Link from 'next/link';
 import { useCamera } from '@/src/hooks/useCamera';
 import { useHandTracking } from '@/src/hooks/useHandTracking';
 import { useDrumKit, type DrumKitVariant } from '@/src/hooks/useDrumKit';
+import { Button } from '@/src/components/ui/Button';
+import { Card } from '@/src/components/ui/Card';
+import { Panel } from '@/src/components/ui/Panel';
+import { SegmentedControl } from '@/src/components/ui/SegmentedControl';
+import { Slider } from '@/src/components/ui/Slider';
+import { StatusPill } from '@/src/components/ui/StatusPill';
 import { useEffect, useRef, useState } from 'react';
 import styles from './page.module.css';
 
@@ -14,12 +21,14 @@ export default function DrumsPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [variant, setVariant] = useState<DrumKitVariant>('synth');
-  
-  const { landmarks, isProcessing: _isProcessing, error: trackingError } = useHandTracking(
-    videoRef,
-    canvasRef,
-    !!stream
-  );
+  const [sensitivity, setSensitivity] = useState(70);
+  const [padSize, setPadSize] = useState(48);
+
+  const {
+    landmarks,
+    isProcessing: _isProcessing,
+    error: trackingError,
+  } = useHandTracking(videoRef, canvasRef, !!stream);
 
   const { pads, activePads, isReady } = useDrumKit(
     landmarks,
@@ -34,7 +43,6 @@ export default function DrumsPage() {
     }
   }, [stream]);
 
-  // Update container size when video loads
   useEffect(() => {
     const updateSize = () => {
       if (containerRef.current) {
@@ -46,9 +54,8 @@ export default function DrumsPage() {
     const video = videoRef.current;
     if (video) {
       video.addEventListener('loadedmetadata', updateSize);
-      // Also update on window resize
       window.addEventListener('resize', updateSize);
-      
+
       return () => {
         video.removeEventListener('loadedmetadata', updateSize);
         window.removeEventListener('resize', updateSize);
@@ -56,40 +63,41 @@ export default function DrumsPage() {
     }
   }, [stream]);
 
+  const handsDetected = landmarks ? landmarks.length : 0;
+
   return (
     <main className={styles.main}>
-      <h1 className={styles.title}>🥁 Air Drums</h1>
-
-      {/* Variant Selector */}
-      <div className={styles.variantSelector}>
-        <label htmlFor="drum-variant" className={styles.variantLabel}>
-          Sound:
-        </label>
-        <select
-          id="drum-variant"
-          value={variant}
-          onChange={(e) => setVariant(e.target.value as DrumKitVariant)}
-          className={styles.variantSelect}
-        >
-          <option value="synth">Synth Drums</option>
-          <option value="acoustic">Acoustic Samples</option>
-        </select>
-      </div>
+      <header className={styles.topBar}>
+        <Link href="/" className={styles.backLink}>
+          Back
+        </Link>
+        <StatusPill tone="info" label="Air Drums" />
+        <div className={styles.statusGroup}>
+          <StatusPill
+            tone={handsDetected > 0 ? 'ready' : 'warn'}
+            label={handsDetected > 0 ? 'Hands Detected' : 'Hands Missing'}
+          />
+          <StatusPill
+            tone={isReady ? 'ready' : 'warn'}
+            label={isReady ? 'Audio Ready' : 'Audio Loading'}
+          />
+        </div>
+      </header>
 
       {!stream && (
-        <div className={styles.setupContainer}>
+        <Card className={styles.setupCard}>
+          <h1 className={styles.title}>Air Drums</h1>
           <p className={styles.description}>
-            Enable your camera to start tracking your hand movements
+            Enable your camera to start tracking your hand movements.
           </p>
-          <button
+          <Button
             onClick={requestCamera}
             disabled={isRequesting}
-            className={styles.enableButton}
             aria-label="Enable camera for hand tracking"
           >
             {isRequesting ? 'Initializing...' : 'Enable Camera'}
-          </button>
-        </div>
+          </Button>
+        </Card>
       )}
 
       {error && (
@@ -99,58 +107,107 @@ export default function DrumsPage() {
       )}
 
       {stream && (
-        <div className={styles.cameraContainer}>
-          <div className={styles.videoWrapper} ref={containerRef}>
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className={styles.video}
-              aria-label="Camera feed showing your hands"
-            />
-            <canvas
-              ref={canvasRef}
-              className={styles.canvas}
-              aria-label="Hand tracking overlay"
-            />
-            {/* Drum pads overlay */}
-            {isReady && pads.map(pad => (
-              <div
-                key={pad.id}
-                className={styles.drumPad}
-                style={{
-                  left: `${pad.x}%`,
-                  top: `${pad.y}%`,
-                  width: `${pad.width}px`,
-                  height: `${pad.height}px`,
-                  backgroundColor: activePads.has(pad.id) ? pad.activeColor : pad.color,
-                  transform: activePads.has(pad.id) ? 'scale(1.1)' : 'scale(1)',
-                }}
-              >
-                <span className={styles.drumLabel}>{pad.name}</span>
+        <section className={styles.content}>
+          <div className={styles.videoColumn}>
+            <div className={styles.videoWrapper} ref={containerRef}>
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className={styles.video}
+                aria-label="Camera feed showing your hands"
+              />
+              <canvas
+                ref={canvasRef}
+                className={styles.canvas}
+                aria-label="Hand tracking overlay"
+              />
+              {isReady &&
+                pads.map((pad) => (
+                  <div
+                    key={pad.id}
+                    className={styles.drumPad}
+                    style={{
+                      left: `${pad.x}%`,
+                      top: `${pad.y}%`,
+                      width: `${pad.width}px`,
+                      height: `${pad.height}px`,
+                      backgroundColor: activePads.has(pad.id)
+                        ? pad.activeColor
+                        : pad.color,
+                      transform: activePads.has(pad.id)
+                        ? 'scale(1.08)'
+                        : 'scale(1)',
+                    }}
+                  >
+                    <span className={styles.drumLabel}>{pad.name}</span>
+                  </div>
+                ))}
+            </div>
+
+            {trackingError && (
+              <div className={styles.trackingError}>
+                Hand tracking: {trackingError}
               </div>
-            ))}
+            )}
           </div>
-          {trackingError && (
-            <div className={styles.trackingError}>
-              Hand tracking: {trackingError}
+
+          <Panel className={styles.controlPanel}>
+            <div className={styles.statsRow}>
+              <div className={styles.stat}>
+                <span className={styles.statLabel}>Combo</span>
+                <span className={styles.statValue}>4</span>
+              </div>
+              <div className={styles.stat}>
+                <span className={styles.statLabel}>Tempo</span>
+                <span className={styles.statValue}>120 BPM</span>
+              </div>
+              <div className={styles.stat}>
+                <span className={styles.statLabel}>Hits</span>
+                <span className={styles.statValue}>15</span>
+              </div>
             </div>
-          )}
-          {landmarks && (
-            <div className={styles.handCount}>
-              {landmarks.length} hand{landmarks.length !== 1 ? 's' : ''} detected
+
+            <div className={styles.sliderGroup}>
+              <Slider
+                label="Sensitivity"
+                value={sensitivity}
+                min={0}
+                max={100}
+                unit="%"
+                onChange={setSensitivity}
+              />
+              <Slider
+                label="Size"
+                value={padSize}
+                min={20}
+                max={90}
+                unit="%"
+                onChange={setPadSize}
+              />
             </div>
-          )}
-          {!isReady && (
-            <div className={styles.audioLoading}>
-              Loading drum sounds...
+
+            <SegmentedControl
+              label="Sound Variant"
+              value={variant}
+              onChange={(value) => setVariant(value as DrumKitVariant)}
+              options={[
+                { value: 'synth', label: 'Synth' },
+                { value: 'acoustic', label: 'Acoustic' },
+              ]}
+            />
+
+            <div className={styles.actionRow}>
+              <Button variant="ghost" size="sm">
+                Performance Mode
+              </Button>
+              <Button variant="danger" size="sm" onClick={stopCamera}>
+                Stop Camera
+              </Button>
             </div>
-          )}
-          <button onClick={stopCamera} className={styles.stopButton}>
-            Stop Camera
-          </button>
-        </div>
+          </Panel>
+        </section>
       )}
     </main>
   );

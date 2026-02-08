@@ -5,9 +5,13 @@ import DrumsPage from '../app/drums/page';
 jest.mock('../src/hooks/useCamera');
 // Mock useDrumKit hook
 jest.mock('../src/hooks/useDrumKit');
+// Mock useHandTracking hook
+jest.mock('../src/hooks/useHandTracking');
 
 const mockUseCamera = require('../src/hooks/useCamera').useCamera as jest.Mock;
 const mockUseDrumKit = require('../src/hooks/useDrumKit').useDrumKit as jest.Mock;
+const mockUseHandTracking = require('../src/hooks/useHandTracking')
+  .useHandTracking as jest.Mock;
 
 describe('DrumsPage', () => {
   beforeEach(() => {
@@ -30,6 +34,12 @@ describe('DrumsPage', () => {
       activePads: new Set(),
       isReady: true,
     });
+
+    mockUseHandTracking.mockReturnValue({
+      landmarks: null,
+      isProcessing: false,
+      error: null,
+    });
   });
 
   describe('when rendered', () => {
@@ -38,14 +48,6 @@ describe('DrumsPage', () => {
       
       const heading = screen.getByRole('heading', { name: /air drums/i });
       expect(heading).toBeInTheDocument();
-    });
-
-    it('should display variant selector', () => {
-      render(<DrumsPage />);
-      
-      const selector = screen.getByLabelText(/sound/i);
-      expect(selector).toBeInTheDocument();
-      expect(selector).toHaveValue('synth');
     });
 
     it('should display camera setup instructions', () => {
@@ -81,6 +83,69 @@ describe('DrumsPage', () => {
       expect(video).toBeInTheDocument();
     });
 
+    it('should show hands detected status when landmarks exist', () => {
+      const mockStream = {};
+      mockUseCamera.mockReturnValue({
+        stream: mockStream,
+        error: null,
+        isRequesting: false,
+        permissionState: 'granted',
+        requestCamera: jest.fn(),
+        stopCamera: jest.fn(),
+      });
+
+      mockUseHandTracking.mockReturnValue({
+        landmarks: [{ length: 21 }],
+        isProcessing: false,
+        error: null,
+      });
+
+      render(<DrumsPage />);
+
+      const status = screen.getByText(/hands detected/i);
+      expect(status).toBeInTheDocument();
+    });
+
+    it('should display sound variant control', () => {
+      const mockStream = {};
+      mockUseCamera.mockReturnValue({
+        stream: mockStream,
+        error: null,
+        isRequesting: false,
+        permissionState: 'granted',
+        requestCamera: jest.fn(),
+        stopCamera: jest.fn(),
+      });
+
+      render(<DrumsPage />);
+
+      const control = screen.getByRole('radiogroup', { name: /sound variant/i });
+      expect(control).toBeInTheDocument();
+    });
+
+    it('should display audio loading status when kit is not ready', () => {
+      const mockStream = {};
+      mockUseCamera.mockReturnValue({
+        stream: mockStream,
+        error: null,
+        isRequesting: false,
+        permissionState: 'granted',
+        requestCamera: jest.fn(),
+        stopCamera: jest.fn(),
+      });
+
+      mockUseDrumKit.mockReturnValue({
+        pads: [],
+        activePads: new Set(),
+        isReady: false,
+      });
+
+      render(<DrumsPage />);
+
+      const status = screen.getByText(/audio loading/i);
+      expect(status).toBeInTheDocument();
+    });
+
     it('should display stop camera button', () => {
       const mockStream = {};
       mockUseCamera.mockReturnValue({
@@ -96,6 +161,31 @@ describe('DrumsPage', () => {
       
       const button = screen.getByRole('button', { name: /stop camera/i });
       expect(button).toBeInTheDocument();
+    });
+  });
+
+  describe('when hand tracking has an error', () => {
+    it('should display tracking error message', () => {
+      const mockStream = {};
+      mockUseCamera.mockReturnValue({
+        stream: mockStream,
+        error: null,
+        isRequesting: false,
+        permissionState: 'granted',
+        requestCamera: jest.fn(),
+        stopCamera: jest.fn(),
+      });
+
+      mockUseHandTracking.mockReturnValue({
+        landmarks: null,
+        isProcessing: false,
+        error: 'Tracking error',
+      });
+
+      render(<DrumsPage />);
+
+      const trackingError = screen.getByText(/hand tracking: tracking error/i);
+      expect(trackingError).toBeInTheDocument();
     });
   });
 
