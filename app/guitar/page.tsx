@@ -3,6 +3,7 @@
 import { useCamera } from '@/src/hooks/useCamera';
 import { useHandTracking } from '@/src/hooks/useHandTracking';
 import { useGuitar } from '@/src/hooks/useGuitar';
+import type { GuitarSoundVariant } from '@/src/types/guitar';
 import { Panel } from '@/src/components/ui/Panel';
 import { CameraSetupCard } from '@/src/components/ui/CameraSetupCard';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -25,6 +26,7 @@ export default function GuitarPage() {
   const [position, setPosition] = useState(35);
   const [volume, setVolume] = useState(70);
   const [fretCount, setFretCount] = useState(20);
+  const [variant, setVariant] = useState<GuitarSoundVariant>('synth');
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [hits, setHits] = useState(0);
   const [combo, setCombo] = useState(0);
@@ -95,6 +97,7 @@ export default function GuitarPage() {
     landmarks,
     containerSize.width,
     containerSize.height,
+    variant,
     {
       stringSpacing: spacingScale,
       stringPositionPercent: position,
@@ -267,11 +270,13 @@ export default function GuitarPage() {
                   position={position}
                   volume={volume}
                   fretCount={fretCount}
+                  variant={variant}
                   onSensitivityChange={setSensitivity}
                   onSpacingChange={setSpacing}
                   onPositionChange={setPosition}
                   onVolumeChange={setVolume}
                   onFretCountChange={setFretCount}
+                  onVariantChange={setVariant}
                 />
               </>
             )}

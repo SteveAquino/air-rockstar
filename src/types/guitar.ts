@@ -1,3 +1,5 @@
+export type GuitarSoundVariant = 'synth' | 'electric';
+
 export interface GuitarString {
   /** Unique identifier for the string */
   id: string;

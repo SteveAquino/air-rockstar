@@ -1,8 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { NormalizedLandmark } from '@mediapipe/hands';
-import type { GuitarOptions, GuitarString } from '@/src/types/guitar';
+import { instrument as loadInstrument, type Player } from 'soundfont-player';
+import type {
+  GuitarOptions,
+  GuitarSoundVariant,
+  GuitarString,
+} from '@/src/types/guitar';
 
-export type { GuitarOptions, GuitarString } from '@/src/types/guitar';
+export type {
+  GuitarOptions,
+  GuitarSoundVariant,
+  GuitarString,
+} from '@/src/types/guitar';
 
 const FINGER_TIPS = [4, 8, 12, 16, 20];
 
@@ -14,6 +23,27 @@ const BASE_STRINGS = [
   { id: 'a2', label: 'A', note: 'A2', frequency: 110.0, color: '#fcd34d', activeColor: '#f59e0b' },
   { id: 'e2', label: 'E', note: 'E2', frequency: 82.41, color: '#fca5a5', activeColor: '#f87171' },
 ] as const;
+
+const STRING_MIDI: Record<string, number> = {
+  e4: 64,
+  b3: 59,
+  g3: 55,
+  d3: 50,
+  a2: 45,
+  e2: 40,
+};
+
+const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+const ELECTRIC_INSTRUMENT = 'electric_guitar_clean';
+const SOUND_FONT = 'FluidR3_GM';
+const SAMPLE_DURATION = 1.2;
+
+const midiToNoteName = (midiNote: number) => {
+  const noteIndex = ((midiNote % 12) + 12) % 12;
+  const octave = Math.floor(midiNote / 12) - 1;
+  return `${NOTE_NAMES[noteIndex]}${octave}`;
+};
 
 const EDGE_MARGIN_RATIO = 0.04;
 
@@ -123,6 +153,7 @@ export function useGuitar(
   landmarks: NormalizedLandmark[][] | null,
   containerWidth: number,
   containerHeight: number,
+  variant: GuitarSoundVariant = 'synth',
   options: GuitarOptions = {}
 ) {
   const [isReady, setIsReady] = useState(false);
@@ -134,6 +165,7 @@ export function useGuitar(
   const lastHitRef = useRef<Record<string, number>>({});
   const audioContextRef = useRef<AudioContext | null>(null);
   const masterGainRef = useRef<GainNode | null>(null);
+  const electricInstrumentRef = useRef<Player | null>(null);
 
   const spacingScale = Number.isFinite(options.stringSpacing)
     ? clamp(options.stringSpacing!, 0.2, 0.34)
@@ -174,14 +206,35 @@ export function useGuitar(
   }, [strings]);
 
   useEffect(() => {
-    const initAudio = () => {
+    let isMounted = true;
+
+    const initAudio = async () => {
       try {
+        setIsReady(false);
         audioContextRef.current = createAudioContext();
         masterGainRef.current = createMasterGain(audioContextRef.current);
-        setIsReady(true);
+        electricInstrumentRef.current = null;
+
+        if (variant === 'electric') {
+          electricInstrumentRef.current = await loadInstrument(
+            audioContextRef.current,
+            ELECTRIC_INSTRUMENT,
+            {
+              soundfont: SOUND_FONT,
+              format: 'mp3',
+              destination: masterGainRef.current,
+            }
+          );
+        }
+
+        if (isMounted) {
+          setIsReady(true);
+        }
       } catch (error) {
         console.error('Failed to initialize Web Audio:', error);
-        setIsReady(true);
+        if (isMounted) {
+          setIsReady(true);
+        }
       }
     };
 
@@ -190,11 +243,13 @@ export function useGuitar(
     }
 
     return () => {
+      isMounted = false;
+      electricInstrumentRef.current = null;
       if (audioContextRef.current) {
         audioContextRef.current.close();
       }
     };
-  }, []);
+  }, [variant]);
 
   useEffect(() => {
     const audioContext = audioContextRef.current;
@@ -206,7 +261,7 @@ export function useGuitar(
   const onHit = options.onHit;
 
   const triggerHit = useCallback(
-    (stringId: string, frequency: number) => {
+    (stringId: string, frequency: number, noteName: string) => {
       const audioContext = audioContextRef.current;
       if (!audioContext) return;
 
@@ -214,8 +269,14 @@ export function useGuitar(
         audioContext.resume();
       }
 
-      const outputNode = masterGainRef.current ?? audioContext.destination;
-      playPluck(frequency, audioContext, outputNode);
+      if (variant === 'electric' && electricInstrumentRef.current) {
+        electricInstrumentRef.current.play(noteName, audioContext.currentTime, {
+          duration: SAMPLE_DURATION,
+        });
+      } else {
+        const outputNode = masterGainRef.current ?? audioContext.destination;
+        playPluck(frequency, audioContext, outputNode);
+      }
 
       setActiveStrings((prev) => new Set(prev).add(stringId));
       setTimeout(() => {
@@ -226,7 +287,7 @@ export function useGuitar(
         });
       }, 120);
     },
-    []
+    [variant]
   );
 
   const checkCollisions = useCallback(() => {
@@ -311,10 +372,13 @@ export function useGuitar(
               const fret = nextFretted[string.id] ?? 0;
               const frequency =
                 string.frequency * Math.pow(2, fret / 12);
+              const baseMidi = STRING_MIDI[string.id] ?? 60;
+              const midiNote = baseMidi + fret;
+              const noteName = midiToNoteName(midiNote);
 
               if (!wasColliding && now - lastHit >= cooldownMs) {
                 lastHitRef.current[string.id] = now;
-                triggerHit(string.id, frequency);
+                triggerHit(string.id, frequency, noteName);
                 if (onHit) {
                   onHit(string.id);
                 }

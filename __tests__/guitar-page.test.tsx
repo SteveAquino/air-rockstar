@@ -126,6 +126,9 @@ describe('GuitarPage', () => {
       ).toBeInTheDocument();
       expect(screen.getByRole('slider', { name: /frets/i })).toBeInTheDocument();
       expect(screen.getByRole('slider', { name: /volume/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('radiogroup', { name: /sound variant/i })
+      ).toBeInTheDocument();
       expect(screen.getByText(/^combo$/i)).toBeInTheDocument();
       expect(screen.getByText(/^tempo$/i)).toBeInTheDocument();
       expect(screen.getByText(/^hits$/i)).toBeInTheDocument();

@@ -1,4 +1,4 @@
-import type { GuitarString } from '@/src/types/guitar';
+import type { GuitarSoundVariant, GuitarString } from '@/src/types/guitar';
 import type { RefObject } from 'react';
 
 export interface GuitarHeaderProps {
@@ -34,11 +34,13 @@ export interface GuitarControlsProps {
   position: number;
   volume: number;
   fretCount: number;
+  variant: GuitarSoundVariant;
   onSensitivityChange: (value: number) => void;
   onSpacingChange: (value: number) => void;
   onPositionChange: (value: number) => void;
   onVolumeChange: (value: number) => void;
   onFretCountChange: (value: number) => void;
+  onVariantChange: (value: GuitarSoundVariant) => void;
 }
 
 export interface GuitarActionsProps {

@@ -1,3 +1,5 @@
+import type { GuitarSoundVariant } from '@/src/types/guitar';
+
 export const GUITAR_HELP_TEXT = {
   combo: 'Your current streak of quick hits.',
   tempo: 'Estimated speed of your recent hits.',
@@ -9,6 +11,12 @@ export const GUITAR_HELP_TEXT = {
     'Moves the entire string set up or down without changing spacing.',
   volume: 'Controls how loud the string plucks sound.',
   frets: 'Changes how many frets are available for pitch modulation.',
+  soundVariant: 'Switch between synth and electric guitar sounds.',
   fullScreen: 'Expand the guitar view to fill your screen. Press again to exit.',
   stopCamera: 'Turn off the camera and stop tracking.',
 };
+
+export const SOUND_VARIANTS: { value: GuitarSoundVariant; label: string }[] = [
+  { value: 'synth', label: 'Synth' },
+  { value: 'electric', label: 'Electric' },
+];

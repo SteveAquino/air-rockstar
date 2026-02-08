@@ -2,6 +2,16 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { useGuitar } from '../../src/hooks/useGuitar';
 import type { NormalizedLandmark } from '@mediapipe/hands';
 
+jest.mock('soundfont-player', () => ({
+  instrument: jest.fn(),
+}));
+
+const mockSoundfont = require('soundfont-player');
+const mockSoundfontInstrument = {
+  play: jest.fn(),
+  stop: jest.fn(),
+};
+
 const mockAudioContext = {
   createOscillator: jest.fn(() => ({
     connect: jest.fn(),
@@ -27,6 +37,7 @@ const mockAudioContext = {
 beforeEach(() => {
   jest.clearAllMocks();
   (global as any).AudioContext = jest.fn(() => mockAudioContext);
+  mockSoundfont.instrument.mockResolvedValue(mockSoundfontInstrument);
   jest.useFakeTimers();
 });
 
@@ -122,6 +133,57 @@ describe('useGuitar', () => {
     });
   });
 
+  describe('when electric variant is enabled', () => {
+    it('when initialized, should load electric guitar soundfont', async () => {
+      const { result } = renderHook(() =>
+        useGuitar(null, 800, 600, 'electric')
+      );
+
+      await waitFor(() => {
+        expect(result.current.isReady).toBe(true);
+      });
+
+      expect(mockSoundfont.instrument).toHaveBeenCalledWith(
+        mockAudioContext,
+        'electric_guitar_clean',
+        expect.objectContaining({
+          soundfont: 'FluidR3_GM',
+          format: 'mp3',
+        })
+      );
+    });
+
+    it('when string is hit, should play the electric sample', async () => {
+      const { result, rerender } = renderHook(
+        ({ landmarks, width, height }) =>
+          useGuitar(landmarks, width, height, 'electric'),
+        {
+          initialProps: {
+            landmarks: null as NormalizedLandmark[][] | null,
+            width: 800,
+            height: 600,
+          },
+        }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isReady).toBe(true);
+      });
+
+      const stringY = getStringY(result.current.strings);
+      const hand = createHandWithTip(8, 0.2, stringY);
+
+      act(() => {
+        rerender({ landmarks: [hand], width: 800, height: 600 });
+      });
+
+      expect(mockSoundfontInstrument.play).toHaveBeenCalled();
+      expect(mockAudioContext.createOscillator).not.toHaveBeenCalled();
+      const [noteName] = mockSoundfontInstrument.play.mock.calls[0] ?? [];
+      expect(noteName).toBe('E4');
+    });
+  });
+
   describe('when finger collides with a string', () => {
     it('when finger collides, should play a pluck on entry', async () => {
       const { result, rerender } = renderHook(
@@ -186,7 +248,7 @@ describe('useGuitar', () => {
     it('when finger re-enters after cooldown, should retrigger', async () => {
       const { result, rerender } = renderHook(
         ({ landmarks, width, height }) =>
-          useGuitar(landmarks, width, height, { cooldownMs: 200 }),
+          useGuitar(landmarks, width, height, 'synth', { cooldownMs: 200 }),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
@@ -287,7 +349,7 @@ describe('useGuitar', () => {
       const fretCount = 5;
       const { result, rerender } = renderHook(
         ({ landmarks, width, height }) =>
-          useGuitar(landmarks, width, height, {
+          useGuitar(landmarks, width, height, 'synth', {
             fretCount,
             fretZoneWidthRatio,
           }),
@@ -325,7 +387,7 @@ describe('useGuitar', () => {
       const fretCount = 5;
       const { result, rerender } = renderHook(
         ({ landmarks, width, height }) =>
-          useGuitar(landmarks, width, height, {
+          useGuitar(landmarks, width, height, 'synth', {
             fretCount,
             fretZoneWidthRatio,
           }),
@@ -371,7 +433,7 @@ describe('useGuitar', () => {
       const fretCount = 5;
       const { result, rerender } = renderHook(
         ({ landmarks, width, height }) =>
-          useGuitar(landmarks, width, height, {
+          useGuitar(landmarks, width, height, 'synth', {
             fretCount,
             fretZoneWidthRatio,
           }),
@@ -422,7 +484,7 @@ describe('useGuitar', () => {
     it('when container has zero dimensions, should not perform collision detection', async () => {
       const { result, rerender } = renderHook(
         ({ landmarks, width, height }) =>
-          useGuitar(landmarks, width, height, { stringSpacing: 1 }),
+          useGuitar(landmarks, width, height, 'synth', { stringSpacing: 1 }),
         {
           initialProps: {
             landmarks: null as NormalizedLandmark[][] | null,
