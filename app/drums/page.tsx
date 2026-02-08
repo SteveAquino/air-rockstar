@@ -191,11 +191,7 @@ export default function DrumsPage() {
 
   return (
     <main className={styles.main}>
-      <DrumsHeader
-        handsDetected={handsDetected}
-        isReady={isReady}
-        hasStream={!!stream}
-      />
+      <DrumsHeader handsDetected={handsDetected} isReady={isReady} />
 
       {!stream && (
         <CameraSetupCard

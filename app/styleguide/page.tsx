@@ -14,20 +14,9 @@ export default function StyleguidePage() {
   return (
     <main className={styles.main}>
       <header className={styles.header}>
-        <div className={styles.brand}>
-          <div className={styles.logoWrap}>
-            <Image
-              src="/images/logo.png"
-              alt="Air Rockstar logo"
-              width={72}
-              height={72}
-              className={styles.logo}
-            />
-          </div>
-          <div>
-            <h1>Air Rockstar Styleguide</h1>
-            <p>Design tokens and reusable components.</p>
-          </div>
+        <div>
+          <h1>Air Rockstar Styleguide</h1>
+          <p>Design tokens and reusable components.</p>
         </div>
         <StatusPill tone="ready" label="System Ready" />
       </header>
