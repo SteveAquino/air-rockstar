@@ -240,6 +240,66 @@ Hand tracking is the core feature enabling gesture recognition. Using MediaPipe 
 
 ---
 
+## Air Guitar Mode
+
+### Overview
+Air Guitar mode lets users strum virtual strings by moving their fingertips through horizontal string zones over the camera feed. Each string hit triggers a synth pluck with low latency and visual feedback.
+
+### Requirements
+
+#### Functional Requirements
+- Display 6 horizontal string zones across the camera feed.
+- Use standard tuning (E2, A2, D3, G3, B3, E4).
+- Top-to-bottom order on screen: high E (E4) to low E (E2).
+- Detect collisions between any fingertip landmark (4, 8, 12, 16, 20) and a string band.
+- Trigger a hit only on entry into the band (not continuous contact).
+- Enforce a 200ms cooldown per string to prevent double hits.
+- Provide visual feedback on hit (highlight and brief glow).
+
+#### Audio Requirements
+- Use Web Audio API (no samples for v1).
+- Basic synth pluck per string (triangle wave).
+- Fast attack with exponential decay (200-300ms).
+- Master volume control.
+- Low latency (< 50ms from collision to sound).
+
+#### Controls and Stats
+- Sensitivity slider (affects hit padding and landmark size).
+- String spacing slider (tight to wide string bands).
+- Volume slider (master gain).
+- Live stats: hits, combo, tempo (BPM).
+- Full-screen performance mode with action bar.
+
+#### Collision Detection
+- Use normalized landmarks from MediaPipe.
+- Convert Y coordinate to screen pixels.
+- A hit occurs when the fingertip enters the band and was not colliding in the previous frame.
+- Maintain collision state per fingertip type across hands.
+
+#### Accessibility Requirements
+- All controls keyboard accessible.
+- Tooltips describe controls and stats in plain language.
+- Status pills announce readiness and hand detection.
+- Buttons have clear ARIA labels.
+
+### Visual Design
+- Strings rendered as thin translucent bands.
+- String labels (E, B, G, D, A, E) on the left edge.
+- Active string highlight uses brighter accent color.
+
+### Testing Strategy
+- Unit tests for string layout and collision logic.
+- Unit tests for audio initialization and cooldown.
+- Page tests for controls and stats rendering.
+- E2E tests for string overlay visibility.
+
+### Future Enhancements
+- Velocity-based dynamics.
+- Alternate guitar tones (clean, muted, distortion).
+- Chord/fret simulation.
+
+---
+
 ## Virtual Drum Kit
 
 ### Overview
@@ -497,3 +557,5 @@ Items captured for future development. These are not in scope for current implem
 ### Quality and UX Improvements
 - Fix occasional double-hit when two hands enter a drum zone but only one is moving
 - Consider moving drum pads to the bottom of the camera view to feel more like a real kit
+- Temporarily pause the camera when the browser tab loses focus or after inactivity,
+  so the camera does not stream indefinitely if the user walks away
