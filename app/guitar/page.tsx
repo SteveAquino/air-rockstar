@@ -37,6 +37,10 @@ export default function GuitarPage() {
         </Link>
         <StatusPill tone="info" label="Air Guitar" />
         <StatusPill
+          tone={stream ? 'ready' : 'locked'}
+          label={stream ? 'Camera Ready' : 'Camera Not Ready'}
+        />
+        <StatusPill
           tone={handsDetected > 0 ? 'ready' : 'warn'}
           label={handsDetected > 0 ? 'Hands Detected' : 'Hands Missing'}
         />

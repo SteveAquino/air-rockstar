@@ -4,6 +4,7 @@ import type { RefObject } from 'react';
 export interface DrumsHeaderProps {
   handsDetected: number;
   isReady: boolean;
+  hasStream: boolean;
 }
 
 export interface DrumsVideoStageProps {

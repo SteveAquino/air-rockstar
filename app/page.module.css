@@ -9,8 +9,35 @@
 .header {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
   justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 620px;
+}
+
+.logoWrap {
+  width: 140px;
+  height: 140px;
+  border-radius: 32px;
+  background: radial-gradient(circle, rgba(176, 91, 255, 0.28), transparent 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 28px 56px rgba(6, 4, 16, 0.4);
+}
+
+.logo {
+  width: 124px;
+  height: 124px;
+  object-fit: contain;
 }
 
 .kicker {
@@ -29,9 +56,10 @@
 }
 
 .description {
-  max-width: 520px;
-  font-size: 1.1rem;
-  color: var(--color-muted);
+  max-width: 620px;
+  font-size: 1.2rem;
+  color: rgba(241, 236, 255, 0.9);
+  line-height: 1.7;
 }
 
 .cards {
@@ -68,7 +96,7 @@
 }
 
 .options {
-  align-self: flex-start;
+  align-self: center;
   color: var(--color-muted);
   text-decoration: none;
   font-weight: 600;
@@ -83,8 +111,7 @@
 }
 
 @media (min-width: 768px) {
-  .header {
-    flex-direction: row;
-    align-items: center;
+  .brand {
+    gap: 16px;
   }
 }

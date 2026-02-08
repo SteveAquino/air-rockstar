@@ -15,7 +15,7 @@ export class WelcomePage {
 
   getDescription() {
     return this.page.getByText(
-      /select an instrument to get started/i
+      /ever wanted to play air guitar or air drums and share the sweetness you feel inside with others\? welcome to air rockstar\./i
     );
   }
 

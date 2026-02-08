@@ -13,7 +13,9 @@ describe('HomePage', () => {
     it('should display a description about the app', () => {
       render(<HomePage />);
       
-      const description = screen.getByText(/select an instrument to get started/i);
+      const description = screen.getByText(
+        /ever wanted to play air guitar or air drums and share the sweetness you feel inside with others\? welcome to air rockstar\./i
+      );
       expect(description).toBeInTheDocument();
     });
 

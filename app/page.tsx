@@ -2,21 +2,28 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/src/components/ui/Card';
 import { LinkButton } from '@/src/components/ui/LinkButton';
-import { StatusPill } from '@/src/components/ui/StatusPill';
 import styles from './page.module.css';
 
 export default function HomePage() {
   return (
     <main className={styles.main}>
       <header className={styles.header}>
-        <div>
-          <p className={styles.kicker}>Welcome</p>
+        <div className={styles.brand}>
+          <div className={styles.logoWrap}>
+            <Image
+              src="/images/logo.png"
+              alt="Air Rockstar logo"
+              width={140}
+              height={140}
+              className={styles.logo}
+            />
+          </div>
           <h1 className={styles.title}>Air Rockstar</h1>
           <p className={styles.description}>
-            Select an instrument to get started
+            Ever wanted to play air guitar or air drums and share the sweetness
+            you feel inside with others? Welcome to Air Rockstar.
           </p>
         </div>
-        <StatusPill tone="locked" label="Camera Not Ready" />
       </header>
 
       <section className={styles.cards}>
