@@ -86,7 +86,7 @@ export default function GuitarPage() {
     connectionWidth: 2,
   });
 
-  const { strings, activeStrings, isReady } = useGuitar(
+  const { strings, activeStrings, frettedStrings, isReady } = useGuitar(
     landmarks,
     containerSize.width,
     containerSize.height,
@@ -96,6 +96,9 @@ export default function GuitarPage() {
       stringThickness,
       volume: volumeScale,
       cooldownMs: 200,
+      fretCount: 5,
+      fretZoneWidthRatio: 0.35,
+      strumZoneWidthRatio: 0.35,
       onHit: handleHit,
     }
   );
@@ -227,6 +230,7 @@ export default function GuitarPage() {
               containerRef={containerRef}
               strings={strings}
               activeStrings={activeStrings}
+              frettedStrings={frettedStrings}
               isReady={isReady}
               isFullScreen={isFullScreen}
               onExitFullScreen={toggleFullScreen}

@@ -96,6 +96,22 @@ const computeStrings = (
   });
 };
 
+const buildEmptyFrets = (strings: GuitarString[]) =>
+  strings.reduce<Record<string, number>>((acc, string) => {
+    acc[string.id] = 0;
+    return acc;
+  }, {});
+
+const areFrettedEqual = (
+  left: Record<string, number>,
+  right: Record<string, number>
+) => {
+  const leftKeys = Object.keys(left);
+  const rightKeys = Object.keys(right);
+  if (leftKeys.length !== rightKeys.length) return false;
+  return leftKeys.every((key) => left[key] === right[key]);
+};
+
 export function useGuitar(
   landmarks: NormalizedLandmark[][] | null,
   containerWidth: number,
@@ -104,6 +120,9 @@ export function useGuitar(
 ) {
   const [isReady, setIsReady] = useState(false);
   const [activeStrings, setActiveStrings] = useState<Set<string>>(new Set());
+  const [frettedStrings, setFrettedStrings] = useState<Record<string, number>>(
+    {}
+  );
   const collidingStringsRef = useRef<Map<number, Set<string>>>(new Map());
   const lastHitRef = useRef<Record<string, number>>({});
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -114,6 +133,15 @@ export function useGuitar(
     : 0.28;
   const hitPadding = Number.isFinite(options.hitPadding) ? options.hitPadding! : 0;
   const volume = Number.isFinite(options.volume) ? options.volume! : 1;
+  const fretCount = Number.isFinite(options.fretCount)
+    ? Math.max(1, Math.round(options.fretCount!))
+    : 5;
+  const fretZoneWidthRatio = Number.isFinite(options.fretZoneWidthRatio)
+    ? clamp(options.fretZoneWidthRatio!, 0.2, 0.5)
+    : 0.35;
+  const strumZoneWidthRatio = Number.isFinite(options.strumZoneWidthRatio)
+    ? clamp(options.strumZoneWidthRatio!, 0.2, 0.5)
+    : 0.35;
   const cooldownMs = Number.isFinite(options.cooldownMs) ? options.cooldownMs! : 200;
   const volumeScale = computeVolumeScale(volume);
   const thicknessPx = Number.isFinite(options.stringThickness)
@@ -124,6 +152,10 @@ export function useGuitar(
     () => computeStrings(containerHeight, spacingScale, thicknessPx),
     [containerHeight, spacingScale, thicknessPx]
   );
+
+  useEffect(() => {
+    setFrettedStrings(buildEmptyFrets(strings));
+  }, [strings]);
 
   useEffect(() => {
     const initAudio = () => {
@@ -186,7 +218,40 @@ export function useGuitar(
       return;
     }
 
+    const nextFretted = buildEmptyFrets(strings);
+    const fretZoneMaxX = containerWidth * fretZoneWidthRatio;
+    const strumZoneMinX = Math.max(
+      containerWidth * (1 - strumZoneWidthRatio),
+      fretZoneMaxX
+    );
+
     const currentCollisions = new Map<number, Set<string>>();
+
+    landmarks.forEach((handLandmarks) => {
+      FINGER_TIPS.forEach((fingerIndex) => {
+        if (handLandmarks.length > fingerIndex) {
+          const fingerTip = handLandmarks[fingerIndex];
+
+          const fingerX = (1 - fingerTip.x) * containerWidth;
+          const fingerY = fingerTip.y * containerHeight;
+
+          strings.forEach((string) => {
+            const centerY = (string.yPercent / 100) * containerHeight;
+            const bandHalf = string.thicknessPx / 2 + hitPadding;
+            const isInBand =
+              fingerY >= centerY - bandHalf && fingerY <= centerY + bandHalf;
+
+            if (isInBand && fingerX <= fretZoneMaxX) {
+              const fretPosition = Math.ceil(
+                (fingerX / Math.max(fretZoneMaxX, 1)) * fretCount
+              );
+              const fret = clamp(fretPosition, 1, fretCount);
+              nextFretted[string.id] = Math.max(nextFretted[string.id], fret);
+            }
+          });
+        }
+      });
+    });
 
     landmarks.forEach((handLandmarks) => {
       FINGER_TIPS.forEach((fingerIndex) => {
@@ -197,6 +262,10 @@ export function useGuitar(
             currentCollisions.set(fingerIndex, new Set());
           }
 
+          const fingerX = (1 - fingerTip.x) * containerWidth;
+          if (fingerX < strumZoneMinX) {
+            return;
+          }
           const fingerY = fingerTip.y * containerHeight;
 
           strings.forEach((string) => {
@@ -212,10 +281,13 @@ export function useGuitar(
               const wasColliding = previous && previous.has(string.id);
               const lastHit = lastHitRef.current[string.id] ?? 0;
               const now = Date.now();
+              const fret = nextFretted[string.id] ?? 0;
+              const frequency =
+                string.frequency * Math.pow(2, fret / 12);
 
               if (!wasColliding && now - lastHit >= cooldownMs) {
                 lastHitRef.current[string.id] = now;
-                triggerHit(string.id, string.frequency);
+                triggerHit(string.id, frequency);
                 if (onHit) {
                   onHit(string.id);
                 }
@@ -226,6 +298,10 @@ export function useGuitar(
       });
     });
 
+    setFrettedStrings((prev) =>
+      areFrettedEqual(prev, nextFretted) ? prev : nextFretted
+    );
+
     collidingStringsRef.current = currentCollisions;
   }, [
     landmarks,
@@ -234,6 +310,9 @@ export function useGuitar(
     containerWidth,
     strings,
     hitPadding,
+    fretCount,
+    fretZoneWidthRatio,
+    strumZoneWidthRatio,
     cooldownMs,
     triggerHit,
     onHit,
@@ -246,6 +325,7 @@ export function useGuitar(
   return {
     strings,
     activeStrings,
+    frettedStrings,
     isReady,
   };
 }

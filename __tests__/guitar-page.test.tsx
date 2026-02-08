@@ -33,6 +33,7 @@ describe('GuitarPage', () => {
     mockUseGuitar.mockReturnValue({
       strings: [],
       activeStrings: new Set(),
+      frettedStrings: {},
       isReady: true,
     });
   });
@@ -188,6 +189,7 @@ describe('GuitarPage', () => {
       mockUseGuitar.mockReturnValue({
         strings: [],
         activeStrings: new Set(),
+        frettedStrings: {},
         isReady: false,
       });
 

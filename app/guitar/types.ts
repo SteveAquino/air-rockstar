@@ -12,6 +12,7 @@ export interface GuitarVideoStageProps {
   containerRef: RefObject<HTMLDivElement>;
   strings: GuitarString[];
   activeStrings: Set<string>;
+  frettedStrings: Record<string, number>;
   isReady: boolean;
   isFullScreen: boolean;
   onExitFullScreen: () => void;

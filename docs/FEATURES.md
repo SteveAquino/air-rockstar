@@ -255,6 +255,9 @@ Air Guitar mode lets users strum virtual strings by moving their fingertips thro
 - Trigger a hit only on entry into the band (not continuous contact).
 - Enforce a 200ms cooldown per string to prevent double hits.
 - Provide visual feedback on hit (highlight and brief glow).
+- Split interaction into a fret zone (left) and strum zone (right).
+- Fretting in the left zone sets the active fret per string.
+- Strumming in the right zone triggers the string sound with pitch modulation.
 
 #### Audio Requirements
 - Use Web Audio API (no samples for v1).
@@ -262,6 +265,7 @@ Air Guitar mode lets users strum virtual strings by moving their fingertips thro
 - Fast attack with exponential decay (200-300ms).
 - Master volume control.
 - Low latency (< 50ms from collision to sound).
+- Pitch modulation based on fret position (semitone steps).
 
 #### Controls and Stats
 - Sensitivity slider (affects hit padding and landmark size).
@@ -286,6 +290,7 @@ Air Guitar mode lets users strum virtual strings by moving their fingertips thro
 - Strings rendered as thin translucent bands.
 - String labels (E, B, G, D, A, E) on the left edge.
 - Active string highlight uses brighter accent color.
+- Fret indicators display the active fret number per string.
 
 ### Testing Strategy
 - Unit tests for string layout and collision logic.

@@ -26,6 +26,12 @@ export interface GuitarOptions {
   hitPadding?: number;
   /** Master volume (0 to 1) */
   volume?: number;
+  /** Number of frets available in the fret zone */
+  fretCount?: number;
+  /** Width ratio (0-1) of the fret zone on the left side */
+  fretZoneWidthRatio?: number;
+  /** Width ratio (0-1) of the strum zone on the right side */
+  strumZoneWidthRatio?: number;
   /** Cooldown in ms between hits per string */
   cooldownMs?: number;
   /** Callback when a string is hit */

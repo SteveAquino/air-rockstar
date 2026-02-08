@@ -8,6 +8,7 @@ export function GuitarVideoStage({
   containerRef,
   strings,
   activeStrings,
+  frettedStrings,
   isReady,
   isFullScreen,
   onExitFullScreen,
@@ -32,6 +33,7 @@ export function GuitarVideoStage({
         <div className={styles.stringOverlay} role="list" aria-label="Guitar strings">
           {strings.map((string) => {
             const isActive = activeStrings.has(string.id);
+            const fret = frettedStrings[string.id] ?? 0;
             return (
               <div
                 key={string.id}
@@ -48,6 +50,12 @@ export function GuitarVideoStage({
                 }}
               >
                 <span className={styles.stringLabel}>{string.label}</span>
+                <span
+                  className={styles.fretBadge}
+                  aria-label={`Fret ${fret}`}
+                >
+                  {fret}
+                </span>
               </div>
             );
           })}
