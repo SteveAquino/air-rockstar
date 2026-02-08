@@ -72,6 +72,7 @@
   position: relative;
   width: 100%;
   max-width: 880px;
+  z-index: 1;
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: rgba(9, 11, 20, 0.8);
@@ -161,6 +162,8 @@
 }
 
 .controlPanel {
+  position: relative;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -176,6 +179,12 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.statHeader {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .statLabel {
@@ -199,6 +208,22 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.actionItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fullscreenControls {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  z-index: 4;
 }
 
 @media (min-width: 900px) {

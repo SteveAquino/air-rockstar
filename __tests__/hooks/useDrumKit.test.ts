@@ -151,6 +151,116 @@ describe('useDrumKit', () => {
     });
   });
 
+  describe('when configured with options', () => {
+    it('should scale pad sizes based on padScale', async () => {
+      const { result } = renderHook(() =>
+        useDrumKit(null, 800, 600, 'synth', { padScale: 1.5 })
+      );
+
+      await waitFor(() => {
+        expect(result.current.isReady).toBe(true);
+      });
+
+      const snare = result.current.pads.find((pad) => pad.id === 'snare');
+      expect(snare?.width).toBeCloseTo(180);
+      expect(snare?.height).toBeCloseTo(180);
+    });
+
+    it('should detect collisions with hit padding beyond pad bounds', async () => {
+      const { result, rerender } = renderHook(
+        ({ landmarks, width, height }) =>
+          useDrumKit(landmarks, width, height, 'synth', { hitPadding: 10 }),
+        {
+          initialProps: {
+            landmarks: null as NormalizedLandmark[][] | null,
+            width: 800,
+            height: 600,
+          },
+        }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isReady).toBe(true);
+      });
+
+      // Snare bounds: x 160-280, y 120-240. Use x=155 (5px outside).
+      const hand = createHand(0.80625, 0.3);
+
+      act(() => {
+        rerender({
+          landmarks: [hand],
+          width: 800,
+          height: 600,
+        });
+      });
+
+      expect(mockAudioContext.createOscillator).toHaveBeenCalled();
+    });
+
+    it('should invoke onHit callback with pad id', async () => {
+      const onHit = jest.fn();
+      const { result, rerender } = renderHook(
+        ({ landmarks, width, height }) =>
+          useDrumKit(landmarks, width, height, 'synth', { onHit }),
+        {
+          initialProps: {
+            landmarks: null as NormalizedLandmark[][] | null,
+            width: 800,
+            height: 600,
+          },
+        }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isReady).toBe(true);
+      });
+
+      const hand = createHand(0.7, 0.3);
+
+      act(() => {
+        rerender({
+          landmarks: [hand],
+          width: 800,
+          height: 600,
+        });
+      });
+
+      expect(onHit).toHaveBeenCalledWith('snare');
+    });
+
+    it('should scale synth gain based on volume', async () => {
+      const { result, rerender } = renderHook(
+        ({ landmarks, width, height }) =>
+          useDrumKit(landmarks, width, height, 'synth', { volume: 0.5 }),
+        {
+          initialProps: {
+            landmarks: null as NormalizedLandmark[][] | null,
+            width: 800,
+            height: 600,
+          },
+        }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isReady).toBe(true);
+      });
+
+      const hand = createHand(0.7, 0.3); // Snare pad
+
+      act(() => {
+        rerender({ landmarks: [hand], width: 800, height: 600 });
+      });
+
+      const gainCalls = mockAudioContext.createGain.mock.calls.length;
+      expect(gainCalls).toBeGreaterThan(0);
+      const gainInstance = mockAudioContext.createGain.mock.results[0]?.value;
+      expect(gainInstance?.gain.setValueAtTime).toHaveBeenCalledWith(
+        expect.closeTo(1.66, 2),
+        expect.any(Number)
+      );
+    });
+  });
+
   describe('when finger collides with drum pad', () => {
     it('should play sound when index finger enters snare pad area', async () => {
       const { result, rerender } = renderHook(

@@ -1,4 +1,5 @@
 import { classNames } from '@/src/utils/classNames';
+import { HelpTooltip } from './HelpTooltip';
 import styles from './SegmentedControl.module.css';
 
 export interface SegmentedOption {
@@ -11,6 +12,7 @@ export interface SegmentedControlProps {
   value: string;
   options: SegmentedOption[];
   onChange?: (value: string) => void;
+  helpText?: string;
 }
 
 /**
@@ -21,12 +23,16 @@ export function SegmentedControl({
   value,
   options,
   onChange,
+  helpText,
 }: SegmentedControlProps) {
   const isInteractive = Boolean(onChange);
 
   return (
     <div className={styles.wrapper}>
-      <span className={styles.label}>{label}</span>
+      <div className={styles.labelRow}>
+        <span className={styles.label}>{label}</span>
+        {helpText && <HelpTooltip label={`Help: ${label}`} text={helpText} />}
+      </div>
       <div className={styles.group} role="radiogroup" aria-label={label}>
         {options.map((option) => (
           <button

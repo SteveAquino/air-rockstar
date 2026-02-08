@@ -5,6 +5,12 @@
   width: 100%;
 }
 
+.labelRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .label {
   font-size: 0.85rem;
   font-weight: 600;

@@ -1,4 +1,4 @@
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, fireEvent } from '@testing-library/react';
 import DrumsPage from '../app/drums/page';
 
 // Mock useCamera hook
@@ -123,6 +123,100 @@ describe('DrumsPage', () => {
       expect(control).toBeInTheDocument();
     });
 
+    it('should configure hand tracking visuals based on sensitivity', () => {
+      const mockStream = {};
+      mockUseCamera.mockReturnValue({
+        stream: mockStream,
+        error: null,
+        isRequesting: false,
+        permissionState: 'granted',
+        requestCamera: jest.fn(),
+        stopCamera: jest.fn(),
+      });
+
+      render(<DrumsPage />);
+
+      expect(mockUseHandTracking).toHaveBeenCalledWith(
+        expect.any(Object),
+        expect.any(Object),
+        true,
+        expect.objectContaining({
+          landmarkRadius: expect.any(Number),
+          landmarkColor: expect.any(String),
+          connectionColor: expect.any(String),
+        })
+      );
+    });
+
+    it('should display help tooltips for controls and stats', () => {
+      const mockStream = {};
+      mockUseCamera.mockReturnValue({
+        stream: mockStream,
+        error: null,
+        isRequesting: false,
+        permissionState: 'granted',
+        requestCamera: jest.fn(),
+        stopCamera: jest.fn(),
+      });
+
+      render(<DrumsPage />);
+
+      expect(
+        screen.getByRole('button', { name: /help: sensitivity/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /help: size/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /help: volume/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /help: sound variant/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /help: combo/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /help: tempo/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /help: hits/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /help: full screen/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /help: stop camera/i })
+      ).toBeInTheDocument();
+    });
+
+    it('should hide controls when performance mode is enabled', () => {
+      const mockStream = {};
+      mockUseCamera.mockReturnValue({
+        stream: mockStream,
+        error: null,
+        isRequesting: false,
+        permissionState: 'granted',
+        requestCamera: jest.fn(),
+        stopCamera: jest.fn(),
+      });
+
+      render(<DrumsPage />);
+
+      const fullScreenButton = screen.getByRole('button', {
+        name: /^full screen$/i,
+      });
+      fireEvent.click(fullScreenButton);
+
+      expect(
+        screen.queryByRole('radiogroup', { name: /sound variant/i })
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('slider', { name: /sensitivity/i })
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/combo/i)).not.toBeInTheDocument();
+    });
+
     it('should display audio loading status when kit is not ready', () => {
       const mockStream = {};
       mockUseCamera.mockReturnValue({
@@ -159,7 +253,7 @@ describe('DrumsPage', () => {
 
       render(<DrumsPage />);
       
-      const button = screen.getByRole('button', { name: /stop camera/i });
+      const button = screen.getByRole('button', { name: /^stop camera$/i });
       expect(button).toBeInTheDocument();
     });
   });

@@ -37,7 +37,7 @@ test.describe('Hand Tracking Integration', () => {
 
     await guitarPage.takeScreenshot('hand-tracking-canvas-rendered');
 
-    await page.getByRole('button', { name: /stop camera/i }).click();
+    await page.getByRole('button', { name: /^stop camera$/i }).click();
   });
 
   test('should render canvas overlay when camera is enabled on drums page', async ({
@@ -70,7 +70,7 @@ test.describe('Hand Tracking Integration', () => {
 
     await drumsPage.takeScreenshot('hand-tracking-canvas-rendered');
 
-    await page.getByRole('button', { name: /stop camera/i }).click();
+    await page.getByRole('button', { name: /^stop camera$/i }).click();
   });
 
   test('should not render canvas before camera is enabled', async ({
@@ -128,7 +128,7 @@ test.describe('Hand Tracking Integration', () => {
 
     await guitarPage.takeScreenshot('no-tracking-errors');
 
-    await page.getByRole('button', { name: /stop camera/i }).click();
+    await page.getByRole('button', { name: /^stop camera$/i }).click();
 
     // Filter out expected MediaPipe warnings
     const criticalErrors = errors.filter(

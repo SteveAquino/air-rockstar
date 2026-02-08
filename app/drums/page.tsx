@@ -6,11 +6,12 @@ import { useHandTracking } from '@/src/hooks/useHandTracking';
 import { useDrumKit, type DrumKitVariant } from '@/src/hooks/useDrumKit';
 import { Button } from '@/src/components/ui/Button';
 import { Card } from '@/src/components/ui/Card';
+import { HelpTooltip } from '@/src/components/ui/HelpTooltip';
 import { Panel } from '@/src/components/ui/Panel';
 import { SegmentedControl } from '@/src/components/ui/SegmentedControl';
 import { Slider } from '@/src/components/ui/Slider';
 import { StatusPill } from '@/src/components/ui/StatusPill';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './page.module.css';
 
 export default function DrumsPage() {
@@ -23,18 +24,69 @@ export default function DrumsPage() {
   const [variant, setVariant] = useState<DrumKitVariant>('synth');
   const [sensitivity, setSensitivity] = useState(70);
   const [padSize, setPadSize] = useState(48);
+  const [volume, setVolume] = useState(70);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [hits, setHits] = useState(0);
+  const [combo, setCombo] = useState(0);
+  const [hitTimestamps, setHitTimestamps] = useState<number[]>([]);
+  const lastHitAtRef = useRef<number | null>(null);
+  const comboTimeoutRef = useRef<number | null>(null);
+
+  const padScale = useMemo(() => 0.6 + ((padSize - 20) / 70) * 1.0, [padSize]);
+  const hitPadding = useMemo(
+    () => 4 + (sensitivity / 100) * 40,
+    [sensitivity]
+  );
+  const volumeScale = useMemo(() => volume / 100, [volume]);
+  const landmarkRadius = useMemo(
+    () => 3 + (sensitivity / 100) * 4,
+    [sensitivity]
+  );
+
+  const handleHit = useCallback((_padId: string) => {
+    const now = Date.now();
+    setHits((prev) => prev + 1);
+
+    setHitTimestamps((prev) => {
+      const next = [...prev, now];
+      return next.slice(-6);
+    });
+
+    setCombo((prev) => {
+      const lastHitAt = lastHitAtRef.current;
+      if (lastHitAt && now - lastHitAt <= 1200) {
+        return prev + 1;
+      }
+      return 1;
+    });
+
+    lastHitAtRef.current = now;
+
+    if (comboTimeoutRef.current) {
+      window.clearTimeout(comboTimeoutRef.current);
+    }
+    comboTimeoutRef.current = window.setTimeout(() => {
+      setCombo(0);
+    }, 1200);
+  }, []);
 
   const {
     landmarks,
     isProcessing: _isProcessing,
     error: trackingError,
-  } = useHandTracking(videoRef, canvasRef, !!stream);
+  } = useHandTracking(videoRef, canvasRef, !!stream, {
+    landmarkRadius,
+    landmarkColor: 'rgba(138, 240, 217, 0.95)',
+    connectionColor: 'rgba(245, 242, 255, 0.35)',
+    connectionWidth: 2,
+  });
 
   const { pads, activePads, isReady } = useDrumKit(
     landmarks,
     containerSize.width,
     containerSize.height,
-    variant
+    variant,
+    { padScale, hitPadding, volume: volumeScale, onHit: handleHit }
   );
 
   useEffect(() => {
@@ -42,6 +94,54 @@ export default function DrumsPage() {
       videoRef.current.srcObject = stream;
     }
   }, [stream]);
+
+  useEffect(() => {
+    const handleFullScreenChange = () => {
+      setIsFullScreen(Boolean(document.fullscreenElement));
+    };
+
+    document.addEventListener('fullscreenchange', handleFullScreenChange);
+    document.addEventListener(
+      'webkitfullscreenchange',
+      handleFullScreenChange as EventListener
+    );
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullScreenChange);
+      document.removeEventListener(
+        'webkitfullscreenchange',
+        handleFullScreenChange as EventListener
+      );
+    };
+  }, []);
+
+  const toggleFullScreen = useCallback(async () => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+      return;
+    }
+
+    const request = container.requestFullscreen
+      ? container.requestFullscreen.bind(container)
+      : (container as HTMLElement & { webkitRequestFullscreen?: () => void })
+          .webkitRequestFullscreen;
+
+    if (request) {
+      await request();
+    } else {
+      setIsFullScreen((prev) => !prev);
+    }
+  }, []);
+
+  const handleStopCamera = useCallback(() => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+    stopCamera();
+  }, [stopCamera]);
 
   useEffect(() => {
     const updateSize = () => {
@@ -63,7 +163,29 @@ export default function DrumsPage() {
     }
   }, [stream]);
 
+  useEffect(() => {
+    return () => {
+      if (comboTimeoutRef.current) {
+        window.clearTimeout(comboTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handsDetected = landmarks ? landmarks.length : 0;
+  const tempo = useMemo(() => {
+    if (hitTimestamps.length < 2) {
+      return null;
+    }
+    const intervals = hitTimestamps
+      .slice(1)
+      .map((time, index) => time - hitTimestamps[index]);
+    const avgInterval =
+      intervals.reduce((total, value) => total + value, 0) / intervals.length;
+    if (!avgInterval) {
+      return null;
+    }
+    return Math.round(60000 / avgInterval);
+  }, [hitTimestamps]);
 
   return (
     <main className={styles.main}>
@@ -144,6 +266,20 @@ export default function DrumsPage() {
                     <span className={styles.drumLabel}>{pad.name}</span>
                   </div>
                 ))}
+              {isFullScreen && (
+                <div className={styles.fullscreenControls}>
+                  <Button
+                    variant="subtle"
+                    size="sm"
+                    onClick={toggleFullScreen}
+                  >
+                    Exit Full Screen
+                  </Button>
+                  <Button variant="danger" size="sm" onClick={handleStopCamera}>
+                    Stop Camera
+                  </Button>
+                </div>
+              )}
             </div>
 
             {trackingError && (
@@ -154,57 +290,110 @@ export default function DrumsPage() {
           </div>
 
           <Panel className={styles.controlPanel}>
-            <div className={styles.statsRow}>
-              <div className={styles.stat}>
-                <span className={styles.statLabel}>Combo</span>
-                <span className={styles.statValue}>4</span>
-              </div>
-              <div className={styles.stat}>
-                <span className={styles.statLabel}>Tempo</span>
-                <span className={styles.statValue}>120 BPM</span>
-              </div>
-              <div className={styles.stat}>
-                <span className={styles.statLabel}>Hits</span>
-                <span className={styles.statValue}>15</span>
-              </div>
-            </div>
+            {!isFullScreen && (
+              <>
+                <div className={styles.statsRow}>
+                  <div className={styles.stat}>
+                    <div className={styles.statHeader}>
+                      <span className={styles.statLabel}>Combo</span>
+                      <HelpTooltip
+                        label="Help: Combo"
+                        text="Your current streak of quick hits."
+                      />
+                    </div>
+                    <span className={styles.statValue}>{combo}</span>
+                  </div>
+                  <div className={styles.stat}>
+                    <div className={styles.statHeader}>
+                      <span className={styles.statLabel}>Tempo</span>
+                      <HelpTooltip
+                        label="Help: Tempo"
+                        text="Estimated speed of your recent hits."
+                      />
+                    </div>
+                    <span className={styles.statValue}>
+                      {tempo ? `${tempo} BPM` : '--'}
+                    </span>
+                  </div>
+                  <div className={styles.stat}>
+                    <div className={styles.statHeader}>
+                      <span className={styles.statLabel}>Hits</span>
+                      <HelpTooltip
+                        label="Help: Hits"
+                        text="Total hits this session."
+                      />
+                    </div>
+                    <span className={styles.statValue}>{hits}</span>
+                  </div>
+                </div>
 
-            <div className={styles.sliderGroup}>
-              <Slider
-                label="Sensitivity"
-                value={sensitivity}
-                min={0}
-                max={100}
-                unit="%"
-                onChange={setSensitivity}
-              />
-              <Slider
-                label="Size"
-                value={padSize}
-                min={20}
-                max={90}
-                unit="%"
-                onChange={setPadSize}
-              />
-            </div>
+                <div className={styles.sliderGroup}>
+                  <Slider
+                    label="Sensitivity"
+                    value={sensitivity}
+                    min={0}
+                    max={100}
+                    unit="%"
+                    onChange={setSensitivity}
+                    helpText="Makes hit detection more forgiving when your hands are a little off."
+                  />
+                  <Slider
+                    label="Size"
+                    value={padSize}
+                    min={20}
+                    max={90}
+                    unit="%"
+                    onChange={setPadSize}
+                    helpText="Changes how large the drum pads appear and how easy they are to reach."
+                  />
+                  <Slider
+                    label="Volume"
+                    value={volume}
+                    min={0}
+                    max={100}
+                    unit="%"
+                    onChange={setVolume}
+                    helpText="Controls how loud the drum hits sound."
+                  />
+                </div>
 
-            <SegmentedControl
-              label="Sound Variant"
-              value={variant}
-              onChange={(value) => setVariant(value as DrumKitVariant)}
-              options={[
-                { value: 'synth', label: 'Synth' },
-                { value: 'acoustic', label: 'Acoustic' },
-              ]}
-            />
+                <SegmentedControl
+                  label="Sound Variant"
+                  value={variant}
+                  helpText="Switch between electronic and acoustic drum sounds."
+                  onChange={(value) => setVariant(value as DrumKitVariant)}
+                  options={[
+                    { value: 'synth', label: 'Synth' },
+                    { value: 'acoustic', label: 'Acoustic' },
+                  ]}
+                />
+              </>
+            )}
 
             <div className={styles.actionRow}>
-              <Button variant="ghost" size="sm">
-                Performance Mode
-              </Button>
-              <Button variant="danger" size="sm" onClick={stopCamera}>
-                Stop Camera
-              </Button>
+              <div className={styles.actionItem}>
+                <Button
+                  variant={isFullScreen ? 'subtle' : 'ghost'}
+                  size="sm"
+                  aria-pressed={isFullScreen}
+                  onClick={toggleFullScreen}
+                >
+                  {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
+                </Button>
+                <HelpTooltip
+                  label="Help: Full Screen"
+                  text="Expand the drum view to fill your screen. Press again to exit."
+                />
+              </div>
+              <div className={styles.actionItem}>
+                <Button variant="danger" size="sm" onClick={handleStopCamera}>
+                  Stop Camera
+                </Button>
+                <HelpTooltip
+                  label="Help: Stop Camera"
+                  text="Turn off the camera and stop tracking."
+                />
+              </div>
             </div>
           </Panel>
         </section>

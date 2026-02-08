@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react';
+import { HelpTooltip } from './HelpTooltip';
 import styles from './Slider.module.css';
 
 export interface SliderProps {
@@ -8,6 +9,7 @@ export interface SliderProps {
   max?: number;
   unit?: string;
   onChange?: (value: number) => void;
+  helpText?: string;
 }
 
 /**
@@ -20,6 +22,7 @@ export function Slider({
   max = 100,
   unit = '',
   onChange,
+  helpText,
 }: SliderProps) {
   const isInteractive = Boolean(onChange);
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -31,7 +34,12 @@ export function Slider({
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
-        <span className={styles.label}>{label}</span>
+        <div className={styles.labelRow}>
+          <span className={styles.label}>{label}</span>
+          {helpText && (
+            <HelpTooltip label={`Help: ${label}`} text={helpText} />
+          )}
+        </div>
         <span className={styles.value}>
           {value}
           {unit}

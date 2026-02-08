@@ -83,11 +83,34 @@ export default function StyleguidePage() {
         <Panel className={styles.panel}>
           <h2>Controls</h2>
           <div className={styles.controlStack}>
-            <Slider label="Sensitivity" value={70} min={0} max={100} unit="%" />
-            <Slider label="Size" value={48} min={20} max={90} unit="%" />
+            <Slider
+              label="Sensitivity"
+              value={70}
+              min={0}
+              max={100}
+              unit="%"
+              helpText="Makes hit detection more forgiving when your hands are a little off."
+            />
+            <Slider
+              label="Size"
+              value={48}
+              min={20}
+              max={90}
+              unit="%"
+              helpText="Changes how large drum pads appear and how easy they are to reach."
+            />
+            <Slider
+              label="Volume"
+              value={70}
+              min={0}
+              max={100}
+              unit="%"
+              helpText="Controls how loud the drum hits sound."
+            />
             <SegmentedControl
               label="Sound Variant"
               value="synth"
+              helpText="Switch between electronic and acoustic drum sounds."
               options={[
                 { value: 'synth', label: 'Synth' },
                 { value: 'acoustic', label: 'Acoustic' },

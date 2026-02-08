@@ -18,6 +18,10 @@ interface UseHandTrackingOptions {
   modelComplexity?: 0 | 1;
   minDetectionConfidence?: number;
   minTrackingConfidence?: number;
+  landmarkRadius?: number;
+  landmarkColor?: string;
+  connectionColor?: string;
+  connectionWidth?: number;
 }
 
 export function useHandTracking(
@@ -32,6 +36,26 @@ export function useHandTracking(
   
   const handsRef = useRef<Hands | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const drawOptionsRef = useRef({
+    landmarkRadius: options.landmarkRadius,
+    landmarkColor: options.landmarkColor,
+    connectionColor: options.connectionColor,
+    connectionWidth: options.connectionWidth,
+  });
+
+  useEffect(() => {
+    drawOptionsRef.current = {
+      landmarkRadius: options.landmarkRadius,
+      landmarkColor: options.landmarkColor,
+      connectionColor: options.connectionColor,
+      connectionWidth: options.connectionWidth,
+    };
+  }, [
+    options.landmarkRadius,
+    options.landmarkColor,
+    options.connectionColor,
+    options.connectionWidth,
+  ]);
 
   useEffect(() => {
     if (!enabled || !videoRef.current || !canvasRef.current) {
@@ -87,7 +111,13 @@ export function useHandTracking(
             setLandmarks(allHandsLandmarks);
 
             // Draw landmarks
-            drawLandmarks(ctx, results, canvas.width, canvas.height);
+            drawLandmarks(
+              ctx,
+              results,
+              canvas.width,
+              canvas.height,
+              drawOptionsRef.current
+            );
           } else {
             setLandmarks(null);
           }
@@ -136,7 +166,15 @@ export function useHandTracking(
         handsRef.current = null;
       }
     };
-  }, [enabled, videoRef, canvasRef, options.maxNumHands, options.modelComplexity, options.minDetectionConfidence, options.minTrackingConfidence]);
+  }, [
+    enabled,
+    videoRef,
+    canvasRef,
+    options.maxNumHands,
+    options.modelComplexity,
+    options.minDetectionConfidence,
+    options.minTrackingConfidence,
+  ]);
 
   return { landmarks, isProcessing, error };
 }
@@ -145,9 +183,19 @@ function drawLandmarks(
   ctx: CanvasRenderingContext2D,
   results: Results,
   width: number,
-  height: number
+  height: number,
+  options: {
+    landmarkRadius?: number;
+    landmarkColor?: string;
+    connectionColor?: string;
+    connectionWidth?: number;
+  }
 ) {
   if (!results.multiHandLandmarks) return;
+  const landmarkRadius = options.landmarkRadius ?? 4;
+  const landmarkColor = options.landmarkColor ?? 'rgba(138, 240, 217, 0.95)';
+  const connectionColor = options.connectionColor ?? 'rgba(245, 242, 255, 0.35)';
+  const connectionWidth = options.connectionWidth ?? 2;
 
   // Draw connections (lines between landmarks)
   const HAND_CONNECTIONS = [
@@ -161,8 +209,8 @@ function drawLandmarks(
 
   for (const handLandmarks of results.multiHandLandmarks) {
     // Draw connections
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = connectionColor;
+    ctx.lineWidth = connectionWidth;
     
     for (const [start, end] of HAND_CONNECTIONS) {
       const startLm = handLandmarks[start];
@@ -175,13 +223,13 @@ function drawLandmarks(
     }
 
     // Draw landmarks
-    ctx.fillStyle = '#00FF00';
+    ctx.fillStyle = landmarkColor;
     for (const landmark of handLandmarks) {
       ctx.beginPath();
       ctx.arc(
         landmark.x * width,
         landmark.y * height,
-        5,
+        landmarkRadius,
         0,
         2 * Math.PI
       );
