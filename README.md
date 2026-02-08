@@ -4,7 +4,7 @@ A motion-tracking virtual instrument application that lets you play air guitar a
 
 ## Features
 
-- 🎸 **Air Guitar Mode**: Hand-tracking camera experience (string zones coming next)
+- 🎸 **Air Guitar Mode**: Hand-tracking guitar with string zones, fretting, and strumming
 - 🥁 **Air Drums Mode**: Play drums with hand tracking and real audio
   - Synth variant: Triangle wave synth
   - Acoustic variant: Sampled drum sounds
@@ -27,6 +27,7 @@ A motion-tracking virtual instrument application that lets you play air guitar a
 - Virtual drum kit UI with 4 pads (kick, snare, hi-hat, tom)
 - Collision detection between fingers and drum pads
 - Audio synthesis + samples with Tone.js
+- Air guitar string zones with fret/strum detection and pitch modulation
 - Sensitivity, size, and volume controls
 - Live stats (hits, combo, tempo)
 - Performance/full-screen mode
@@ -36,7 +37,6 @@ A motion-tracking virtual instrument application that lets you play air guitar a
 
 ### Known Limitations 🔍
 - Audio context startup requires browser investigation for proper integration with user gesture requirements
-- Guitar mode framework is in place but needs string zone implementation
 - No velocity-based dynamics yet (planned for Phase 4)
 - Samples are from Tone.js CDN (may have latency on slower connections)
 
@@ -306,7 +306,8 @@ GitHub Actions automatically runs on all pull requests:
 - [x] Drum sound variants (synth and acoustic)
 - [x] Basic audio synthesis with Tone.js
 - [x] Comprehensive unit tests for drum kit
-- [ ] Guitar string zones and collision detection
+- [x] Guitar string zones and collision detection
+- [x] Guitar fret/strum zones with pitch modulation
 - [ ] Audio velocity-based dynamics
 - [ ] Additional instrument samples
 

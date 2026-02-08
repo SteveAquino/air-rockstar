@@ -255,6 +255,9 @@ Air Guitar mode lets users strum virtual strings by moving their fingertips thro
 - Trigger a hit only on entry into the band (not continuous contact).
 - Enforce a 200ms cooldown per string to prevent double hits.
 - Provide visual feedback on hit (highlight and brief glow).
+- Split interaction into a fret zone (left) and strum zone (right).
+- Fretting in the left zone sets the active fret per string.
+- Strumming in the right zone triggers the string sound with pitch modulation.
 
 #### Audio Requirements
 - Use Web Audio API (no samples for v1).
@@ -262,11 +265,13 @@ Air Guitar mode lets users strum virtual strings by moving their fingertips thro
 - Fast attack with exponential decay (200-300ms).
 - Master volume control.
 - Low latency (< 50ms from collision to sound).
+- Pitch modulation based on fret position (semitone steps).
 
 #### Controls and Stats
 - Sensitivity slider (affects hit padding and landmark size).
 - String spacing slider (tight to wide string bands).
 - Volume slider (master gain).
+- Support 20 frets for pitch modulation.
 - Live stats: hits, combo, tempo (BPM).
 - Full-screen performance mode with action bar.
 
@@ -286,6 +291,7 @@ Air Guitar mode lets users strum virtual strings by moving their fingertips thro
 - Strings rendered as thin translucent bands.
 - String labels (E, B, G, D, A, E) on the left edge.
 - Active string highlight uses brighter accent color.
+- Fret indicators display the active fret number per string.
 
 ### Testing Strategy
 - Unit tests for string layout and collision logic.
@@ -297,6 +303,11 @@ Air Guitar mode lets users strum virtual strings by moving their fingertips thro
 - Velocity-based dynamics.
 - Alternate guitar tones (clean, muted, distortion).
 - Chord/fret simulation.
+- Alternate guitar play modes (fret mode vs. chord mode), where the left zone
+  becomes a chord selector instead of individual frets.
+- Add playful animations and visual effects when notes are played.
+- When a fretting hand is detected, shift/lock the fretboard angle or position
+  toward that hand so fretting feels more natural as the hand moves.
 
 ---
 
@@ -537,11 +548,15 @@ Items captured for future development. These are not in scope for current implem
 - Adopt semantic versioning for releases
 - Define `1.0.0` as completion of all README phases plus backlog items listed here
 - Add a visible in-app changelog page that renders release notes
+- Add an "About" page describing the motivation and inspiration for the project,
+  plus a short timeline of building with AI tools and beta testing with your son
 
 ### Instrument Interaction Modes
 - Add toggleable interaction modes for "hands/fingers" vs. "drum sticks" vs. "guitar pick"
 - Expose mode selection in the in-game UI with clear visual affordances
 - Ensure mode selection changes collision feel without reducing performance
+- Add guitar-specific play modes (fret mode vs. chord mode), with chord tiles
+  replacing fret markers in the left zone while the right zone remains strummable
 
 ### Live Note Stream (Visual Playback)
 - Add an in-play right-to-left note stream visualization
@@ -557,5 +572,10 @@ Items captured for future development. These are not in scope for current implem
 ### Quality and UX Improvements
 - Fix occasional double-hit when two hands enter a drum zone but only one is moving
 - Consider moving drum pads to the bottom of the camera view to feel more like a real kit
+- Full screen hand tracking can feel slightly offset compared to normal mode; investigate coordinate mapping
 - Temporarily pause the camera when the browser tab loses focus or after inactivity,
   so the camera does not stream indefinitely if the user walks away
+- Incorporate the logo into the welcome page, add stronger card glow outlines,
+  and add snappy/funny copy on the landing experience
+- Turn the camera enable screen into a short mode intro with a quick overview
+  of how each instrument works

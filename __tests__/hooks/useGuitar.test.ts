@@ -57,6 +57,26 @@ const createHandWithTip = (
   return hand;
 };
 
+const getStringY = (
+  strings: Array<{ id: string; yPercent: number }>,
+  stringId = 'e4'
+) => {
+  const target = strings.find((string) => string.id === stringId);
+  return (target?.yPercent ?? 50) / 100;
+};
+
+const getExpectedFret = (
+  x: number,
+  width: number,
+  fretZoneWidthRatio: number,
+  fretCount: number
+) => {
+  const fingerX = (1 - x) * width;
+  const fretZoneMaxX = width * fretZoneWidthRatio;
+  const raw = (fingerX / Math.max(fretZoneMaxX, 1)) * fretCount;
+  return Math.max(1, Math.min(fretCount, Math.floor(raw) + 1));
+};
+
 describe('useGuitar', () => {
   describe('when initialized', () => {
     it('when initialized, should initialize Web Audio API and set isReady to true', async () => {
@@ -119,7 +139,8 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHandWithTip(8, 0.5, 0.67);
+      const stringY = getStringY(result.current.strings);
+      const hand = createHandWithTip(8, 0.2, stringY);
 
       act(() => {
         rerender({ landmarks: [hand], width: 800, height: 600 });
@@ -144,7 +165,8 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHandWithTip(8, 0.5, 0.67);
+      const stringY = getStringY(result.current.strings);
+      const hand = createHandWithTip(8, 0.2, stringY);
 
       act(() => {
         rerender({ landmarks: [hand], width: 800, height: 600 });
@@ -178,8 +200,9 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const inside = createHandWithTip(8, 0.5, 0.67);
-      const outside = createHandWithTip(8, 0.5, 0.5);
+      const stringY = getStringY(result.current.strings);
+      const inside = createHandWithTip(8, 0.2, stringY);
+      const outside = createHandWithTip(8, 0.2, 0.5);
 
       act(() => {
         rerender({ landmarks: [inside], width: 800, height: 600 });
@@ -218,7 +241,8 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHandWithTip(8, 0.5, 0.67);
+      const stringY = getStringY(result.current.strings);
+      const hand = createHandWithTip(8, 0.2, stringY);
 
       act(() => {
         rerender({ landmarks: [hand], width: 800, height: 600 });
@@ -245,7 +269,8 @@ describe('useGuitar', () => {
         expect(result.current.isReady).toBe(true);
       });
 
-      const hand = createHandWithTip(8, 0.5, 0.67);
+      const stringY = getStringY(result.current.strings);
+      const hand = createHandWithTip(8, 0.2, stringY);
 
       act(() => {
         rerender({ landmarks: [hand], width: 800, height: 600 });
@@ -253,6 +278,143 @@ describe('useGuitar', () => {
 
       expect(mockAudioContext.resume).toHaveBeenCalled();
       mockAudioContext.state = 'running';
+    });
+  });
+
+  describe('when fretting a string', () => {
+    it('when finger is in the fret zone, should set the fret for the string', async () => {
+      const fretZoneWidthRatio = 0.67;
+      const fretCount = 5;
+      const { result, rerender } = renderHook(
+        ({ landmarks, width, height }) =>
+          useGuitar(landmarks, width, height, {
+            fretCount,
+            fretZoneWidthRatio,
+          }),
+        {
+          initialProps: {
+            landmarks: null as NormalizedLandmark[][] | null,
+            width: 800,
+            height: 600,
+          },
+        }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isReady).toBe(true);
+      });
+
+      const stringY = getStringY(result.current.strings);
+      const frettingHand = createHandWithTip(8, 0.95, stringY);
+
+      act(() => {
+        rerender({ landmarks: [frettingHand], width: 800, height: 600 });
+      });
+
+      const expectedFret = getExpectedFret(
+        0.95,
+        800,
+        fretZoneWidthRatio,
+        fretCount
+      );
+      expect(result.current.frettedStrings.e4).toBe(expectedFret);
+    });
+
+    it('when strumming with a fret applied, should modulate pitch', async () => {
+      const fretZoneWidthRatio = 0.67;
+      const fretCount = 5;
+      const { result, rerender } = renderHook(
+        ({ landmarks, width, height }) =>
+          useGuitar(landmarks, width, height, {
+            fretCount,
+            fretZoneWidthRatio,
+          }),
+        {
+          initialProps: {
+            landmarks: null as NormalizedLandmark[][] | null,
+            width: 800,
+            height: 600,
+          },
+        }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isReady).toBe(true);
+      });
+
+      const stringY = getStringY(result.current.strings);
+      const frettingHand = createHandWithTip(8, 0.82, stringY);
+      const strummingHand = createHandWithTip(8, 0.2, stringY);
+
+      act(() => {
+        rerender({
+          landmarks: [frettingHand, strummingHand],
+          width: 800,
+          height: 600,
+        });
+      });
+
+      const oscillator = mockAudioContext.createOscillator.mock.results[0]?.value;
+      expect(oscillator).toBeDefined();
+      const expectedFret = getExpectedFret(
+        0.82,
+        800,
+        fretZoneWidthRatio,
+        fretCount
+      );
+      const expectedFrequency = 329.63 * Math.pow(2, expectedFret / 12);
+      expect(oscillator.frequency.value).toBeCloseTo(expectedFrequency, 2);
+    });
+
+    it('when moving to a lower fret, should update the fret down', async () => {
+      const fretZoneWidthRatio = 0.67;
+      const fretCount = 5;
+      const { result, rerender } = renderHook(
+        ({ landmarks, width, height }) =>
+          useGuitar(landmarks, width, height, {
+            fretCount,
+            fretZoneWidthRatio,
+          }),
+        {
+          initialProps: {
+            landmarks: null as NormalizedLandmark[][] | null,
+            width: 800,
+            height: 600,
+          },
+        }
+      );
+
+      await waitFor(() => {
+        expect(result.current.isReady).toBe(true);
+      });
+
+      const stringY = getStringY(result.current.strings);
+      const highFretHand = createHandWithTip(8, 0.6, stringY);
+      const lowFretHand = createHandWithTip(8, 0.8, stringY);
+
+      act(() => {
+        rerender({ landmarks: [highFretHand], width: 800, height: 600 });
+      });
+
+      const highFret = getExpectedFret(
+        0.6,
+        800,
+        fretZoneWidthRatio,
+        fretCount
+      );
+      expect(result.current.frettedStrings.e4).toBe(highFret);
+
+      act(() => {
+        rerender({ landmarks: [lowFretHand], width: 800, height: 600 });
+      });
+
+      const lowFret = getExpectedFret(
+        0.8,
+        800,
+        fretZoneWidthRatio,
+        fretCount
+      );
+      expect(result.current.frettedStrings.e4).toBe(lowFret);
     });
   });
 

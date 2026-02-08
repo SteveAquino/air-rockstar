@@ -6,10 +6,14 @@ import styles from './page.module.css';
 export function GuitarControls({
   sensitivity,
   spacing,
+  position,
   volume,
+  fretCount,
   onSensitivityChange,
   onSpacingChange,
+  onPositionChange,
   onVolumeChange,
+  onFretCountChange,
 }: GuitarControlsProps) {
   return (
     <div className={styles.sliderGroup}>
@@ -30,6 +34,23 @@ export function GuitarControls({
         unit="%"
         onChange={onSpacingChange}
         helpText={GUITAR_HELP_TEXT.spacing}
+      />
+      <Slider
+        label="String Position"
+        value={position}
+        min={0}
+        max={100}
+        unit="%"
+        onChange={onPositionChange}
+        helpText={GUITAR_HELP_TEXT.position}
+      />
+      <Slider
+        label="Frets"
+        value={fretCount}
+        min={12}
+        max={24}
+        onChange={onFretCountChange}
+        helpText={GUITAR_HELP_TEXT.frets}
       />
       <Slider
         label="Volume"

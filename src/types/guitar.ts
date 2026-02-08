@@ -20,12 +20,20 @@ export interface GuitarString {
 export interface GuitarOptions {
   /** String spacing scale (0.3 to 1 relative to container height) */
   stringSpacing?: number;
+  /** Position of the string set (0 = bottom aligned, 100 = top aligned) */
+  stringPositionPercent?: number;
   /** Visual thickness of the string band in pixels */
   stringThickness?: number;
   /** Extra padding (px) around string bands for hit detection */
   hitPadding?: number;
   /** Master volume (0 to 1) */
   volume?: number;
+  /** Number of frets available in the fret zone */
+  fretCount?: number;
+  /** Width ratio (0-1) of the fret zone on the left side */
+  fretZoneWidthRatio?: number;
+  /** Width ratio (0-1) of the strum zone on the right side */
+  strumZoneWidthRatio?: number;
   /** Cooldown in ms between hits per string */
   cooldownMs?: number;
   /** Callback when a string is hit */

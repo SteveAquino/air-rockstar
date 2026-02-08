@@ -33,6 +33,7 @@ describe('GuitarPage', () => {
     mockUseGuitar.mockReturnValue({
       strings: [],
       activeStrings: new Set(),
+      frettedStrings: {},
       isReady: true,
     });
   });
@@ -120,6 +121,10 @@ describe('GuitarPage', () => {
       expect(
         screen.getByRole('slider', { name: /string spacing/i })
       ).toBeInTheDocument();
+      expect(
+        screen.getByRole('slider', { name: /string position/i })
+      ).toBeInTheDocument();
+      expect(screen.getByRole('slider', { name: /frets/i })).toBeInTheDocument();
       expect(screen.getByRole('slider', { name: /volume/i })).toBeInTheDocument();
       expect(screen.getByText(/^combo$/i)).toBeInTheDocument();
       expect(screen.getByText(/^tempo$/i)).toBeInTheDocument();
@@ -188,6 +193,7 @@ describe('GuitarPage', () => {
       mockUseGuitar.mockReturnValue({
         strings: [],
         activeStrings: new Set(),
+        frettedStrings: {},
         isReady: false,
       });
 

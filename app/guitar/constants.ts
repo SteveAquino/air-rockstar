@@ -5,7 +5,10 @@ export const GUITAR_HELP_TEXT = {
   sensitivity:
     'Makes string hit detection more forgiving when your hands are slightly off.',
   spacing: 'Controls how close or wide the string zones feel.',
+  position:
+    'Moves the entire string set up or down without changing spacing.',
   volume: 'Controls how loud the string plucks sound.',
+  frets: 'Changes how many frets are available for pitch modulation.',
   fullScreen: 'Expand the guitar view to fill your screen. Press again to exit.',
   stopCamera: 'Turn off the camera and stop tracking.',
 };

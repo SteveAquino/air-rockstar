@@ -22,7 +22,9 @@ export default function GuitarPage() {
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [sensitivity, setSensitivity] = useState(50);
   const [spacing, setSpacing] = useState(60);
+  const [position, setPosition] = useState(35);
   const [volume, setVolume] = useState(70);
+  const [fretCount, setFretCount] = useState(20);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [hits, setHits] = useState(0);
   const [combo, setCombo] = useState(0);
@@ -86,16 +88,23 @@ export default function GuitarPage() {
     connectionWidth: 2,
   });
 
-  const { strings, activeStrings, isReady } = useGuitar(
+  const fretZoneWidthRatio = 0.67;
+  const strumZoneWidthRatio = 0.33;
+
+  const { strings, activeStrings, frettedStrings, isReady } = useGuitar(
     landmarks,
     containerSize.width,
     containerSize.height,
     {
       stringSpacing: spacingScale,
+      stringPositionPercent: position,
       hitPadding,
       stringThickness,
       volume: volumeScale,
       cooldownMs: 200,
+      fretCount,
+      fretZoneWidthRatio,
+      strumZoneWidthRatio,
       onHit: handleHit,
     }
   );
@@ -227,6 +236,10 @@ export default function GuitarPage() {
               containerRef={containerRef}
               strings={strings}
               activeStrings={activeStrings}
+              frettedStrings={frettedStrings}
+              fretZoneWidthRatio={fretZoneWidthRatio}
+              strumZoneWidthRatio={strumZoneWidthRatio}
+              fretCount={fretCount}
               isReady={isReady}
               isFullScreen={isFullScreen}
               onExitFullScreen={toggleFullScreen}
@@ -251,10 +264,14 @@ export default function GuitarPage() {
                 <GuitarControls
                   sensitivity={sensitivity}
                   spacing={spacing}
+                  position={position}
                   volume={volume}
+                  fretCount={fretCount}
                   onSensitivityChange={setSensitivity}
                   onSpacingChange={setSpacing}
+                  onPositionChange={setPosition}
                   onVolumeChange={setVolume}
+                  onFretCountChange={setFretCount}
                 />
               </>
             )}

@@ -75,6 +75,10 @@ describe('GuitarVideoStage', () => {
         containerRef={createRef<HTMLDivElement>()}
         strings={baseStrings}
         activeStrings={new Set(['e4'])}
+        frettedStrings={{ e4: 2, b3: 0, g3: 0, d3: 0, a2: 0, e2: 0 }}
+        fretZoneWidthRatio={0.67}
+        strumZoneWidthRatio={0.33}
+        fretCount={5}
         isReady={true}
         isFullScreen={false}
         onExitFullScreen={jest.fn()}
@@ -85,6 +89,8 @@ describe('GuitarVideoStage', () => {
     const list = screen.getByRole('list', { name: /guitar strings/i });
     expect(list).toBeInTheDocument();
     expect(screen.getAllByRole('listitem')).toHaveLength(6);
+    expect(screen.getAllByLabelText(/fret 2/i)).toHaveLength(2);
+    expect(screen.getByLabelText(/fret 2 active/i)).toBeInTheDocument();
   });
 
   it('when not ready, should not render string overlay', () => {
@@ -95,6 +101,10 @@ describe('GuitarVideoStage', () => {
         containerRef={createRef<HTMLDivElement>()}
         strings={baseStrings}
         activeStrings={new Set()}
+        frettedStrings={{}}
+        fretZoneWidthRatio={0.67}
+        strumZoneWidthRatio={0.33}
+        fretCount={5}
         isReady={false}
         isFullScreen={false}
         onExitFullScreen={jest.fn()}
@@ -115,6 +125,10 @@ describe('GuitarVideoStage', () => {
         containerRef={createRef<HTMLDivElement>()}
         strings={baseStrings}
         activeStrings={new Set()}
+        frettedStrings={{}}
+        fretZoneWidthRatio={0.67}
+        strumZoneWidthRatio={0.33}
+        fretCount={5}
         isReady={true}
         isFullScreen={true}
         onExitFullScreen={jest.fn()}
