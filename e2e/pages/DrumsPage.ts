@@ -25,6 +25,9 @@ export class DrumsPage {
     await expect(
       this.page.getByRole('radiogroup', { name: /sound variant/i })
     ).toHaveCount(0);
+    await expect(
+      this.page.getByRole('group', { name: /kit pieces/i })
+    ).toHaveCount(0);
     await expect(this.page.getByText(/combo/i)).toHaveCount(0);
   }
 
@@ -34,6 +37,9 @@ export class DrumsPage {
     ).toBeVisible();
     await expect(
       this.page.getByRole('radiogroup', { name: /sound variant/i })
+    ).toBeVisible();
+    await expect(
+      this.page.getByRole('group', { name: /kit pieces/i })
     ).toBeVisible();
   }
 

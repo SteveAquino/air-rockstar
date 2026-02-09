@@ -26,10 +26,12 @@ describe('DrumsPage', () => {
 
     mockUseDrumKit.mockReturnValue({
       pads: [
-        { id: 'snare', name: 'Snare', x: 20, y: 20, width: 120, height: 120, color: '#ef4444', activeColor: '#dc2626' },
-        { id: 'hihat', name: 'Hi-Hat', x: 70, y: 20, width: 120, height: 120, color: '#3b82f6', activeColor: '#2563eb' },
-        { id: 'kick', name: 'Kick', x: 20, y: 60, width: 120, height: 120, color: '#8b5cf6', activeColor: '#7c3aed' },
-        { id: 'tom', name: 'Tom', x: 70, y: 60, width: 120, height: 120, color: '#f59e0b', activeColor: '#d97706' },
+        { id: 'hihat', name: 'Hi-Hat', x: 12, y: 16, width: 120, height: 120, color: '#3b82f6', activeColor: '#2563eb' },
+        { id: 'crash', name: 'Crash', x: 68, y: 16, width: 120, height: 120, color: '#f97316', activeColor: '#ea580c' },
+        { id: 'tomHigh', name: 'High Tom', x: 40, y: 18, width: 120, height: 120, color: '#14b8a6', activeColor: '#0d9488' },
+        { id: 'snare', name: 'Snare', x: 18, y: 48, width: 120, height: 120, color: '#ef4444', activeColor: '#dc2626' },
+        { id: 'tomLow', name: 'Low Tom', x: 60, y: 48, width: 120, height: 120, color: '#f59e0b', activeColor: '#d97706' },
+        { id: 'kick', name: 'Kick', x: 40, y: 70, width: 120, height: 120, color: '#8b5cf6', activeColor: '#7c3aed' },
       ],
       activePads: new Set(),
       isReady: true,
@@ -123,6 +125,23 @@ describe('DrumsPage', () => {
       expect(control).toBeInTheDocument();
     });
 
+    it('should display kit pieces controls', () => {
+      const mockStream = {};
+      mockUseCamera.mockReturnValue({
+        stream: mockStream,
+        error: null,
+        isRequesting: false,
+        permissionState: 'granted',
+        requestCamera: jest.fn(),
+        stopCamera: jest.fn(),
+      });
+
+      render(<DrumsPage />);
+
+      const kitGroup = screen.getByRole('group', { name: /kit pieces/i });
+      expect(kitGroup).toBeInTheDocument();
+    });
+
     it('should configure hand tracking visuals based on sensitivity', () => {
       const mockStream = {};
       mockUseCamera.mockReturnValue({
@@ -174,6 +193,9 @@ describe('DrumsPage', () => {
         screen.getByRole('button', { name: /help: sound variant/i })
       ).toBeInTheDocument();
       expect(
+        screen.getByRole('button', { name: /help: kit pieces/i })
+      ).toBeInTheDocument();
+      expect(
         screen.getByRole('button', { name: /help: combo/i })
       ).toBeInTheDocument();
       expect(
@@ -210,6 +232,9 @@ describe('DrumsPage', () => {
 
       expect(
         screen.queryByRole('radiogroup', { name: /sound variant/i })
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('group', { name: /kit pieces/i })
       ).not.toBeInTheDocument();
       expect(
         screen.queryByRole('slider', { name: /sensitivity/i })

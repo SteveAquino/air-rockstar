@@ -12,6 +12,7 @@ import { DrumsVideoStage } from './DrumsVideoStage';
 import { DrumsStats } from './DrumsStats';
 import { DrumsControls } from './DrumsControls';
 import { DrumsActions } from './DrumsActions';
+import { DEFAULT_DRUM_KIT_IDS } from './constants';
 import styles from './page.module.css';
 
 export default function DrumsPage() {
@@ -29,6 +30,9 @@ export default function DrumsPage() {
   const [hits, setHits] = useState(0);
   const [combo, setCombo] = useState(0);
   const [hitTimestamps, setHitTimestamps] = useState<number[]>([]);
+  const [enabledPads, setEnabledPads] = useState<Set<string>>(
+    () => new Set(DEFAULT_DRUM_KIT_IDS)
+  );
   const lastHitAtRef = useRef<number | null>(null);
   const comboTimeoutRef = useRef<number | null>(null);
 
@@ -38,6 +42,7 @@ export default function DrumsPage() {
     [sensitivity]
   );
   const volumeScale = useMemo(() => volume / 100, [volume]);
+  const enabledPadIds = useMemo(() => Array.from(enabledPads), [enabledPads]);
   const landmarkRadius = useMemo(
     () => 3 + (sensitivity / 100) * 4,
     [sensitivity]
@@ -86,7 +91,13 @@ export default function DrumsPage() {
     containerSize.width,
     containerSize.height,
     variant,
-    { padScale, hitPadding, volume: volumeScale, onHit: handleHit }
+    {
+      padScale,
+      hitPadding,
+      volume: volumeScale,
+      onHit: handleHit,
+      enabledPadIds,
+    }
   );
 
   useEffect(() => {
@@ -142,6 +153,18 @@ export default function DrumsPage() {
     }
     stopCamera();
   }, [stopCamera]);
+
+  const handleTogglePad = useCallback((padId: string) => {
+    setEnabledPads((prev) => {
+      const next = new Set(prev);
+      if (next.has(padId)) {
+        next.delete(padId);
+      } else {
+        next.add(padId);
+      }
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     const updateSize = () => {
@@ -238,10 +261,12 @@ export default function DrumsPage() {
                   padSize={padSize}
                   volume={volume}
                   variant={variant}
+                  enabledPads={enabledPads}
                   onSensitivityChange={setSensitivity}
                   onPadSizeChange={setPadSize}
                   onVolumeChange={setVolume}
                   onVariantChange={setVariant}
+                  onTogglePad={handleTogglePad}
                 />
               </>
             )}

@@ -189,6 +189,41 @@
   gap: 16px;
 }
 
+.kitToggleGroup {
+  display: grid;
+  gap: 12px;
+}
+
+.kitToggleHeader {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kitToggleLabel {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-muted);
+}
+
+.kitToggleRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kitToggleButton {
+  border-radius: 999px;
+}
+
+.kitToggleButtonActive {
+  background: linear-gradient(135deg, rgba(96, 219, 205, 0.9), rgba(122, 186, 255, 0.9));
+  color: #0b0b14;
+  border-color: transparent;
+  box-shadow: 0 12px 24px rgba(91, 255, 214, 0.2);
+}
+
 .actionRow {
   display: flex;
   gap: 12px;

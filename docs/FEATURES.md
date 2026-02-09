@@ -351,11 +351,13 @@ The drum kit feature allows users to play drum sounds by moving their hands over
 ### Requirements
 
 #### Functional Requirements
-- Display 4 virtual drum pads on screen:
-  - Snare Drum (top-left)
-  - Hi-Hat (top-right)
-  - Kick Drum (bottom-left)
-  - Tom (bottom-right)
+- Display 6 virtual drum pads on screen in a layout that mirrors a real kit:
+  - Hi-Hat (upper-left)
+  - Crash Cymbal (upper-right)
+  - High Tom (upper-center)
+  - Snare Drum (mid-left)
+  - Low Tom (mid-right)
+  - Kick Drum (bottom-center)
 - Each pad has distinct visual styling
 - Detect collision between hand index finger tip (landmark 8) and drum pads
 - Play drum sound on collision
@@ -383,7 +385,9 @@ interface DrumPad {
   - Snare: High-pitched percussive
   - Hi-Hat: Crisp cymbal
   - Kick: Deep bass thump
-  - Tom: Mid-range drum
+  - High Tom: Higher mid-range drum
+  - Low Tom: Lower mid-range drum
+  - Crash: Shimmering cymbal
 - Cooldown period: 200ms per pad to prevent rapid re-triggering
 - Volume control (default 70%)
 
@@ -551,6 +555,7 @@ The Drums page includes interactive controls and live feedback to help players c
 - **Sensitivity**: Makes hit detection more forgiving when hands are slightly off
 - **Size**: Changes how large drum pads appear and how easy they are to reach
 - **Volume**: Controls overall drum loudness
+- **Kit Pieces**: Toggle individual drums and cymbals on or off
 - **Full Screen Mode**: Expands the drum view to fill the screen while keeping essential actions available
 - **Live Metrics**:
   - **Hits**: Total hits this session
@@ -563,6 +568,7 @@ The Drums page includes interactive controls and live feedback to help players c
 - Full Screen Mode can be toggled on and off at any time
 - Sensitivity also updates the size of hand tracking dots for quick visual feedback
 - Volume updates the overall loudness of drum hits
+- Kit Pieces toggles instantly show or hide the corresponding pads
 
 ### Accessibility Requirements
 - Tooltip triggers are keyboard accessible
@@ -597,9 +603,9 @@ Items captured for future development. These are not in scope for current implem
 - Support real-time updates without blocking audio or hand tracking
 
 ### Drum Kit Expansion
-- Expand to 6 drum pieces to mirror guitar string count (hi/low tom + crash cymbal)
-- Add at least one cymbal sound for v1 (e.g. crash or ride)
-- Support toggling more or fewer drum pieces instead of a fixed kit size
+- Add optional instruments beyond the core six (ride cymbal, splash, second crash)
+- Allow saving/loading kit presets and default toggle configurations
+- Introduce canonical mount points so future pieces can be positioned consistently
 - Ensure additional pads do not overwhelm the UI or reduce hit accuracy
 
 ### Quality and UX Improvements

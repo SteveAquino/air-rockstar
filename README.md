@@ -309,6 +309,8 @@ GitHub Actions automatically runs on all pull requests:
 - [x] Drum sound variants (synth and acoustic)
 - [x] Basic audio synthesis with Tone.js
 - [x] Comprehensive unit tests for drum kit
+- [x] Six-piece drum kit layout (hi-hat, snare, kick, high/low tom, crash)
+- [x] Drum kit piece toggles (show/hide pads)
 - [x] Guitar string zones and collision detection
 - [x] Guitar fret/strum zones with pitch modulation
 ### 🎯 Phase 4: Enhancements
@@ -316,9 +318,7 @@ GitHub Actions automatically runs on all pull requests:
 - [ ] Advanced velocity-based hit detection
 - [ ] Audio velocity-based dynamics
 - [ ] Additional instrument samples
-- [ ] Additional drum instruments (6 pieces: hi/low tom + crash cymbal)
-- [ ] Toggleable drum kit size (allow more or fewer pieces)
-- [ ] About page with project story and build timeline
+- [x] About page with project story and build timeline
 - [ ] Multiple instrument options and variations
 - [ ] Customization and settings UI
 - [ ] Performance optimization for hand tracking
@@ -330,7 +330,7 @@ See `docs/FEATURES.md` for the full backlog list. Highlights:
 - Semantic versioning + in-app changelog page
 - Drum stick and guitar pick interaction modes
 - Live right-to-left note stream visualization
-- More drum sounds (at least one cymbal for v1)
+- More drum sounds and cymbals (ride, splash, multiple crashes)
 - Drum hit detection and layout refinements
 
 ## Contributing
